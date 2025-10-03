@@ -1,0 +1,131 @@
+{
+  "users": [
+    { "id": 1, "username": "admin", "password": "admin123", "role": "admin", "name": "Admin Utama" },
+    { "id": 2, "username": "andi", "password": "andi123", "role": "user", "name": "Andi Setiawan" },
+    { "id": 3, "username": "budi", "password": "budi123", "role": "user", "name": "Budi Santoso" },
+    { "id": 4, "username": "citra", "password": "citra123", "role": "user", "name": "Citra Rahma" },
+    { "id": 5, "username": "dina", "password": "dina123", "role": "user", "name": "Dina Lestari" }
+  ],
+  "properties": [
+    {
+      "id": 1,
+      "title": "Rumah Minimalis Modern Tarogong",
+      "location": "Tarogong, Garut",
+      "price": "350.000.000",
+      "description": "Rumah minimalis modern, luas tanah 72 m², luas bangunan 60 m², 2 kamar tidur, 1 kamar mandi, carport, halaman. Dekat sekolah & pasar.",
+      "images": ["https://via.placeholder.com/400x300?text=Rumah+1-1", "https://via.placeholder.com/400x300?text=Rumah+1-2"],
+      "status": "pending",
+      "ownerId": 2
+    },
+    {
+      "id": 2,
+      "title": "Kost Mahasiswa Dekat UNIGA",
+      "location": "Cibatu, Garut",
+      "price": "1.200.000/bulan",
+      "description": "Kost full furnished, kamar mandi dalam, AC, WiFi, parkiran luas. Lokasi strategis dekat UNIGA.",
+      "images": ["https://via.placeholder.com/400x300?text=Kost+2-1", "https://via.placeholder.com/400x300?text=Kost+2-2"],
+      "status": "approved",
+      "ownerId": 3
+    },
+    {
+      "id": 3,
+      "title": "Tanah Luas Cocok Villa",
+      "location": "Cisurupan, Garut",
+      "price": "750.000.000",
+      "description": "Tanah 500 m², kontur datar, pemandangan Gunung Cikuray, dekat wisata Papandayan, Sertifikat SHM.",
+      "images": ["https://via.placeholder.com/400x300?text=Tanah+3-1", "https://via.placeholder.com/400x300?text=Tanah+3-2"],
+      "status": "approved",
+      "ownerId": 4
+    },
+    {
+      "id": 4,
+      "title": "Rumah 3 Kamar di Garut Kota",
+      "location": "Garut Kota",
+      "price": "500.000.000",
+      "description": "Rumah nyaman 3 kamar tidur, 2 kamar mandi, ruang tamu & dapur, carport, halaman. Dekat pusat kota.",
+      "images": ["https://via.placeholder.com/400x300?text=Rumah+4-1", "https://via.placeholder.com/400x300?text=Rumah+4-2"],
+      "status": "pending",
+      "ownerId": 5
+    },
+    {
+      "id": 5,
+      "title": "Ruko Strategis Dekat Pasar",
+      "location": "Tarogong, Garut",
+      "price": "850.000.000",
+      "description": "Ruko 2 lantai, luas 90 m², cocok untuk usaha atau kantor. Lokasi ramai, akses mudah.",
+      "images": ["https://via.placeholder.com/400x300?text=Ruko+5-1", "https://via.placeholder.com/400x300?text=Ruko+5-2"],
+      "status": "approved",
+      "ownerId": 2
+    },
+    {
+      "id": 6,
+      "title": "Vila Eksklusif Dekat Alam",
+      "location": "Cikajang, Garut",
+      "price": "1.500.000.000",
+      "description": "Vila dengan 4 kamar tidur, 3 kamar mandi, kolam renang, taman luas. Suasana tenang & udara sejuk.",
+      "images": ["https://via.placeholder.com/400x300?text=Vila+6-1", "https://via.placeholder.com/400x300?text=Vila+6-2"],
+      "status": "approved",
+      "ownerId": 3
+    },
+    {
+      "id": 7,
+      "title": "Rumah Tipe 36 di Garut Selatan",
+      "location": "Garut Selatan",
+      "price": "300.000.000",
+      "description": "Rumah sederhana, 2 kamar tidur, 1 kamar mandi, carport. Cocok untuk keluarga kecil.",
+      "images": ["https://via.placeholder.com/400x300?text=Rumah+7-1"],
+      "status": "pending",
+      "ownerId": 4
+    },
+    {
+      "id": 8,
+      "title": "Tanah Kavling Murah",
+      "location": "Garut Timur",
+      "price": "250.000.000",
+      "description": "Tanah 200 m², akses jalan 3 m, lingkungan tenang, cocok untuk rumah atau villa.",
+      "images": ["https://via.placeholder.com/400x300?text=Tanah+8-1", "https://via.placeholder.com/400x300?text=Tanah+8-2"],
+      "status": "approved",
+      "ownerId": 5
+    },
+    {
+      "id": 9,
+      "title": "Apartemen Studio Dekat Kota",
+      "location": "Garut Kota",
+      "price": "650.000.000",
+      "description": "Apartemen 1 kamar tidur, 1 kamar mandi, ruang tamu, dapur kecil, cocok untuk pekerja muda.",
+      "images": ["https://via.placeholder.com/400x300?text=Apt+9-1", "https://via.placeholder.com/400x300?text=Apt+9-2"],
+      "status": "approved",
+      "ownerId": 2
+    },
+    {
+      "id": 10,
+      "title": "Rumah Kayu di Pinggir Sungai",
+      "location": "Garut Barat",
+      "price": "400.000.000",
+      "description": "Rumah kayu 2 kamar tidur, 1 kamar mandi, halaman luas, pemandangan sungai.",
+      "images": ["https://via.placeholder.com/400x300?text=Rumah+10-1", "https://via.placeholder.com/400x300?text=Rumah+10-2"],
+      "status": "pending",
+      "ownerId": 3
+    },
+    {
+      "id": 11,
+      "title": "Kost Modern Dekat Sekolah",
+      "location": "Garut Tengah",
+      "price": "1.000.000/bulan",
+      "description": "Kost 3 kamar fully furnished, kamar mandi dalam, WiFi, parkiran motor, dekat sekolah dan minimarket.",
+      "images": ["https://via.placeholder.com/400x300?text=Kost+11-1", "https://via.placeholder.com/400x300?text=Kost+11-2"],
+      "status": "approved",
+      "ownerId": 4
+    },
+    {
+      "id": 12,
+      "title": "Tanah Luas di Puncak Garut",
+      "location": "Garut Utara",
+      "price": "950.000.000",
+      "description": "Tanah 600 m², kontur datar, udara sejuk, dekat wisata alam, cocok untuk villa atau homestay.",
+      "images": ["https://via.placeholder.com/400x300?text=Tanah+12-1", "https://via.placeholder.com/400x300?text=Tanah+12-2"],
+      "status": "pending",
+      "ownerId": 5
+    }
+  ]
+}

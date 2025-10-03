@@ -1,0 +1,1 @@
+// Etalase.jsx
