@@ -1,1 +1,0 @@
-// ManageProperties.jsx

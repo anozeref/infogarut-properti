@@ -1,0 +1,17 @@
+.dashboardContainer {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  background-color: #fff4f1;
+}
+
+.mainContent {
+  display: flex;
+  flex: 1;
+}
+
+.pageContent {
+  flex: 1;
+  padding: 20px;
+  overflow-y: auto;
+}
