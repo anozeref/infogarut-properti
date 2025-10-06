@@ -1,0 +1,29 @@
+.hero {
+  position: relative;
+  height: 500px;
+  background-image: url('https://images.unsplash.com/photo-1580587771525-78b9dba3b914?q=80&w=2574&auto=format&fit=crop');
+  background-size: cover;
+  background-position: center;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+.overlay {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+}
+.content { position: relative; z-index: 1; }
+.content h1 { font-size: 3rem; margin-bottom: 16px; }
+.content p { font-size: 1.1rem; max-width: 600px; margin-bottom: 24px; }
+.ctaButton {
+  padding: 12px 24px;
+  background-color: #0055ff;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  cursor: pointer;
+}
