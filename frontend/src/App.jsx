@@ -6,8 +6,7 @@ import DashboardUser from "./pages/user/DashboardUser";
 export default function App() {
   return (
     <Router>
-      <DashboardAdmin />
-      <DashboardUser />
+      <DashboardUser/>
     </Router>
   );
 }
