@@ -1,14 +1,61 @@
-.container { padding: 20px; background-color: #fafafa; }
+/* TambahPropertiContent.module.css */
+.container {
+  padding: 20px;
+  background-color: #f9f9f9;
+  color: #333;
+}
 
-.form { display: flex; flex-direction: column; gap: 10px; max-width: 500px; }
-input, select, textarea { padding: 6px 8px; border-radius: 4px; border: 1px solid #ccc; }
-button { padding: 6px 10px; border: none; border-radius: 4px; cursor: pointer; }
-button[type="submit"] { background-color: #007bff; color: white; }
+.header h2 {
+  font-weight: 700;
+  margin-bottom: 16px;
+  border-bottom: 1px solid #e5e7eb;
+  padding-bottom: 8px;
+}
 
-.table { width: 100%; border-collapse: collapse; margin-top: 15px; }
-.table th, .table td { padding: 8px 12px; border: 1px solid #ddd; font-size: 0.9rem; text-align: center; }
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-width: 600px;
+  background-color: rgba(255, 255, 255, 0.85);
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+}
 
-.approveBtn { background-color: #28a745; color: white; margin: 2px; }
-.rejectBtn { background-color: #dc3545; color: white; margin: 2px; }
-.editBtn { background-color: #ffc107; color: black; margin: 2px; }
-.deleteBtn { background-color: #6c757d; color: white; margin: 2px; }
+input,
+select,
+textarea {
+  padding: 8px 10px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  font-size: 0.95rem;
+  transition: all 0.2s ease;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 4px rgba(0, 123, 255, 0.3);
+}
+
+textarea {
+  min-height: 80px;
+  resize: vertical;
+}
+
+.submitBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #007bff;
+  color: #fff;
+  padding: 8px 12px;
+  font-weight: 500;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  font-size: 0.95rem;
+}
