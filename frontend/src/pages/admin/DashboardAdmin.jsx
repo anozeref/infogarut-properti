@@ -5,6 +5,8 @@ import FooterAdmin from "./components/FooterAdmin";
 import HomeContent from "./content/HomeContent";
 import KelolaPropertiContent from "./content/KelolaPropertiContent";
 import KelolaUserContent from "./content/KelolaUserContent";
+import TambahPropertiContent from "./content/TambahPropertiContent";
+import KelolaPropertiAdminContent from "./content/KelolaPropertiAdminContent";
 import styles from "./DashboardAdmin.module.css";
 
 const DashboardAdmin = () => {
@@ -18,6 +20,10 @@ const DashboardAdmin = () => {
         return <KelolaPropertiContent />;
       case "user":
         return <KelolaUserContent />;
+      case "tambah":
+        return <TambahPropertiContent/>;
+      case "kelolaPropertiAdmin":
+        return <KelolaPropertiAdminContent/>;
       default:
         return <HomeContent />;
     }

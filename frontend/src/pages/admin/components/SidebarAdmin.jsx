@@ -27,6 +27,17 @@ const SidebarAdmin = ({ activePage, setActivePage }) => {
             onClick={() => setActivePage("user")}
           >
             👥 Kelola User
+          </li>          <li
+            className={activePage === "tambah" ? styles.active : ""}
+            onClick={() => setActivePage("tambah")}
+          >
+            👥 Tambah Properti
+          </li>
+                    <li
+            className={activePage === "kelolaPropertiAdmin" ? styles.active : ""}
+            onClick={() => setActivePage("kelolaPropertiAdmin")}
+          >
+            🏘 Kelola Properti Admin
           </li>
         </ul>
       </div>

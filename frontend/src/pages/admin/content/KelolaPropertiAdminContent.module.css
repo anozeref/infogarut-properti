@@ -1,0 +1,14 @@
+.container { padding: 20px; background-color: #fafafa; }
+
+.form { display: flex; flex-direction: column; gap: 10px; max-width: 500px; }
+input, select, textarea { padding: 6px 8px; border-radius: 4px; border: 1px solid #ccc; }
+button { padding: 6px 10px; border: none; border-radius: 4px; cursor: pointer; }
+button[type="submit"] { background-color: #007bff; color: white; }
+
+.table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+.table th, .table td { padding: 8px 12px; border: 1px solid #ddd; font-size: 0.9rem; text-align: center; }
+
+.approveBtn { background-color: #28a745; color: white; margin: 2px; }
+.rejectBtn { background-color: #dc3545; color: white; margin: 2px; }
+.editBtn { background-color: #ffc107; color: black; margin: 2px; }
+.deleteBtn { background-color: #6c757d; color: white; margin: 2px; }
