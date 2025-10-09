@@ -1,35 +1,39 @@
 import React, { useState } from "react";
-import NavbarAdmin from "./components/NavbarAdmin";
+import { Routes, Route, Navigate } from "react-router-dom";
 import SidebarAdmin from "./components/SidebarAdmin";
 import FooterAdmin from "./components/FooterAdmin";
 import HomeContent from "./content/HomeContent";
 import KelolaPropertiContent from "./content/KelolaPropertiContent";
 import KelolaUserContent from "./content/KelolaUserContent";
+import TambahPropertiContent from "./content/TambahPropertiContent";
+import KelolaPropertiAdminContent from "./content/KelolaPropertiAdminContent";
+import { motion } from "framer-motion";
 import styles from "./DashboardAdmin.module.css";
 
 const DashboardAdmin = () => {
-  const [activePage, setActivePage] = useState("home");
-
-  const renderContent = () => {
-    switch (activePage) {
-      case "home":
-        return <HomeContent />;
-      case "properti":
-        return <KelolaPropertiContent />;
-      case "user":
-        return <KelolaUserContent />;
-      default:
-        return <HomeContent />;
-    }
-  };
+  const [isHovered, setIsHovered] = useState(false);
 
   return (
     <div className={styles.dashboardContainer}>
-      <NavbarAdmin />
-      <div className={styles.mainContent}>
-        <SidebarAdmin setActivePage={setActivePage} activePage={activePage} />
-        <div className={styles.pageContent}>{renderContent()}</div>
+      <div className={styles.dashboardWrapper}>
+        <SidebarAdmin isHovered={isHovered} setIsHovered={setIsHovered} />
+
+        <motion.main
+          className={styles.mainContent}
+          animate={{ marginLeft: isHovered ? 220 : 72 }}
+          transition={{ type: "spring", stiffness: 200, damping: 25 }}
+        >
+          <Routes>
+            <Route path="/admin" element={<HomeContent />} />
+            <Route path="/admin/properti" element={<KelolaPropertiContent />} />
+            <Route path="/admin/user" element={<KelolaUserContent />} />
+            <Route path="/admin/tambah" element={<TambahPropertiContent />} />
+            <Route path="/admin/kelola" element={<KelolaPropertiAdminContent />} />
+            <Route path="*" element={<Navigate to="/admin" />} />
+          </Routes>
+        </motion.main>
       </div>
+
       <FooterAdmin />
     </div>
   );
