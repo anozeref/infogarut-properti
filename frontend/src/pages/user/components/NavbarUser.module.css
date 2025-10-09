@@ -1,58 +1,185 @@
 .navbar {
+  background-color: #ffffff;
+  color: #000000;
+  padding: 10px 20px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: #83a0ff;
-  padding: 10px 20px;
-  border-bottom: 1px solid #e5e7eb;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05); /* tambah subtle shadow */
 }
+
 .logo {
-  font-weight: bold;
   font-size: 18px;
-  color: #333;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
+
+.logo img {
+  height: 40px; /* Atur tinggi logo sesuai kebutuhan Anda */
+  width: auto;
+  display: block;
+}
+
+.iconHome {
+  font-size: 20px;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.iconHome:hover {
+  color: #6366f1; /* ubah warna saat hover */
+}
+
 .navbarRight {
   display: flex;
   align-items: center;
-  gap: 15px;
+  gap: 20px;
 }
+
 .notif {
   position: relative;
 }
+
 .notifBtn {
-  background: none;
+  background: transparent;
   border: none;
-  font-size: 20px;
   cursor: pointer;
+  color: rgb(0, 0, 0);
+  transition: transform 0.2s ease;
 }
+
+.notifBtn:hover {
+  transform: scale(1.1); /* sedikit efek zoom saat hover */
+}
+
 .notifBox {
-  display: none;
   position: absolute;
   right: 0;
-  top: 30px;
-  background: #fff;
-  border: 1px solid #ddd;
-  border-radius: 6px;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  top: 35px;
+  background: white;
+  color: #333;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  border-radius: 8px;
   padding: 10px;
-  width: 200px;
   font-size: 14px;
-  z-index: 100;
+  width: 240px;
+  animation: fadeIn 0.2s ease-in-out;
+  transition: opacity 0.3s ease, transform 0.3s ease;
 }
-.notifBox.active {
-  display: block;
+
+.notifBox p {
+  margin: 0;
+  padding: 6px;
+  border-radius: 4px;
 }
+
+.notifBox p:hover {
+  background-color: #f3f4f6;
+}
+
 .userLogo {
-  width: 35px;
-  height: 35px;
-  background: #6366f1;
-  border-radius: 50%;
+  position: relative;
+  cursor: pointer;
   display: flex;
   align-items: center;
-  justify-content: center;
-  color: white;
-  font-weight: bold;
+  transition: transform 0.2s ease;
+}
+
+.userLogo:hover {
+  transform: scale(1.05);
+}
+
+.profileBox {
+  position: absolute;
+  right: 0;
+  top: 40px;
+  background: white;
+  color: #333;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  border-radius: 8px;
+  padding: 8px 0;
   font-size: 14px;
+  width: 180px;
+  animation: fadeIn 0.2s ease-in-out;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.profileBox p {
+  margin: 0;
+  padding: 8px 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
   cursor: pointer;
+}
+
+.profileBox p:hover {
+  background-color: #f3f4f6;
+}
+
+.landingLink {
+  margin-left: auto;
+  margin-right: 20px;
+  display: flex;
+  align-items: center;
+}
+
+.landingBtn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #6366f1;
+  color: #ffffff;
+  text-decoration: none;
+  font-weight: 500;
+  padding: 8px 14px;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+.landingBtn:hover {
+  background: #4f46e5;
+  transform: translateY(-1px);
+}
+
+.landingIcon {
+  font-size: 16px;
+}
+
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Responsiveness */
+@media (max-width: 768px) {
+  .navbar {
+    padding: 10px 15px;
+  }
+
+  .navbarRight {
+    gap: 12px;
+  }
+
+  .logo {
+    font-size: 16px;
+    gap: 6px;
+  }
+
+  .notifBox,
+  .profileBox {
+    width: 180px;
+  }
 }
