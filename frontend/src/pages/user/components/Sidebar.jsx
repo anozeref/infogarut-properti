@@ -1,5 +1,6 @@
 // Sidebar.jsx
 import React from "react";
+import { Link } from "react-router-dom";
 import {
   FaHome,
   FaBoxOpen,
@@ -7,9 +8,7 @@ import {
   FaClock,
   FaCheckCircle,
   FaTimesCircle,
-  FaUserCog,
-  FaSignOutAlt,
-  FaGlobe, // ikon tambahan untuk Landing Page
+  FaGlobe,
 } from "react-icons/fa";
 import styles from "./SidebarUser.module.css";
 
@@ -18,36 +17,37 @@ export default function Sidebar() {
     <div className={styles.sidebar}>
       <ul className={styles.menuList}>
         <li>
-          <a href="#">
+          <Link to="/user">
             <FaHome className={styles.icon} /> Dashboard
-          </a>
+          </Link>
         </li>
       </ul>
+
       <ul className={styles.menuList}>
         <li>
-          <a href="#">
+          <Link to="/user/properti">
             <FaBoxOpen className={styles.icon} /> Properti Saya
-          </a>
+          </Link>
         </li>
         <li>
-          <a href="#">
+          <Link to="/user/properti/pending">
             <FaClock className={styles.icon} /> Properti Pending
-          </a>
+          </Link>
         </li>
         <li>
-          <a href="#">
+          <Link to="/user/properti/aktif">
             <FaCheckCircle className={styles.icon} /> Properti Aktif
-          </a>
+          </Link>
         </li>
         <li>
-          <a href="#">
+          <Link to="/user/properti/ditolak">
             <FaTimesCircle className={styles.icon} /> Properti Ditolak
-          </a>
+          </Link>
         </li>
         <li>
-          <a href="/landing">
+          <Link to="/">
             <FaGlobe className={styles.icon} /> Landing Page
-          </a>
+          </Link>
         </li>
       </ul>
     </div>

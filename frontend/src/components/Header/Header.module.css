@@ -1,0 +1,58 @@
+/* src/components/Header/Header.module.css */
+.header {
+  width: 100%;
+  background-color: var(--background-light);
+  border-bottom: 1px solid #e0e0e0;
+  padding: 1rem 0;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.logo img {
+  height: 40px; /* Atur tinggi logo sesuai kebutuhan Anda */
+  width: auto;
+  display: block;
+}
+
+.rightSection {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+}
+
+.nav {
+  display: flex;
+  gap: 2rem;
+}
+
+.navLink {
+  text-decoration: none;
+  color: var(--text-dark);
+  font-weight: 500;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid transparent;
+  transition: border-color 0.3s ease, color 0.3s ease;
+}
+
+.navLink:hover {
+  color: var(--secondary-blue);
+}
+
+.navLink.active {
+  color: var(--secondary-blue);
+  border-bottom: 2px solid var(--secondary-blue);
+}
+
+.userIcon {
+  color: var(--text-dark);
+}

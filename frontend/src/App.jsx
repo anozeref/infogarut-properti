@@ -1,12 +1,22 @@
-import React from "react";
-import { BrowserRouter as Router } from "react-router-dom";
-import DashboardAdmin from "./pages/admin/DashboardAdmin";
-import DashboardUser from "./pages/user/DashboardUser";
+// src/App.jsx
+import React from 'react';
+import { Outlet } from 'react-router-dom';
+import Header from './components/Header/Header';
+import Footer from './components/Footer/Footer';
 
-export default function App() {
+function App() {
   return (
-    <Router>
-      <DashboardUser/>
-    </Router>
+    <>
+      {/* Header akan selalu tampil di semua halaman */}
+      <Header />
+      <main>
+        {/* <Outlet> akan merender konten halaman sesuai rute (HomePage atau Properti) */}
+        <Outlet /> 
+      </main>
+      {/* Footer juga akan selalu tampil */}
+      <Footer />
+    </>
   );
 }
+
+export default App;
