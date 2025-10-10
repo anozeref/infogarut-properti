@@ -1,0 +1,62 @@
+/* src/pages/Properti/Properti.module.css */
+.pageContainer {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+.filterSection {
+  background-color: #f8f9fa;
+  border: 1px solid #e9ecef;
+  padding: 2rem;
+  border-radius: 12px;
+  margin-bottom: 2rem;
+}
+.title {
+  font-size: 1.8rem;
+  margin-bottom: 1.5rem;
+}
+.filters {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-end;
+}
+.filterGroup {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+.filterGroup label {
+  font-weight: 500;
+  margin-bottom: 0.5rem;
+  font-size: 0.9rem;
+}
+.filterGroup input,
+.filterGroup select {
+  padding: 0.75rem;
+  border: 1px solid #ced4da;
+  border-radius: 8px;
+  font-size: 1rem;
+}
+.filterButton {
+  background-color: var(--primary-blue);
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background-color 0.3s ease;
+}
+.filterButton:hover {
+  background-color: #082142;
+}
+.resultsCount {
+  font-size: 1.1rem;
+  color: #6c757d;
+  margin-bottom: 1.5rem;
+}
+.propertyGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 2rem;
+}

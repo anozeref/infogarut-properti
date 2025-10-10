@@ -1,26 +1,21 @@
+// src/components/NavbarUser/NavbarUser.jsx
 import React, { useState } from "react";
-import {
-  FaBell,
-  FaUserCircle,
-  FaHome,
-  FaSignOutAlt,
-  FaCog,
-  FaGlobe, // ikon tambahan
-} from "react-icons/fa";
+import { Link } from "react-router-dom";
+import { FaBell, FaUserCircle, FaSignOutAlt, FaCog, FaGlobe } from "react-icons/fa";
 import styles from "./NavbarUser.module.css";
-import logo from "../assets/logo.png";
+import logo from "../../../assets/logo.png";
 
 export default function NavbarUser() {
   const [showNotif, setShowNotif] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
 
   const toggleNotif = () => {
-    setShowNotif(!showNotif);
-    setShowProfile(false); // Tutup dropdown lain
+    setShowNotif(prev => !prev);
+    setShowProfile(false);
   };
 
   const toggleProfile = () => {
-    setShowProfile(!showProfile);
+    setShowProfile(prev => !prev);
     setShowNotif(false);
   };
 
@@ -28,17 +23,19 @@ export default function NavbarUser() {
     <nav className={styles.navbar}>
       {/* Logo */}
       <div className={styles.logo}>
-        <img src={logo} alt="Logo" className={styles.logoImg} />
+        <Link to="/">
+          <img src={logo} alt="Logo Propertease Infogarut.id" className={styles.logoImg} />
+        </Link>
       </div>
 
       {/* Tombol Kembali ke Landing Page */}
       <div className={styles.landingLink}>
-        <a href="/landing" className={styles.landingBtn}>
+        <Link to="/" className={styles.landingBtn}>
           <FaGlobe className={styles.landingIcon} /> Kembali ke Landing Page
-        </a>
+        </Link>
       </div>
 
-      {/* Bagian kanan (notifikasi & profil) */}
+      {/* Bagian kanan: notifikasi & profil */}
       <div className={styles.navbarRight}>
         {/* Notifikasi */}
         <div className={styles.notif}>
@@ -59,12 +56,12 @@ export default function NavbarUser() {
           <FaUserCircle size={28} />
           {showProfile && (
             <div className={styles.profileBox}>
-              <p>
+              <Link to="/user/settings" className={styles.profileItem}>
                 <FaCog /> Pengaturan Akun
-              </p>
-              <p>
+              </Link>
+              <button className={styles.profileItem} onClick={() => console.log("Logout")}>
                 <FaSignOutAlt /> Logout
-              </p>
+              </button>
             </div>
           )}
         </div>

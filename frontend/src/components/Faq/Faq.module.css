@@ -1,0 +1,59 @@
+/* src/components/Faq/Faq.module.css */
+.faqSection {
+  background-color: var(--primary-blue-light);
+  color: var(--text-light);
+  padding: 2.5rem 0; /* Diperkecil */
+}
+
+.container {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 0 2rem;
+  text-align: center;
+}
+
+.title {
+  font-size: 2.5rem;
+  margin-bottom: 2rem; /* Diperkecil */
+}
+
+.faqList {
+  text-align: left;
+}
+
+.faqItem {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  padding: 1rem 0; /* Diperkecil */
+  cursor: pointer;
+}
+
+.faqQuestion {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 1.2rem;
+  font-weight: 500;
+}
+
+.icon {
+  transition: transform 0.3s ease;
+}
+
+.faqAnswer {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease, padding 0.3s ease;
+  color: rgba(255, 255, 255, 0.8);
+  padding: 0 1rem;
+  line-height: 1.7;
+}
+
+/* Style untuk saat accordion terbuka */
+.faqItem.open .faqAnswer {
+  max-height: 200px; /* Atur ketinggian yang cukup (tidak perlu diubah) */
+  padding: 1.2rem 1rem 0 1rem; /* Samakan dengan padding item */
+}
+
+.faqItem.open .icon {
+  transform: rotate(180deg);
+}

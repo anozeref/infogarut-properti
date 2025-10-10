@@ -12,26 +12,23 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  flex-wrap: wrap;
   margin-bottom: 16px;
   padding-bottom: 12px;
-  border-bottom: 1px solid #e5e7eb; /* sekat tipis */
+  border-bottom: 1px solid #e5e7eb;
 }
 
 .header h2 {
   margin: 0;
   font-weight: 700;
-  font-size: 1.25rem; /* selaras HomeContent */
+  font-size: 1.25rem;
 }
 
 .subHeader {
   font-size: 0.95rem;
-  color: #555; /* subscript elegan */
+  color: #555;
   margin-top: 4px;
 }
 
-
-/* Table wrapper untuk scroll */
 .tableWrapper {
   width: 100%;
   overflow-x: auto;
@@ -67,29 +64,27 @@ tr:hover {
   background-color: rgba(0,0,0,0.03);
 }
 
-/* Status icon */
+/* STATUS */
 .statusCell {
-  text-align: center;      /* teks/ikon berada di tengah horizontal */
-  vertical-align: middle;  /* tengah vertikal */
-}
-.statusIcon {
   text-align: center;
+}
+
+.statusIcon {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
   font-size: 1rem;
+  gap: 4px;
 }
 
-.statusIcon .approved {
-  color: #28a745;
-}
+.approved { color: #28a745; }
+.pending { color: #ffc107; }
 
-.statusIcon .pending {
-  color: #ffc107;
-}
-
-/* Actions icon-only */
+/* ACTIONS */
 .actions {
   display: flex;
-  gap: 6px;
   justify-content: center;
+  gap: 6px;
 }
 
 .iconBtn {
@@ -114,7 +109,7 @@ tr:hover {
   pointer-events: none;
 }
 
-/* Pagination */
+/* PAGINATION */
 .pagination {
   margin-top: 8px;
   display: flex;
@@ -128,7 +123,6 @@ tr:hover {
   border: none;
   cursor: pointer;
   background-color: rgba(0,0,0,0.05);
-  transition: background-color 0.2s ease;
 }
 
 .pageBtn:hover:not(:disabled) {

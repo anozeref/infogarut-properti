@@ -56,7 +56,11 @@ tr:hover {
 }
 
 .statusCell {
-  text-align: center;
+  text-align: center;       /* center text/inline elements */
+  display: flex;            /* jadikan flex container */
+  justify-content: center;  /* horizontal center */
+  align-items: center;      /* vertical center */
+  gap: 4px;                 /* optional, jarak icon & text */
 }
 
 .statusIcon {

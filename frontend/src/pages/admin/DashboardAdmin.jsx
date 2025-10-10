@@ -1,3 +1,4 @@
+// src/pages/admin/DashboardAdmin.jsx
 import React, { useState } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 import SidebarAdmin from "./components/SidebarAdmin";
@@ -24,12 +25,12 @@ const DashboardAdmin = () => {
           transition={{ type: "spring", stiffness: 200, damping: 25 }}
         >
           <Routes>
-            <Route path="/admin" element={<HomeContent />} />
-            <Route path="/admin/properti" element={<KelolaPropertiContent />} />
-            <Route path="/admin/user" element={<KelolaUserContent />} />
-            <Route path="/admin/tambah" element={<TambahPropertiContent />} />
-            <Route path="/admin/kelola" element={<KelolaPropertiAdminContent />} />
-            <Route path="*" element={<Navigate to="/admin" />} />
+            <Route index element={<HomeContent />} /> {/* path="/" */}
+            <Route path="properti" element={<KelolaPropertiContent />} />
+            <Route path="user" element={<KelolaUserContent />} />
+            <Route path="tambah" element={<TambahPropertiContent />} />
+            <Route path="kelola" element={<KelolaPropertiAdminContent />} />
+            <Route path="*" element={<Navigate to="." />} />
           </Routes>
         </motion.main>
       </div>

@@ -1,1 +1,0 @@
-// PropertyCard.jsx
