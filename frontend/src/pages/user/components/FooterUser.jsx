@@ -1,10 +1,9 @@
-
 import React from "react";
 import styles from "./FooterUser.module.css";
 
-export default function Footer() {
+export default function FooterUser({ darkMode }) {
   return (
-    <footer className={styles.footer}>
+    <footer className={`${styles.footer} ${darkMode ? styles.dark : ""}`}>
       <p>© 2025 Info Garut Properti. All Rights Reserved.</p>
     </footer>
   );
