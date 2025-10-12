@@ -1,53 +1,52 @@
-// Sidebar.jsx
 import React from "react";
+import { Link } from "react-router-dom";
 import {
   FaHome,
   FaBoxOpen,
-  FaPlusCircle,
   FaClock,
   FaCheckCircle,
   FaTimesCircle,
-  FaUserCog,
-  FaSignOutAlt,
-  FaGlobe, // ikon tambahan untuk Landing Page
 } from "react-icons/fa";
 import styles from "./SidebarUser.module.css";
 
-export default function Sidebar() {
+export default function SidebarUser({ darkMode }) {
   return (
-    <div className={styles.sidebar}>
+    <div
+      className={styles.sidebar}
+      style={{
+        backgroundColor: darkMode ? "#1f1f1f" : "#ffffff",
+        color: darkMode ? "#f1f1f1" : "#333",
+        borderRight: darkMode ? "1px solid #333" : "1px solid #ddd",
+        transition: "background 0.3s ease, color 0.3s ease",
+      }}
+    >
       <ul className={styles.menuList}>
         <li>
-          <a href="#">
+          <Link to="/dashboarduser">
             <FaHome className={styles.icon} /> Dashboard
-          </a>
+          </Link>
         </li>
       </ul>
       <ul className={styles.menuList}>
         <li>
-          <a href="#">
+          <Link to="/dashboarduser/propertisaya">
             <FaBoxOpen className={styles.icon} /> Properti Saya
-          </a>
+          </Link>
         </li>
         <li>
-          <a href="#">
+          <Link to="/dashboarduser/propertipending">
             <FaClock className={styles.icon} /> Properti Pending
-          </a>
+          </Link>
         </li>
         <li>
-          <a href="#">
+          <Link to ="/dashboarduser/propertiaktif">
             <FaCheckCircle className={styles.icon} /> Properti Aktif
-          </a>
+          </Link>
         </li>
         <li>
-          <a href="#">
+          <Link to="/dashboarduser/propertiditolak">
             <FaTimesCircle className={styles.icon} /> Properti Ditolak
-          </a>
-        </li>
-        <li>
-          <a href="/landing">
-            <FaGlobe className={styles.icon} /> Landing Page
-          </a>
+          </Link>
         </li>
       </ul>
     </div>

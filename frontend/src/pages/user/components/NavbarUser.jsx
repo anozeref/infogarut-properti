@@ -1,22 +1,27 @@
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import {
   FaBell,
   FaUserCircle,
-  FaHome,
   FaSignOutAlt,
   FaCog,
-  FaGlobe, // ikon tambahan
+  FaGlobe,
+  FaMoon,
+  FaSun,
 } from "react-icons/fa";
+import { Link } from "react-router-dom";
 import styles from "./NavbarUser.module.css";
 import logo from "../assets/logo.png";
 
-export default function NavbarUser() {
+export default function NavbarUser({ darkMode, toggleTheme }) {
   const [showNotif, setShowNotif] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
 
+  const notifRef = useRef(null);
+  const profileRef = useRef(null);
+
   const toggleNotif = () => {
     setShowNotif(!showNotif);
-    setShowProfile(false); // Tutup dropdown lain
+    setShowProfile(false);
   };
 
   const toggleProfile = () => {
@@ -24,29 +29,57 @@ export default function NavbarUser() {
     setShowNotif(false);
   };
 
+  // ✅ Tutup dropdown jika klik di luar
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (
+        notifRef.current &&
+        !notifRef.current.contains(event.target) &&
+        profileRef.current &&
+        !profileRef.current.contains(event.target)
+      ) {
+        setShowNotif(false);
+        setShowProfile(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
   return (
-    <nav className={styles.navbar}>
-      {/* Logo */}
+    <nav className={`${styles.navbar} ${darkMode ? styles.dark : ""}`}>
+      {/* 🔷 Logo */}
       <div className={styles.logo}>
-        <img src={logo} alt="Logo" className={styles.logoImg} />
+        <Link to="/landing">
+          <img src={logo} alt="Logo" className={styles.logoImg} />
+        </Link>
       </div>
 
-      {/* Tombol Kembali ke Landing Page */}
+      {/* 🌐 Tombol Kembali ke Landing Page */}
       <div className={styles.landingLink}>
-        <a href="/landing" className={styles.landingBtn}>
+        <Link
+          to="/landing"
+          className={`${styles.landingBtn} ${
+            darkMode ? styles.landingBtnDark : ""
+          }`}
+        >
           <FaGlobe className={styles.landingIcon} /> Kembali ke Landing Page
-        </a>
+        </Link>
       </div>
 
-      {/* Bagian kanan (notifikasi & profil) */}
+      {/* 🔔 Bagian kanan navbar */}
       <div className={styles.navbarRight}>
         {/* Notifikasi */}
-        <div className={styles.notif}>
+        <div className={styles.notif} ref={notifRef}>
           <button className={styles.notifBtn} onClick={toggleNotif}>
             <FaBell size={20} />
           </button>
           {showNotif && (
-            <div className={styles.notifBox}>
+            <div
+              className={`${styles.notifBox} ${
+                darkMode ? styles.notifBoxDark : ""
+              }`}
+            >
               <p>🏠 Properti kamu disetujui!</p>
               <p>🕓 Properti “Rumah Minimalis” masih ditinjau</p>
               <p>❌ Properti “Villa Lama” ditolak</p>
@@ -54,17 +87,39 @@ export default function NavbarUser() {
           )}
         </div>
 
-        {/* Profil User */}
-        <div className={styles.userLogo} onClick={toggleProfile}>
-          <FaUserCircle size={28} />
+        {/* 🌙 / ☀️ Tombol Tema */}
+        <button className={styles.themeBtn} onClick={toggleTheme}>
+          {darkMode ? <FaSun /> : <FaMoon />}
+        </button>
+
+        {/* 👤 Profil */}
+        <div className={styles.userLogo} ref={profileRef}>
+          <FaUserCircle size={28} onClick={toggleProfile} />
           {showProfile && (
-            <div className={styles.profileBox}>
-              <p>
-                <FaCog /> Pengaturan Akun
-              </p>
-              <p>
-                <FaSignOutAlt /> Logout
-              </p>
+            <div
+              className={`${styles.profileBox} ${
+                darkMode ? styles.profileBoxDark : ""
+              }`}
+            >
+              {/* 🔧 Pengaturan Akun */}
+              <Link
+                to="/profileuser"
+                className={`${styles.settingBtn} ${
+                  darkMode ? styles.settingBtnDark : ""
+                }`}
+              >
+                <FaCog className={styles.settingIcon} /> Pengaturan Akun
+              </Link>
+
+              {/* 🚪 Logout */}
+              <button
+                className={`${styles.settingBtn} ${
+                  darkMode ? styles.settingBtnDark : ""
+                }`}
+                onClick={() => console.log("Logout clicked")}
+              >
+                <FaSignOutAlt className={styles.settingIcon} /> Logout
+              </button>
             </div>
           )}
         </div>
