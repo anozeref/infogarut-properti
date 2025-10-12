@@ -7,7 +7,8 @@ import HomePage from './pages/HomePage.jsx';
 import Properti from './pages/Properti/Properti.jsx';
 import PropertiDetail from './pages/PropertiDetail/PropertiDetail.jsx';
 import DashboardAdmin from './pages/admin/DashboardAdmin.jsx';
-import DashboardUser from './pages/user/DashboardUser.jsx'; // <--- import baru
+import DashboardUser from './pages/user/DashboardUser.jsx';
+import "sweetalert2/dist/sweetalert2.min.css";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './index.css';
 
