@@ -7,7 +7,6 @@ import HomeContent from "./content/HomeContent";
 import KelolaPropertiContent from "./content/KelolaPropertiContent";
 import KelolaUserContent from "./content/KelolaUserContent";
 import TambahPropertiContent from "./content/TambahPropertiContent";
-import KelolaPropertiAdminContent from "./content/KelolaPropertiAdminContent";
 import { motion } from "framer-motion";
 import styles from "./DashboardAdmin.module.css";
 
@@ -29,7 +28,6 @@ const DashboardAdmin = () => {
             <Route path="properti" element={<KelolaPropertiContent />} />
             <Route path="user" element={<KelolaUserContent />} />
             <Route path="tambah" element={<TambahPropertiContent />} />
-            <Route path="kelola" element={<KelolaPropertiAdminContent />} />
             <Route path="*" element={<Navigate to="." />} />
           </Routes>
         </motion.main>

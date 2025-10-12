@@ -12,7 +12,6 @@ const SidebarAdmin = ({ isHovered, setIsHovered }) => {
     { path: "/admin/properti", label: "Kelola Properti", icon: <FaBuilding /> },
     { path: "/admin/user", label: "Kelola User", icon: <FaUsers /> },
     { path: "/admin/tambah", label: "Tambah Properti", icon: <FaPlus /> },
-    { path: "/admin/kelola", label: "Kelola Properti Admin", icon: <FaTools /> },
   ];
 
   const handleBackToLanding = () => (window.location.href = "/");
