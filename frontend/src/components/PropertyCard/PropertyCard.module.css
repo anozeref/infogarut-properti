@@ -68,3 +68,35 @@
   text-decoration: none;
   color: inherit;
 }
+
+/* src/components/PropertyCard/PropertyCard.module.css */
+
+/* ... (style .cardLink, .card, .image, .content, .location, .title tetap sama) ... */
+
+/* Modifikasi bagian ini agar tag bisa berdampingan rapi */
+.tags {
+  display: flex;
+  gap: 0.5rem; /* Memberi jarak antar tag */
+  margin-bottom: 1rem;
+}
+
+.tag {
+  background-color: #e7f1ff;
+  color: var(--secondary-blue);
+  padding: 0.25rem 0.75rem;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+/* TAMBAHKAN STYLE BARU DI BAWAH INI */
+.tagJenis {
+  background-color: #f0f0f0; /* Warna abu-abu muda */
+  color: #555; /* Warna teks abu-abu tua */
+  padding: 0.25rem 0.75rem;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+/* ... (sisa style .details, .detailItem, .price tetap sama) ... */

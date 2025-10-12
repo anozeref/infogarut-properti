@@ -1,28 +1,29 @@
 // src/pages/PropertiDetail/PropertiDetail.jsx
-import React from 'react';
+import React, { useState } from 'react';
 import styles from './PropertiDetail.module.css';
-import { Link, useParams } from 'react-router-dom';
-import { IoLocationOutline } from "react-icons/io5";
+import { Link } from 'react-router-dom';
+import { IoLocationOutline, IoArrowBack } from "react-icons/io5";
 import { LuBedDouble, LuBath } from "react-icons/lu";
 import { RxRulerSquare } from "react-icons/rx";
-import { IoArrowBack } from "react-icons/io5";
 
-// Di aplikasi nyata, data ini akan diambil dari API berdasarkan ID
+// Data properti lengkap
 const propertyData = {
     id: 1,
-    title: "Vila Darajat Pas",
-    location: "Darajat",
+    title: "Vila Tepi Laut Modern",
+    location: "Malibu, California",
     price: 50000000000,
     type: "Vila",
+    jenis: "Kredit", // Properti 'jenis' sudah ada di sini
     beds: 5,
     baths: 5,
     area: "4.500",
     description: "Vila modern yang menakjubkan dengan pemandangan laut yang luar biasa. Memiliki ruang tamu berkonsep terbuka, kolam renang tanpa batas, dan akses langsung ke pantai. Sempurna bagi mereka yang menyukai kemewahan dan laut.",
     mainImage: "https://images.unsplash.com/photo-1580587771525-78b9dba3b914?q=80&w=2000",
     galleryImages: [
+        "https://images.unsplash.com/photo-1580587771525-78b9dba3b914?q=80&w=2000",
         "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?q=80&w=2000",
         "https://images.unsplash.com/photo-1613553424169-173617c05e12?q=80&w=2000",
-        "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?q=80&w=2000",
+        "https://images.unsplash.com/photo-1560448204-e02f11c3d_0e2?q=80&w=2000",
     ],
     agent: {
         name: "Jane Doe",
@@ -34,15 +35,19 @@ const propertyData = {
 };
 
 const PropertiDetail = () => {
-    // const { id } = useParams(); // Gunakan ini untuk mengambil ID dari URL di aplikasi nyata
-    
+    const [activeImage, setActiveImage] = useState(propertyData.mainImage);
+
+    const handleThumbnailClick = (imageUrl) => {
+        setActiveImage(imageUrl);
+    };
+
     const formatPrice = (price) => {
         return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(price);
     };
 
     return (
         <div className={styles.pageContainer}>
-            {/* Bagian Atas: Navigasi dan Judul */}
+            {/* --- Bagian Header --- */}
             <div className={styles.headerSection}>
                 <Link to="/properti" className={styles.backLink}><IoArrowBack /> Kembali ke Properti</Link>
                 <div className={styles.titleLocation}>
@@ -51,23 +56,32 @@ const PropertiDetail = () => {
                 </div>
             </div>
 
-            {/* Bagian Gambar */}
+            {/* --- Bagian Galeri --- */}
             <div className={styles.gallerySection}>
                 <div className={styles.mainImage}>
-                    <img src={propertyData.mainImage} alt="Main view" />
+                    <img src={activeImage} alt="Main view" />
                 </div>
                 <div className={styles.thumbnailImages}>
                     {propertyData.galleryImages.map((img, index) => (
-                        <img key={index} src={img} alt={`Thumbnail ${index + 1}`} />
+                        <img 
+                            key={index} 
+                            src={img} 
+                            alt={`Thumbnail ${index + 1}`}
+                            onClick={() => handleThumbnailClick(img)}
+                            className={activeImage === img ? styles.activeThumbnail : ''}
+                        />
                     ))}
                 </div>
             </div>
 
-            {/* Bagian Detail dan Agen */}
+            {/* --- Bagian Detail & Agen --- */}
             <div className={styles.detailsGrid}>
                 <div className={styles.propertyInfo}>
                     <div className={styles.priceType}>
-                        <span className={styles.typeTag}>{propertyData.type}</span>
+                        <div className={styles.tagsContainer}>
+                           <span className={styles.typeTag}>{propertyData.type}</span>
+                           <span className={styles.jenisTag}>{propertyData.jenis}</span>
+                        </div>
                         <span className={styles.price}>{formatPrice(propertyData.price)}</span>
                     </div>
                     <h2>Detail Properti</h2>
