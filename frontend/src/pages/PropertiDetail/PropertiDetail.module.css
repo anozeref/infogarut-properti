@@ -56,14 +56,17 @@
 }
 .thumbnailImages img {
     width: 100%;
-    height: calc((100% - 2rem) / 3);
+    height: calc((100% - 3rem) / 4);
     object-fit: cover;
     border-radius: 8px;
     cursor: pointer;
-    border: 2px solid transparent;
+    border: 3px solid transparent;
     transition: border-color 0.3s ease;
 }
 .thumbnailImages img:hover {
+    border-color: #007bff80;
+}
+.thumbnailImages img.activeThumbnail {
     border-color: var(--secondary-blue);
 }
 
@@ -85,6 +88,11 @@
     justify-content: space-between;
     align-items: center;
     margin-bottom: 1.5rem;
+    gap: 1rem;
+}
+.tagsContainer {
+    display: flex;
+    gap: 0.75rem;
 }
 .typeTag {
     background-color: #e7f1ff;
@@ -93,10 +101,18 @@
     border-radius: 20px;
     font-weight: 600;
 }
+.jenisTag {
+    background-color: #f0f0f0;
+    color: #555;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-weight: 600;
+}
 .price {
     font-size: 2.2rem;
     font-weight: 700;
     color: var(--primary-blue);
+    white-space: nowrap;
 }
 .propertyInfo h2 {
     font-size: 1.5rem;
@@ -135,7 +151,7 @@
     padding: 2rem;
     text-align: center;
     position: sticky;
-    top: 100px; /* Jarak dari atas saat scroll */
+    top: 100px;
 }
 .agentAvatar {
     width: 120px;
