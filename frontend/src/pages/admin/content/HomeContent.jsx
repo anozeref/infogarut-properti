@@ -1,9 +1,12 @@
-import React from "react";
+import React, { useContext } from "react";
 import { motion } from "framer-motion";
 import { FaUsers, FaBuilding, FaClock, FaCheckCircle, FaBell } from "react-icons/fa";
 import styles from "./HomeContent.module.css";
+import { ThemeContext } from "../DashboardAdmin"; // pastikan path benar
 
 const HomeContent = () => {
+  const { theme } = useContext(ThemeContext);
+
   const today = new Date().toLocaleDateString("id-ID", {
     day: "numeric",
     month: "long",
@@ -24,7 +27,7 @@ const HomeContent = () => {
   ];
 
   return (
-    <div className={`${styles.container} container-fluid`}>
+    <div className={`${styles.container} container-fluid ${theme === "dark" ? "dark" : ""}`}>
       <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}

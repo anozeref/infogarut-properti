@@ -25,7 +25,7 @@ const propertiesData = [
 const ITEMS_PER_PAGE = 5;
 const adminId = 1;
 
-const KelolaPropertiContent = () => {
+export default function KelolaPropertiContent() {
   const [properties, setProperties] = useState(propertiesData);
   const [currentPagePending, setCurrentPagePending] = useState(1);
   const [currentPageApproved, setCurrentPageApproved] = useState(1);
@@ -35,111 +35,160 @@ const KelolaPropertiContent = () => {
   const approvedProperties = properties.filter(p => p.status === "approved");
 
   // ---------------- Aksi ----------------
-  const handleApprove = id => { /* sama seperti sebelumnya */ };
-  const handleReject = id => { /* sama seperti sebelumnya */ };
-  const handleDelete = id => { /* sama seperti sebelumnya */ };
-  const handleEdit = id => { /* sama seperti sebelumnya */ };
+  const handleApprove = id => {
+    Swal.fire({
+      title: "Setujui Properti?",
+      icon: "question",
+      showCancelButton: true,
+      confirmButtonText: "Ya, Setujui",
+      cancelButtonText: "Batal"
+    }).then(res => {
+      if (res.isConfirmed) {
+        setProperties(prev =>
+          prev.map(p => (p.id === id ? { ...p, status: "approved" } : p))
+        );
+        Swal.fire("Disetujui!", "Properti berhasil disetujui.", "success");
+      }
+    });
+  };
+
+  const handleReject = id => {
+    Swal.fire({
+      title: "Tolak Properti?",
+      text: "Properti ini akan dihapus dari daftar.",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Ya, Tolak",
+      cancelButtonText: "Batal"
+    }).then(res => {
+      if (res.isConfirmed) {
+        setProperties(prev => prev.filter(p => p.id !== id));
+        Swal.fire("Ditolak!", "Properti telah dihapus.", "success");
+      }
+    });
+  };
+
+  const handleDelete = id => {
+    Swal.fire({
+      title: "Hapus Properti?",
+      text: "Data tidak dapat dikembalikan.",
+      icon: "error",
+      showCancelButton: true,
+      confirmButtonText: "Hapus",
+      cancelButtonText: "Batal"
+    }).then(res => {
+      if (res.isConfirmed) {
+        setProperties(prev => prev.filter(p => p.id !== id));
+        Swal.fire("Dihapus!", "Properti berhasil dihapus.", "success");
+      }
+    });
+  };
+
+  const handleEdit = id => {
+    Swal.fire("Edit Mode", `Fitur edit properti #${id} masih dalam pengembangan.`, "info");
+  };
 
   // ---------------- Pagination ----------------
   const paginate = (list, page) => {
-    const start = (page-1)*ITEMS_PER_PAGE;
-    return list.slice(start, start+ITEMS_PER_PAGE);
+    const start = (page - 1) * ITEMS_PER_PAGE;
+    return list.slice(start, start + ITEMS_PER_PAGE);
   };
-  const renderPagination = (totalItems, currentPage, setPage) => { /* sama seperti sebelumnya */ };
+
+  const renderPagination = (totalItems, currentPage, setPage) => {
+    const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE);
+    if (totalPages <= 1) return null;
+    return (
+      <div className={styles.pagination}>
+        {Array.from({ length: totalPages }).map((_, i) => (
+          <button
+            key={i}
+            className={`${styles.pageBtn} ${currentPage === i + 1 ? styles.activePage : ""}`}
+            onClick={() => setPage(i + 1)}
+          >
+            {i + 1}
+          </button>
+        ))}
+      </div>
+    );
+  };
 
   // ---------------- Table Render ----------------
-const renderTable = (list, isPending = false) => (
-  <div className={styles.tableWrapper}>
-    <table className={styles.table}>
-      <thead>
-        <tr>
-          <th>No</th>
-          <th>Judul Properti</th>
-          <th>Jenis</th>
-          <th>Tipe</th>
-          <th>Lokasi</th>
-          <th>Harga</th>
-          <th>Periode</th>
-          <th>Owner</th>
-          <th>Status</th>
-          <th>Aksi</th>
-        </tr>
-      </thead>
-      <tbody>
-        <AnimatePresence>
-          {list.map((prop, idx) => (
-            <motion.tr
-              key={prop.id}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              layout
-            >
-              <td>
-                {idx + 1 + (isPending ? (currentPagePending - 1) * ITEMS_PER_PAGE : (currentPageApproved - 1) * ITEMS_PER_PAGE)}
-              </td>
-              <td>{prop.title}</td>
-              <td>{prop.jenis}</td>
-              <td>{prop.tipe}</td>
-              <td>{prop.location}</td>
-              <td>{prop.price.toLocaleString()}</td>
-              <td>{prop.periode}</td>
-              <td>{prop.owner}</td>
-              <td className={styles.statusCell}>
-                <div className={styles.statusIcon}>
-                  {prop.status === "approved" 
-                    ? <FaCheck className={styles.approved} /> 
-                    : <FaTimes className={styles.pending} />}
-                </div>
-              </td>
-              <td className={styles.actions}>
-                {isPending ? (
-                  <>
-                    <button
-                      className={styles.iconBtn}
-                      onClick={() => handleApprove(prop.id)}
-                      title="Approve"
-                    >
-                      <FaCheck style={{ color: "#28a745" }} />
-                    </button>
-                    <button
-                      className={styles.iconBtn}
-                      onClick={() => handleReject(prop.id)}
-                      title="Reject"
-                    >
-                      <FaTimes style={{ color: "#ffc107" }} />
-                    </button>
-                  </>
-                ) : (
-                  <>
-                    <button
-                      className={styles.iconBtn}
-                      onClick={() => handleEdit(prop.id)}
-                      title="Edit"
-                    >
-                      <FaEdit style={{ color: "#0d6efd" }} />
-                    </button>
-                    <button
-                      className={styles.iconBtn}
-                      onClick={() => handleDelete(prop.id)}
-                      title="Delete"
-                    >
-                      <FaTrash style={{ color: "#dc3545" }} />
-                    </button>
-                  </>
-                )}
-              </td>
-            </motion.tr>
-          ))}
-        </AnimatePresence>
-      </tbody>
-    </table>
-  </div>
-);
+  const renderTable = (list, isPending = false) => (
+    <div className={styles.tableWrapper}>
+      <table className={styles.table}>
+        <thead>
+          <tr>
+            <th>No</th>
+            <th>Judul Properti</th>
+            <th>Jenis</th>
+            <th>Tipe</th>
+            <th>Lokasi</th>
+            <th>Harga</th>
+            <th>Periode</th>
+            <th>Owner</th>
+            <th>Status</th>
+            <th>Aksi</th>
+          </tr>
+        </thead>
+        <tbody>
+          <AnimatePresence>
+            {list.map((prop, idx) => (
+              <motion.tr
+                key={prop.id}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                layout
+              >
+                <td>
+                  {idx + 1 + (isPending ? (currentPagePending - 1) * ITEMS_PER_PAGE : (currentPageApproved - 1) * ITEMS_PER_PAGE)}
+                </td>
+                <td>{prop.title}</td>
+                <td>{prop.jenis}</td>
+                <td>{prop.tipe}</td>
+                <td>{prop.location}</td>
+                <td>{prop.price.toLocaleString()}</td>
+                <td>{prop.periode}</td>
+                <td>{prop.owner}</td>
+                <td className={styles.statusCell}>
+                  <div className={styles.statusIcon}>
+                    {prop.status === "approved"
+                      ? <FaCheck className={styles.approved} />
+                      : <FaTimes className={styles.pending} />}
+                  </div>
+                </td>
+                <td className={styles.actions}>
+                  {isPending ? (
+                    <>
+                      <button className={styles.iconBtn} onClick={() => handleApprove(prop.id)} title="Approve">
+                        <FaCheck style={{ color: "#28a745" }} />
+                      </button>
+                      <button className={styles.iconBtn} onClick={() => handleReject(prop.id)} title="Reject">
+                        <FaTimes style={{ color: "#ffc107" }} />
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      <button className={styles.iconBtn} onClick={() => handleEdit(prop.id)} title="Edit">
+                        <FaEdit style={{ color: "#0d6efd" }} />
+                      </button>
+                      <button className={styles.iconBtn} onClick={() => handleDelete(prop.id)} title="Delete">
+                        <FaTrash style={{ color: "#dc3545" }} />
+                      </button>
+                    </>
+                  )}
+                </td>
+              </motion.tr>
+            ))}
+          </AnimatePresence>
+        </tbody>
+      </table>
+    </div>
+  );
 
   // ---------------- Filter Approved ----------------
   const filteredApproved = approvedProperties.filter(
-    p => approvedView==="admin" ? p.ownerId===adminId : p.ownerId!==adminId
+    p => approvedView === "admin" ? p.ownerId === adminId : p.ownerId !== adminId
   );
 
   return (
@@ -147,7 +196,7 @@ const renderTable = (list, isPending = false) => (
       {/* Pending Section */}
       <div className={styles.section}>
         <p className={styles.subHeader}>Properti Menunggu Persetujuan ({pendingProperties.length})</p>
-        {renderTable(paginate(pendingProperties,currentPagePending), true)}
+        {renderTable(paginate(pendingProperties, currentPagePending), true)}
         {renderPagination(pendingProperties.length, currentPagePending, setCurrentPagePending)}
       </div>
 
@@ -174,6 +223,4 @@ const renderTable = (list, isPending = false) => (
       </div>
     </div>
   );
-};
-
-export default KelolaPropertiContent;
+}
