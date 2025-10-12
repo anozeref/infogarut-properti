@@ -10,7 +10,7 @@ import {
 } from "react-icons/fa";
 import { Link } from "react-router-dom";
 import styles from "./NavbarUser.module.css";
-import logo from "../assets/logo.png";
+import logo from "../../../assets/logo.png";
 
 export default function NavbarUser({ darkMode, toggleTheme }) {
   const [showNotif, setShowNotif] = useState(false);
@@ -25,7 +25,7 @@ export default function NavbarUser({ darkMode, toggleTheme }) {
   };
 
   const toggleProfile = () => {
-    setShowProfile(!showProfile);
+    setShowProfile(prev => !prev);
     setShowNotif(false);
   };
 
