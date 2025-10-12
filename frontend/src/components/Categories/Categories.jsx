@@ -1,6 +1,6 @@
-// src/components/Categories/Categories.jsx
 import React from 'react';
 import styles from './Categories.module.css';
+import { Link } from 'react-router-dom';
 import { IoHomeOutline } from "react-icons/io5";
 import { LuCastle } from "react-icons/lu";
 import { TbDimensions } from "react-icons/tb";
@@ -41,11 +41,13 @@ const Categories = () => {
   return (
     <section className={styles.categoriesSection}>
       <div className={styles.container}>
-        <h3 className={styles.title}>Jelajahi Berdasarkan Kategori</h3>
+        <h2 className={styles.title}>Jelajahi Berdasarkan Kategori</h2>
         <p className={styles.subtitle}>Temukan properti yang sesuai dengan kebutuhan Anda.</p>
         <div className={styles.grid}>
           {categoriesData.map((cat, index) => (
-            <CategoryCard key={index} {...cat} />
+            <Link key={index} to={`/properti?tipe=${cat.title}`} className={styles.cardLink}>
+              <CategoryCard {...cat} />
+            </Link>
           ))}
         </div>
       </div>
