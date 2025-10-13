@@ -1,10 +1,13 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import { motion } from "framer-motion";
 import Swal from "sweetalert2";
 import { FaPlus } from "react-icons/fa";
 import styles from "./TambahPropertiContent.module.css";
+import { ThemeContext } from "../DashboardAdmin";
 
 const TambahPropertiContent = () => {
+  const { theme } = useContext(ThemeContext);
+
   const [form, setForm] = useState({
     title: "",
     jenis: "Jual",
@@ -17,9 +20,7 @@ const TambahPropertiContent = () => {
     ownerId: 1,
   });
 
-  const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
-  };
+  const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -44,7 +45,7 @@ const TambahPropertiContent = () => {
 
   return (
     <motion.div
-      className={styles.container}
+      className={`${styles.container} ${theme === "dark" ? styles.dark : ""}`}
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4 }}

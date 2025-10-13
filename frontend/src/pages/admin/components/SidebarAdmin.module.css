@@ -14,8 +14,18 @@
   overflow: hidden;
   z-index: 100;
   box-shadow: 2px 0 8px rgba(0, 0, 0, 0.05);
+  transition: background-color 0.3s ease, color 0.3s ease;
+  color: #333;
 }
 
+/* Dark mode */
+.sidebar.dark {
+  background-color: #1f1f1f;
+  color: #f1f1f1;
+  border-right: 1px solid #333;
+}
+
+/* Menu sections */
 .menuSection,
 .bottomSection {
   display: flex;
@@ -24,6 +34,7 @@
   padding: 0 16px;
 }
 
+/* Menu items */
 .menuItem {
   display: flex;
   align-items: center;
@@ -33,24 +44,27 @@
   cursor: pointer;
   width: 100%;
   text-align: left;
-  color: #333;
+  color: inherit; /* inherit dari sidebar theme */
   font-size: 0.95rem;
-  text-decoration: none; /* ✅ hilangkan underline */
+  text-decoration: none;
   transition: background-color 0.25s ease, color 0.25s ease, transform 0.2s ease;
 }
 
+/* Hover / focus (light mode default) */
 .menuItem:hover {
   background-color: #e6f0ff;
   color: #004aad;
   transform: translateX(3px);
 }
 
+/* Active menu item (light mode default) */
 .active {
   background-color: #cce0ff;
   color: #004aad;
   font-weight: 600;
 }
 
+/* Icon */
 .icon {
   width: 24px;
   height: 24px;
@@ -61,34 +75,40 @@
   flex-shrink: 0;
 }
 
+/* Label */
 .label {
-  white-space: nowrap;
+  white-space: normal;
+  overflow-wrap: break-word;
   overflow: hidden;
+  flex: 1;
 }
 
-.bottomSection button {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 10px 12px;
-  border-radius: 10px;
-  cursor: pointer;
-  width: 100%;
-  text-align: left;
-  background: none;
-  border: none;
-  font-size: 0.95rem;
-  color: #333;
-  text-decoration: none;
-  transition: background-color 0.25s ease, color 0.25s ease, transform 0.2s ease;
+/* Minimalized sidebar fixes */
+.sidebar:not(:hover) .menuItem {
+  justify-content: center;
 }
 
-.bottomSection button:hover {
-  background-color: #e6f0ff;
-  color: #004aad;
-  transform: translateX(3px);
+.sidebar:not(:hover) .label {
+  display: none;
 }
 
+/* Bottom section */
 .bottomSection {
   padding-bottom: 20px;
+}
+
+/* Dark mode hover / active */
+.sidebar.dark .menuItem:hover {
+  background-color: #333844;
+  color: #f1f1f1;
+}
+
+.sidebar.dark .active {
+  background-color: #2a2a3a;
+  color: #f1f1f1;
+}
+
+/* Ensure icons visible in dark mode */
+.sidebar.dark .icon {
+  color: inherit;
 }
