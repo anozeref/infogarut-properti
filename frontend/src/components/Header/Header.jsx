@@ -1,4 +1,3 @@
-// src/components/Header/Header.jsx
 import React from 'react';
 import styles from './Header.module.css';
 import { FaUserCircle } from 'react-icons/fa';
@@ -9,9 +8,16 @@ const Header = () => {
   return (
     <header className={styles.header}>
       <div className={styles.container}>
-        <Link to="/" className={styles.logo}>
+        {/* ▼▼▼ BAGIAN INI YANG DIUBAH ▼▼▼ */}
+        <a
+          href="https://infogarut.id"
+          target="_blank"
+          rel="noopener noreferrer"
+          className={styles.logo}
+        >
           <img src={logoImage} alt="Logo Propertease Infogarut.id" />
-        </Link>
+        </a>
+        {/* ▲▲▲ AKHIR DARI PERUBAHAN ▲▲▲ */}
 
         <div className={styles.rightSection}>
           <nav className={styles.nav}>
@@ -33,7 +39,6 @@ const Header = () => {
             </NavLink>
           </nav>
 
-          {/* 🔗 Link FaUserCircle sekarang menuju dashboard user */}
           <Link to="/user" className={styles.userIcon}>
             <FaUserCircle size={28} />
           </Link>
