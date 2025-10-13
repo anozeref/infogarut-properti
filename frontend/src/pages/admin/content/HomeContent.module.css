@@ -1,5 +1,7 @@
+/* ===== Container & Header ===== */
 .container {
   padding: 20px;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 .header {
@@ -7,7 +9,10 @@
   justify-content: space-between;
   align-items: center;
   flex-wrap: wrap;
-  margin-bottom: 24px;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #e5e7eb; /* sekat tipis */
+  transition: color 0.3s ease;
 }
 
 .header h2 {
@@ -22,12 +27,13 @@
   font-size: 0.95rem;
 }
 
+/* ===== Cards ===== */
 .card {
   background-color: #ffffff;
   border-radius: 12px;
   padding: 16px;
   text-align: center;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.3s ease, color 0.3s ease;
   cursor: default;
 }
 
@@ -52,10 +58,12 @@
   margin: 4px 0 0 0;
 }
 
+/* ===== Notifications ===== */
 .notifications {
   background-color: #ffffff;
   border-radius: 12px;
   padding: 16px;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 .notifications h5 {
@@ -73,18 +81,38 @@
   margin-bottom: 6px;
   padding: 8px 12px;
   border-radius: 8px;
-  transition: background-color 0.2s ease;
+  transition: background-color 0.2s ease, color 0.3s ease;
 }
 
 .notifications li:hover {
   background-color: #e0e7ff;
 }
-.header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  flex-wrap: wrap;
-  margin-bottom: 16px;
-  padding-bottom: 12px;
-  border-bottom: 1px solid #e5e7eb; /* sekat tipis */
+
+/* ===== Dark Mode ===== */
+:global(.dark) .container {
+  background-color: #121212;
+  color: #f1f1f1;
+}
+
+:global(.dark) .header p {
+  color: #d1d5db; /* text-muted light */
+}
+
+:global(.dark) .card {
+  background-color: #1f1f1f;
+  color: #f1f1f1;
+}
+
+:global(.dark) .notifications {
+  background-color: #1a1a1a;
+  color: #f1f1f1;
+}
+
+:global(.dark) .notifications li {
+  background-color: #2a2a2a;
+  color: #f1f1f1;
+}
+
+:global(.dark) .notifications li:hover {
+  background-color: #3a3a3a;
 }

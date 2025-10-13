@@ -1,5 +1,10 @@
+/* FooterAdmin.module.css */
 .footer {
   width: 100%;
   border-top: 1px solid #e6e6e6;
-  background-color: #f8f9fa;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 60px;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }

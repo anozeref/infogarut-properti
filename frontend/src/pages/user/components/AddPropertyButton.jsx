@@ -6,7 +6,8 @@ export default function AddPropertyButton() {
   const navigate = useNavigate();
 
   const handleClick = () => {
-    navigate("/tambahproperty"); // arahkan ke halaman Jual Property
+    // arahkan ke halaman Tambah Property di dalam dashboard
+    navigate("/user/tambahproperty/");
   };
 
   return (

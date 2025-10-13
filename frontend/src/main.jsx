@@ -7,12 +7,15 @@ import HomePage from './pages/HomePage.jsx';
 import Properti from './pages/Properti/Properti.jsx';
 import PropertiDetail from './pages/PropertiDetail/PropertiDetail.jsx';
 import DashboardAdmin from './pages/admin/DashboardAdmin.jsx';
-import DashboardUser from './pages/user/DashboardUser.jsx'; // <--- import baru
+import DashboardUser from './pages/user/DashboardUser.jsx';
+import LoginPage from './pages/auth/LoginPage.jsx';
+
+import "sweetalert2/dist/sweetalert2.min.css";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './index.css';
 
+
 const router = createBrowserRouter([
-  // 🌐 Area publik (user)
   {
     path: "/",
     element: <App />,
@@ -20,21 +23,13 @@ const router = createBrowserRouter([
       { index: true, element: <HomePage /> },
       { path: "properti", element: <Properti /> },
       { path: "properti/:id", element: <PropertiDetail /> },
+      { path: "login", element: <LoginPage /> }, // ← ini ditambah
     ],
   },
-
-  // 🧭 Area admin
-  {
-    path: "/admin/*",
-    element: <DashboardAdmin />,
-  },
-
-  // 🧭 Area user
-  {
-    path: "/user/*", // <-- gunakan wildcard agar route internal DashboardUser aktif
-    element: <DashboardUser />,
-  },
+  { path: "/admin/*", element: <DashboardAdmin /> },
+  { path: "/user/*", element: <DashboardUser /> },
 ]);
+
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
