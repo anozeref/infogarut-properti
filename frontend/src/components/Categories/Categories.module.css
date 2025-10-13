@@ -37,7 +37,7 @@
   padding: 2rem;
   border-radius: 12px;
   border: 1px solid #e9ecef;
-  text-align: left;
+  text-align: center;
   transition: box-shadow 0.3s ease, transform 0.3s ease;
   cursor: pointer;
   height: 100%; /* Menjamin tinggi kartu sama jika ada perbedaan panjang teks */
