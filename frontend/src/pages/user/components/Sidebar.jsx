@@ -22,7 +22,7 @@ export default function SidebarUser({ darkMode }) {
     >
       <ul className={styles.menuList}>
         <li>
-          <Link to="/dashboarduser">
+          <Link to="/user/">
             <FaHome className={styles.icon} /> Dashboard
           </Link>
         </li>
@@ -30,22 +30,22 @@ export default function SidebarUser({ darkMode }) {
 
       <ul className={styles.menuList}>
         <li>
-          <Link to="/dashboarduser/propertisaya">
+          <Link to="/user/propertisaya">
             <FaBoxOpen className={styles.icon} /> Properti Saya
           </Link>
         </li>
         <li>
-          <Link to="/dashboarduser/propertipending">
+          <Link to="/user/propertipending">
             <FaClock className={styles.icon} /> Properti Pending
           </Link>
         </li>
         <li>
-          <Link to ="/dashboarduser/propertiaktif">
+          <Link to ="/user/propertiaktif">
             <FaCheckCircle className={styles.icon} /> Properti Aktif
           </Link>
         </li>
         <li>
-          <Link to="/dashboarduser/propertiditolak">
+          <Link to="/user/propertiditolak">
             <FaTimesCircle className={styles.icon} /> Properti Ditolak
           </Link>
         </li>

@@ -50,7 +50,7 @@ export default function NavbarUser({ darkMode, toggleTheme }) {
     <nav className={`${styles.navbar} ${darkMode ? styles.dark : ""}`}>
       {/* 🔷 Logo */}
       <div className={styles.logo}>
-        <Link to="/landing">
+        <Link to="/">
           <img src={logo} alt="Logo" className={styles.logoImg} />
         </Link>
       </div>
@@ -58,7 +58,7 @@ export default function NavbarUser({ darkMode, toggleTheme }) {
       {/* 🌐 Tombol Kembali ke Landing Page */}
       <div className={styles.landingLink}>
         <Link
-          to="/landing"
+          to="/"
           className={`${styles.landingBtn} ${
             darkMode ? styles.landingBtnDark : ""
           }`}
@@ -103,7 +103,7 @@ export default function NavbarUser({ darkMode, toggleTheme }) {
             >
               {/* 🔧 Pengaturan Akun */}
               <Link
-                to="/profileuser"
+                to="/user/profileuser"
                 className={`${styles.settingBtn} ${
                   darkMode ? styles.settingBtnDark : ""
                 }`}
