@@ -1,20 +1,24 @@
-// src/App.jsx
-import React from 'react';
-import { Outlet } from 'react-router-dom';
-import Header from './components/Header/Header';
-import Footer from './components/Footer/Footer';
+import React, { useState } from "react";
+import { Outlet, useLocation } from "react-router-dom";
+import Header from "./components/Header/Header";
+import Footer from "./components/Footer/Footer";
 
 function App() {
+  const [user, setUser] = useState(null);
+  const location = useLocation();
+
+  // ❗Hanya sembunyikan layout di halaman login
+  const hideLayout = location.pathname === "/login";
+
   return (
     <>
-      {/* Header akan selalu tampil di semua halaman */}
-      <Header />
+      {!hideLayout && <Header user={user} setUser={setUser} />}
+
       <main>
-        {/* <Outlet> akan merender konten halaman sesuai rute (HomePage atau Properti) */}
-        <Outlet /> 
+        <Outlet context={{ user, setUser }} />
       </main>
-      {/* Footer juga akan selalu tampil */}
-      <Footer />
+
+      {!hideLayout && <Footer />}
     </>
   );
 }

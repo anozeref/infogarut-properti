@@ -1,11 +1,28 @@
-// src/components/Header/Header.jsx
-import React from 'react';
-import styles from './Header.module.css';
-import { FaUserCircle } from 'react-icons/fa';
-import { Link, NavLink } from 'react-router-dom';
-import logoImage from '../../assets/logo.png';
+import React from "react";
+import styles from "./Header.module.css";
+import { FaUserCircle } from "react-icons/fa";
+import { Link, NavLink, useNavigate } from "react-router-dom";
 
-const Header = () => {
+import logoImage from "../../assets/logo.png";
+
+const Header = ({ user, setUser }) => {
+  const navigate = useNavigate();
+
+  const handleUserClick = () => {
+    if (!user) {
+      navigate("/login");
+    } else if (user.role === "admin") {
+      navigate("/admin");
+    } else if (user.role === "user") {
+      navigate("/user");
+    }
+  };
+
+  const handleLogout = () => {
+    setUser(null);
+    navigate("/");
+  };
+
   return (
     <header className={styles.header}>
       <div className={styles.container}>
@@ -23,6 +40,7 @@ const Header = () => {
             >
               Beranda
             </NavLink>
+
             <NavLink
               to="/properti"
               className={({ isActive }) =>
@@ -33,10 +51,21 @@ const Header = () => {
             </NavLink>
           </nav>
 
-          {/* 🔗 Link FaUserCircle sekarang menuju dashboard user */}
-          <Link to="/user" className={styles.userIcon}>
+          {/* Ikon user */}
+          <button
+            onClick={handleUserClick}
+            className={styles.userIcon}
+            title={user ? user.name : "Masuk"}
+          >
             <FaUserCircle size={28} />
-          </Link>
+          </button>
+
+          {/* Tampilkan tombol logout kalau sudah login */}
+          {user && (
+            <button onClick={handleLogout} className={styles.logoutBtn}>
+              Keluar
+            </button>
+          )}
         </div>
       </div>
     </header>
