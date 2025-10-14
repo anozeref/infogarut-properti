@@ -6,6 +6,8 @@
   justify-content: center;
   align-items: center;
   z-index: 999;
+  overflow-y: auto;      /* tambahkan agar scrollable jika tinggi layar kecil */
+  padding: 20px;         /* beri jarak atas/bawah agar modal tidak nempel */
 }
 
 .modal {
@@ -15,6 +17,8 @@
   box-shadow: 0 4px 15px rgba(0,0,0,0.2);
   width: 400px;
   max-width: 90%;
+  max-height: 90vh;       /* modal maksimal 90% tinggi viewport */
+  overflow-y: auto;       /* scroll jika konten lebih tinggi */
 }
 
 h3 {
@@ -29,15 +33,23 @@ form {
   gap: 10px;
 }
 
-input {
+input, textarea {
   padding: 8px 10px;
   border: 1px solid #ccc;
   border-radius: 6px;
   outline: none;
+  width: 100%;
+  box-sizing: border-box;
 }
 
-input:focus {
+input:focus, textarea:focus {
   border-color: #0d6efd;
+}
+
+textarea {
+  resize: vertical;
+  min-height: 60px;
+  max-height: 200px;
 }
 
 .btnGroup {

@@ -76,7 +76,8 @@
       "desa": "Jayaraga",
       "alamat": "RT 04 / RW 02",
       "role": "user",
-      "joinedAt": "14/10/2025 11:21:00"
+      "joinedAt": "14/10/2025 11:21:00",
+      "verified": true
     }
   ],
   "properties": [
@@ -127,7 +128,7 @@
         "kost1a.jpg",
         "kost1b.jpg"
       ],
-      "statusPostingan": "pending",
+      "statusPostingan": "approved",
       "postedAt": "21/07/2025 09:45:22",
       "koordinat": {
         "lat": -7.1903,
@@ -189,33 +190,17 @@
       }
     },
     {
-      "id": "daf7",
+      "id": "576e",
       "namaProperti": "Loli",
       "jenisProperti": "Sewa",
       "tipeProperti": "Kost",
-      "harga": 1249999,
-      "luasTanah": 153,
-      "luasBangunan": 48,
-      "kamarTidur": 1,
-      "kamarMandi": 0,
       "lokasi": "Nusa Indah, Garut",
-      "kecamatan": "Tarogong Kidul",
-      "desa": "Jayaraga",
-      "deskripsi": "Testing koneksi+DB+Postingan",
+      "harga": "249999",
+      "periodeSewa": "/13 tahun",
+      "deskripsi": "carita.na testing koneksi backend+update db+input post",
       "statusPostingan": "approved",
       "ownerId": "5",
-      "postedAt": "14/10/2025 19:38:47",
-      "koordinat": {
-        "lat": 0,
-        "lng": 0
-      },
-      "media": [
-        "1760445527723-79602265.png",
-        "1760445527747-681462390.png",
-        "1760445527773-879111094.png",
-        "1760445527783-595427852.png"
-      ],
-      "periodeSewa": "/13 tahun"
+      "postedAt": "15/10/2025 00:09:41"
     }
   ]
 }
