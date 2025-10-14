@@ -93,6 +93,12 @@
   cursor: pointer;
   transition: all 0.2s ease;
 }
+.actionButtons {
+  display: flex;
+  justify-content: flex-end; /* Biar ke kanan */
+  align-items: center;
+  gap: 10px;
+}
 
 .editBtn {
   background: #6366f1;
