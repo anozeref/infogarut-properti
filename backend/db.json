@@ -1,65 +1,87 @@
 {
   "users": [
     {
-      "id": 1,
+      "id": "1",
       "nama": "Ahmad Fauzi",
       "username": "ahmadfz",
       "email": "ahmadfz@gmail.com",
+      "password": "pass1234",
       "no_hp": "081234567890",
       "role": "user",
       "kecamatan": "Tarogong Kidul",
       "desa": "Sukajaya",
-      "alamat": "Jl. Cimanuk No.45, Tarogong Kidul, Garut"
+      "alamat": "Jl. Cimanuk No.45, Tarogong Kidul, Garut",
+      "joinedAt": "14/02/2025 09:32:41"
     },
     {
-      "id": 2,
+      "id": "2",
       "nama": "Rina Marlina",
       "username": "rinamln",
       "email": "rina.marlina@gmail.com",
+      "password": "rina2025",
       "no_hp": "082234567891",
       "role": "user",
       "kecamatan": "Banyuresmi",
       "desa": "Bagendit",
-      "alamat": "Jl. Raya Bagendit No.12, Banyuresmi, Garut"
+      "alamat": "Jl. Raya Bagendit No.12, Banyuresmi, Garut",
+      "joinedAt": "05/05/2025 15:08:12"
     },
     {
-      "id": 3,
+      "id": "3",
       "nama": "Dedi Permana",
       "username": "dediprm",
       "email": "dedi.permana@gmail.com",
+      "password": "dedi5678",
       "no_hp": "083134567892",
       "role": "user",
       "kecamatan": "Cisurupan",
       "desa": "Sukalaksana",
-      "alamat": "Kp. Cikajang No.8, Cisurupan, Garut"
+      "alamat": "Kp. Cikajang No.8, Cisurupan, Garut",
+      "joinedAt": "27/07/2025 10:55:37"
     },
     {
-      "id": 4,
+      "id": "4",
       "nama": "Siti Nurhaliza",
       "username": "sitinur",
       "email": "sitinurhaliza@gmail.com",
+      "password": "siti2025",
       "no_hp": "085234567893",
       "role": "user",
       "kecamatan": "Leles",
       "desa": "Wanaraja",
-      "alamat": "Jl. Raya Leles No.23, Leles, Garut"
+      "alamat": "Jl. Raya Leles No.23, Leles, Garut",
+      "joinedAt": "09/09/2025 19:20:44"
     },
     {
-      "id": 5,
+      "id": "5",
       "nama": "Admin GarutProperti",
       "username": "admin_gp",
       "email": "admin@garutproperti.id",
+      "password": "admin123",
       "no_hp": "081122334455",
       "role": "admin",
       "kecamatan": "Garut Kota",
       "desa": "Regol",
-      "alamat": "Jl. Patriot No.1, Regol, Garut Kota"
+      "alamat": "Jl. Patriot No.1, Regol, Garut Kota",
+      "joinedAt": "03/03/2025 08:00:00"
+    },
+    {
+      "id": "9c47",
+      "nama": "Fikry Arief",
+      "username": "anozeref",
+      "email": "kantorposfikry@gmail.com",
+      "password": "testingdb",
+      "no_hp": "082318141476",
+      "kecamatan": "Tarogong Kidul",
+      "desa": "Jayaraga",
+      "alamat": "RT 04 / RW 02",
+      "role": "user",
+      "joinedAt": "14/10/2025, 11.21.00"
     }
   ],
-
   "properti": [
     {
-      "id": 1,
+      "id": "1",
       "ownerId": 1,
       "namaProperti": "Rumah Asri Sukajaya",
       "tipeProperti": "Rumah",
@@ -74,13 +96,19 @@
       "kecamatan": "Tarogong Kidul",
       "desa": "Sukajaya",
       "deskripsi": "Rumah asri siap huni dekat pusat kota Garut. Lingkungan tenang dan akses mudah.",
-      "media": ["rumah1a.jpg", "rumah1b.jpg"],
+      "media": [
+        "rumah1a.jpg",
+        "rumah1b.jpg"
+      ],
       "statusPostingan": "aktif",
       "postedAt": "10/03/2025 14:12:33",
-      "koordinat": { "lat": -7.2204, "lng": 107.9031 }
+      "koordinat": {
+        "lat": -7.2204,
+        "lng": 107.9031
+      }
     },
     {
-      "id": 2,
+      "id": "2",
       "ownerId": 2,
       "namaProperti": "Kost Bagendit Indah",
       "tipeProperti": "Kos",
@@ -95,13 +123,19 @@
       "kecamatan": "Banyuresmi",
       "desa": "Bagendit",
       "deskripsi": "Kost putri nyaman, dekat Universitas Garut dan minimarket. Akses 24 jam.",
-      "media": ["kost1a.jpg", "kost1b.jpg"],
+      "media": [
+        "kost1a.jpg",
+        "kost1b.jpg"
+      ],
       "statusPostingan": "pending",
       "postedAt": "21/07/2025 09:45:22",
-      "koordinat": { "lat": -7.1903, "lng": 107.9337 }
+      "koordinat": {
+        "lat": -7.1903,
+        "lng": 107.9337
+      }
     },
     {
-      "id": 3,
+      "id": "3",
       "ownerId": 3,
       "namaProperti": "Ruko Strategis Cisurupan",
       "tipeProperti": "Ruko",
@@ -116,13 +150,19 @@
       "kecamatan": "Cisurupan",
       "desa": "Sukalaksana",
       "deskripsi": "Ruko dua lantai di pinggir jalan utama. Cocok untuk usaha atau investasi jangka panjang.",
-      "media": ["ruko1a.jpg", "ruko1b.jpg"],
+      "media": [
+        "ruko1a.jpg",
+        "ruko1b.jpg"
+      ],
       "statusPostingan": "aktif",
       "postedAt": "02/09/2025 16:20:41",
-      "koordinat": { "lat": -7.3064, "lng": 107.8753 }
+      "koordinat": {
+        "lat": -7.3064,
+        "lng": 107.8753
+      }
     },
     {
-      "id": 4,
+      "id": "4",
       "ownerId": 4,
       "namaProperti": "Tanah Strategis Leles",
       "tipeProperti": "Tanah",
@@ -137,10 +177,16 @@
       "kecamatan": "Leles",
       "desa": "Wanaraja",
       "deskripsi": "Tanah strategis dekat pasar dan jalan provinsi. Legalitas lengkap, cocok untuk perumahan.",
-      "media": ["tanah1a.jpg", "tanah1b.jpg"],
+      "media": [
+        "tanah1a.jpg",
+        "tanah1b.jpg"
+      ],
       "statusPostingan": "selesai",
       "postedAt": "28/01/2025 11:55:10",
-      "koordinat": { "lat": -7.1568, "lng": 107.9002 }
+      "koordinat": {
+        "lat": -7.1568,
+        "lng": 107.9002
+      }
     }
   ]
 }

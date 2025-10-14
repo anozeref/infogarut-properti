@@ -1,11 +1,14 @@
-import React from "react";
+// src/components/Header/Header.jsx
+import React, { useContext } from "react";
 import styles from "./Header.module.css";
 import { FaUserCircle } from "react-icons/fa";
 import { Link, NavLink, useNavigate } from "react-router-dom";
-
+import Swal from "sweetalert2";
+import { AuthContext } from "../../context/AuthContext";
 import logoImage from "../../assets/logo.png";
 
-const Header = ({ user, setUser }) => {
+const Header = () => {
+  const { user, logout } = useContext(AuthContext);
   const navigate = useNavigate();
 
   const handleUserClick = () => {
@@ -13,14 +16,25 @@ const Header = ({ user, setUser }) => {
       navigate("/login");
     } else if (user.role === "admin") {
       navigate("/admin");
-    } else if (user.role === "user") {
+    } else {
       navigate("/user");
     }
   };
 
   const handleLogout = () => {
-    setUser(null);
-    navigate("/");
+    Swal.fire({
+      title: "Yakin ingin keluar?",
+      icon: "question",
+      showCancelButton: true,
+      confirmButtonText: "Keluar",
+      cancelButtonText: "Batal",
+    }).then((res) => {
+      if (res.isConfirmed) {
+        logout();
+        navigate("/"); // redirect ke home
+        Swal.fire("Keluar!", "Anda berhasil keluar.", "success");
+      }
+    });
   };
 
   return (
@@ -40,7 +54,6 @@ const Header = ({ user, setUser }) => {
             >
               Beranda
             </NavLink>
-
             <NavLink
               to="/properti"
               className={({ isActive }) =>
@@ -51,16 +64,14 @@ const Header = ({ user, setUser }) => {
             </NavLink>
           </nav>
 
-          {/* Ikon user */}
           <button
             onClick={handleUserClick}
             className={styles.userIcon}
-            title={user ? user.name : "Masuk"}
+            title={user ? user.nama.split(" ")[0] : "Masuk"}
           >
             <FaUserCircle size={28} />
           </button>
 
-          {/* Tampilkan tombol logout kalau sudah login */}
           {user && (
             <button onClick={handleLogout} className={styles.logoutBtn}>
               Keluar
