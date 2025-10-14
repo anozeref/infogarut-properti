@@ -2,6 +2,7 @@ import React, { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { FaUsers, FaBuilding, FaClock, FaCheckCircle, FaBell } from "react-icons/fa";
+import { io } from "socket.io-client";
 import styles from "./HomeContent.module.css";
 import { ThemeContext } from "../DashboardAdmin";
 import { API_URL } from "../../../utils/constant";
@@ -31,71 +32,82 @@ const HomeContent = () => {
     year: "numeric",
   });
 
+  // 🔹 Fungsi ambil data (bisa dipanggil ulang tiap ada update)
+  const fetchData = async () => {
+    try {
+      const usersRes = await fetch(`${API_URL}users`);
+      if (!usersRes.ok) throw new Error("Failed to fetch users");
+      const users = await usersRes.json();
+
+      const propsRes = await fetch(`${API_URL}properties`);
+      if (!propsRes.ok) throw new Error("Failed to fetch properties");
+      const props = await propsRes.json();
+
+      const totalUsers = users.filter(u => u.role === "user").length;
+      const pending = props.filter(p => p.statusPostingan === "pending").length;
+      const approved = props.filter(p => p.statusPostingan === "approved").length;
+
+      setStats({
+        totalUser: totalUsers,
+        totalProperti: props.length,
+        propertiPending: pending,
+        propertiApproved: approved,
+      });
+
+      const notifUsers = users
+        .filter(u => u.role === "user")
+        .map(u => ({
+          id: `u${u.id}`,
+          text: `User ${u.username} telah bergabung`,
+          timestamp: parseCustomDate(u.joinedAt) || new Date(),
+          type: "user",
+          targetId: u.id,
+        }));
+
+      const notifProps = props
+        .filter(p => p.statusPostingan === "pending")
+        .map(p => ({
+          id: `p${p.id}`,
+          text: `User ${
+            users.find(u => u.id === p.ownerId)?.username || "tidak diketahui"
+          } meminta pengajuan penjualan properti "${
+            p.namaProperti || "tidak diketahui"
+          }"`,
+          timestamp: parseCustomDate(p.postedAt) || new Date(),
+          type: "property",
+          targetId: p.id,
+        }));
+
+      const allNotif = [...notifUsers, ...notifProps]
+        .sort((a, b) => b.timestamp - a.timestamp)
+        .slice(0, 5);
+
+      setNotifications(allNotif);
+    } catch (err) {
+      console.error("Error fetch HomeContent:", err);
+    }
+  };
+
+  // 🔹 Jalankan saat pertama kali
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const usersRes = await fetch(`${API_URL}users`);
-        if (!usersRes.ok) throw new Error("Failed to fetch users");
-        const users = await usersRes.json();
-
-        const propsRes = await fetch(`${API_URL}properties`);
-        if (!propsRes.ok) throw new Error("Failed to fetch properties");
-        const props = await propsRes.json();
-
-        // Statistik
-        const totalUsers = users.filter(u => u.role === "user").length;
-        const pending = props.filter(p => p.statusPostingan === "pending").length;
-        const approved = props.filter(p => p.statusPostingan === "approved").length;
-
-        setStats({
-          totalUser: totalUsers,
-          totalProperti: props.length,
-          propertiPending: pending,
-          propertiApproved: approved,
-        });
-
-        // Notifikasi user baru
-        const notifUsers = users
-          .filter(u => u.role === "user")
-          .map(u => ({
-            id: `u${u.id}`,
-            text: `User ${u.username} telah bergabung`,
-            timestamp: parseCustomDate(u.joinedAt) || new Date(),
-            type: "user",
-            targetId: u.id,
-          }));
-
-        // Notifikasi properti pending
-        const notifProps = props
-          .filter(p => p.statusPostingan === "pending")
-          .map(p => ({
-            id: `p${p.id}`,
-            text: `User ${users.find(u => u.id === p.ownerId)?.username || "tidak diketahui"} meminta pengajuan penjualan properti "${p.namaProperti || "tidak diketahui"}"`,
-            timestamp: parseCustomDate(p.postedAt) || new Date(),
-            type: "property",
-            targetId: p.id,
-          }));
-
-        // Gabung, urut terbaru, ambil 5 item
-        const allNotif = [...notifUsers, ...notifProps]
-          .sort((a, b) => b.timestamp - a.timestamp)
-          .slice(0, 5);
-
-        setNotifications(allNotif);
-      } catch (err) {
-        console.error("Error fetch HomeContent:", err);
-      }
-    };
-
     fetchData();
+
+    // 🔹 Setup socket listener (realtime update)
+    const socket = io("http://localhost:3005");
+
+    socket.on("connect", () => console.log("✅ Connected to Socket.IO server"));
+
+    // Update realtime jika ada user baru atau properti baru/pending
+    socket.on("userUpdate", () => fetchData());
+    socket.on("propertyUpdate", () => fetchData());
+
+    // Cleanup
+    return () => socket.disconnect();
   }, []);
 
   const handleNotifClick = (notif) => {
-    if (notif.type === "user") {
-      navigate("/admin/user");
-    } else if (notif.type === "property") {
-      navigate("/admin/properti");
-    }
+    if (notif.type === "user") navigate("/admin/user");
+    else if (notif.type === "property") navigate("/admin/properti");
   };
 
   return (
@@ -118,7 +130,6 @@ const HomeContent = () => {
               <p className={styles.number}>{stats.totalUser}</p>
             </div>
           </div>
-
           <div className="col-md-3 col-6">
             <div className={`${styles.card} shadow-sm`}>
               <FaBuilding className={styles.iconProperti} />
@@ -126,7 +137,6 @@ const HomeContent = () => {
               <p className={styles.number}>{stats.totalProperti}</p>
             </div>
           </div>
-
           <div className="col-md-3 col-6">
             <div className={`${styles.card} shadow-sm`}>
               <FaClock className={styles.iconPending} />
@@ -134,7 +144,6 @@ const HomeContent = () => {
               <p className={styles.number}>{stats.propertiPending}</p>
             </div>
           </div>
-
           <div className="col-md-3 col-6">
             <div className={`${styles.card} shadow-sm`}>
               <FaCheckCircle className={styles.iconApproved} />
@@ -154,11 +163,7 @@ const HomeContent = () => {
           <div className={styles.notifTable}>
             {notifications.length ? (
               notifications.map((notif) => (
-                <div
-                  key={notif.id}
-                  className={styles.notifRow}
-                  onClick={() => handleNotifClick(notif)}
-                >
+                <div key={notif.id} className={styles.notifRow} onClick={() => handleNotifClick(notif)}>
                   <div className={styles.notifTimestamp}>
                     [{notif.timestamp ? notif.timestamp.toLocaleString() : "tanggal tidak tersedia"}]
                   </div>

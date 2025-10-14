@@ -5,6 +5,9 @@ import { registerUser } from "../../utils/api";
 import { AuthContext } from "../../context/AuthContext";
 import styles from "./LoginPage.module.css"; // reuse styling login
 import { motion } from "framer-motion";
+import { io } from "socket.io-client";
+
+const socket = io("http://localhost:3005"); // connect ke server Socket.IO
 
 const RegisterPage = () => {
   const navigate = useNavigate();
@@ -25,18 +28,34 @@ const RegisterPage = () => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
+  const getTimestamp = () => {
+    const now = new Date();
+    return `${String(now.getDate()).padStart(2, "0")}/${
+      String(now.getMonth() + 1).padStart(2, "0")
+    }/${now.getFullYear()} ${String(now.getHours()).padStart(2, "0")}:${
+      String(now.getMinutes()).padStart(2, "0")
+    }:${String(now.getSeconds()).padStart(2, "0")}`;
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       const newUser = {
         ...formData,
         role: "user",
-        joinedAt: new Date().toLocaleString("id-ID"),
+        joinedAt: getTimestamp(),
       };
 
       const savedUser = await registerUser(newUser);
 
       login(savedUser);
+
+      // Emit event ke server supaya HomeContent bisa update realtime
+      socket.emit("new_user", {
+        id: savedUser.id,
+        username: savedUser.username,
+        joinedAt: savedUser.joinedAt,
+      });
 
       Swal.fire(
         "Berhasil!",

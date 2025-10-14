@@ -76,7 +76,7 @@
       "desa": "Jayaraga",
       "alamat": "RT 04 / RW 02",
       "role": "user",
-      "joinedAt": "14/10/2025, 11.21.00"
+      "joinedAt": "14/10/2025 11:21:00"
     }
   ],
   "properties": [
@@ -109,7 +109,7 @@
     },
     {
       "id": "2",
-      "ownerId": 2,
+      "ownerId": "2",
       "namaProperti": "Kost Bagendit Indah",
       "tipeProperti": "Kos",
       "jenisProperti": "sewa",
@@ -136,7 +136,7 @@
     },
     {
       "id": "3",
-      "ownerId": 3,
+      "ownerId": "3",
       "namaProperti": "Ruko Strategis Cisurupan",
       "tipeProperti": "Ruko",
       "jenisProperti": "cicilan",
@@ -163,7 +163,7 @@
     },
     {
       "id": "4",
-      "ownerId": 4,
+      "ownerId": "4",
       "namaProperti": "Tanah Strategis Leles",
       "tipeProperti": "Tanah",
       "jenisProperti": "jual",
@@ -186,6 +186,67 @@
       "koordinat": {
         "lat": -7.1568,
         "lng": 107.9002
+      }
+    },
+    {
+      "id": "e749",
+      "namaProperti": "Loli",
+      "jenisProperti": "Sewa",
+      "tipeProperti": "Rumah",
+      "lokasi": "Nusa Indah, Garut",
+      "kecamatan": "Tarogong Kidul",
+      "desa": "Jayaraga",
+      "harga": "249999",
+      "luasTanah": "155",
+      "luasBangunan": "48",
+      "kamarTidur": "1",
+      "kamarMandi": "2",
+      "periodeAngka": "13",
+      "periodeSatuan": "tahun",
+      "periodeSewa": "/13 tahun",
+      "deskripsi": "Testing DB+Koneksi+Input",
+      "media": [
+        "1760432044008-88928871.png",
+        "1760432044036-976278464.png",
+        "1760432044056-647509559.png",
+        "1760432044070-189406882.png"
+      ],
+      "ownerId": "5",
+      "statusPostingan": "approved",
+      "postedAt": "14/10/2025 15:54:04",
+      "koordinat": {
+        "lat": null,
+        "lng": null
+      }
+    },
+    {
+      "id": "0f28",
+      "namaProperti": "Loli 2",
+      "jenisProperti": "Jual",
+      "tipeProperti": "Rumah",
+      "lokasi": "Nusa Indah, Garut",
+      "kecamatan": "Tarogong Kidul",
+      "desa": "Jayaraga",
+      "harga": "124000000",
+      "luasTanah": "165",
+      "luasBangunan": "55",
+      "kamarTidur": "2",
+      "kamarMandi": "1",
+      "periodeAngka": "",
+      "periodeSatuan": "bulan",
+      "periodeSewa": "",
+      "deskripsi": "Test Ulang",
+      "media": [
+        "1760432639518-782539961.png",
+        "1760432639547-788193666.png",
+        "1760432639569-319147138.png"
+      ],
+      "ownerId": "5",
+      "statusPostingan": "approved",
+      "postedAt": "14/10/2025 16:03:59",
+      "koordinat": {
+        "lat": null,
+        "lng": null
       }
     }
   ]
