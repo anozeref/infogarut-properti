@@ -1,50 +1,86 @@
-import React, { useState } from "react";
-import { FaCheck, FaTimes, FaTrash, FaEdit } from "react-icons/fa";
+import React, { useState, useEffect } from "react";
+import { FaCheck, FaTimes, FaTrash, FaEdit, FaInfoCircle } from "react-icons/fa";
 import { motion, AnimatePresence } from "framer-motion";
 import Swal from "sweetalert2";
 import styles from "./KelolaPropertiContent.module.css";
 import EditPropertyModal from "./EditPropertyModal";
+import axios from "axios";
+import { io } from "socket.io-client";
 
-const propertiesData = [
-  { id: 1, title: "Rumah Minimalis", jenis: "Jual", tipe: "Rumah", location: "Tarogong", price: 350000000, periode: "1 tahun", status: "approved", owner: "Admin", ownerId: 1 },
-  { id: 2, title: "Kost Mahasiswa Cibatu", jenis: "Sewa", tipe: "Kost", location: "Cibatu", price: 1200000, periode: "1 bulan", status: "pending", owner: "Budi", ownerId: 2 },
-  { id: 3, title: "Vila Eksklusif Cikajang", jenis: "Cicilan", tipe: "Villa", location: "Cikajang", price: 1500000000, periode: "2 tahun", status: "approved", owner: "Citra", ownerId: 3 },
-  { id: 4, title: "Ruko Strategis Tarogong", jenis: "Dijual", tipe: "Ruko", location: "Tarogong", price: 850000000, periode: "-", status: "approved", owner: "Andi", ownerId: 2 },
-  { id: 5, title: "Rumah 3 Kamar Garut Kota", jenis: "Sewa", tipe: "Rumah", location: "Garut Kota", price: 2500000, periode: "3 bulan", status: "pending", owner: "Dina", ownerId: 4 }
-];
-
+const socket = io("http://localhost:3005"); // Socket.IO server
 const ITEMS_PER_PAGE = 5;
-const adminId = 1;
+const adminId = 5;
 
 export default function KelolaPropertiContent() {
-  const [properties, setProperties] = useState(propertiesData);
+  const [properties, setProperties] = useState([]);
+  const [users, setUsers] = useState([]);
   const [currentPagePending, setCurrentPagePending] = useState(1);
   const [currentPageApproved, setCurrentPageApproved] = useState(1);
   const [approvedView, setApprovedView] = useState("user");
   const [editData, setEditData] = useState(null);
 
-  const pendingProperties = properties.filter(p => p.status === "pending");
-  const approvedProperties = properties.filter(p => p.status === "approved");
-
-  // ---------- Aksi ----------
-  const handleApprove = id => {
-    Swal.fire({
-      title: "Setujui Properti?",
-      icon: "question",
-      showCancelButton: true,
-      confirmButtonText: "Ya, Setujui",
-      cancelButtonText: "Batal"
-    }).then(res => {
-      if (res.isConfirmed) {
-        setProperties(prev =>
-          prev.map(p => (p.id === id ? { ...p, status: "approved" } : p))
-        );
-        Swal.fire("Disetujui!", "Properti berhasil disetujui.", "success");
+  // ---------- Fetch data ----------
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [propRes, userRes] = await Promise.all([
+          axios.get("http://localhost:3004/properties"),
+          axios.get("http://localhost:3004/users"),
+        ]);
+        setProperties(propRes.data);
+        setUsers(userRes.data);
+      } catch (err) {
+        console.error("Gagal fetch data:", err);
       }
-    });
+    };
+    fetchData();
+
+    // Socket.IO
+    socket.on("new_property", (newProp) => setProperties((prev) => [...prev, newProp]));
+    socket.on("update_property", (updatedProp) =>
+      setProperties((prev) => prev.map((p) => (p.id === updatedProp.id ? updatedProp : p)))
+    );
+
+    return () => {
+      socket.off("new_property");
+      socket.off("update_property");
+    };
+  }, []);
+
+  // ---------- Helpers ----------
+  const getOwnerName = (ownerId) => {
+    const u = users.find((user) => user.id === ownerId);
+    return u ? u.name : `ID: ${ownerId}`;
   };
 
-  const handleReject = id => {
+  const getTimestamp = (dateStr) => {
+    if (!dateStr) return "-";
+    const d = new Date(dateStr);
+    if (isNaN(d)) return "-";
+    return `${String(d.getDate()).padStart(2, "0")}/${
+      String(d.getMonth() + 1).padStart(2, "0")
+    }/${d.getFullYear()} ${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}:${String(d.getSeconds()).padStart(2, "0")}`;
+  };
+
+  const pendingProperties = properties.filter((p) => p.statusPostingan === "pending");
+  const approvedProperties = properties.filter((p) => p.statusPostingan === "approved");
+
+  // ---------- Actions ----------
+  const handleApprove = async (id) => {
+    const prop = properties.find((p) => p.id === id);
+    if (!prop) return;
+    const updated = { ...prop, statusPostingan: "approved" };
+    try {
+      await axios.put(`http://localhost:3004/properties/${id}`, updated);
+      setProperties((prev) => prev.map((p) => (p.id === id ? updated : p)));
+      socket.emit("update_property", updated);
+      Swal.fire("Disetujui!", "Properti berhasil disetujui.", "success");
+    } catch (err) {
+      Swal.fire("Error!", "Gagal menyetujui properti.", "error");
+    }
+  };
+
+  const handleReject = async (id) => {
     Swal.fire({
       title: "Tolak Properti?",
       text: "Properti ini akan dihapus dari daftar.",
@@ -52,15 +88,21 @@ export default function KelolaPropertiContent() {
       showCancelButton: true,
       confirmButtonText: "Ya, Tolak",
       cancelButtonText: "Batal"
-    }).then(res => {
+    }).then(async (res) => {
       if (res.isConfirmed) {
-        setProperties(prev => prev.filter(p => p.id !== id));
-        Swal.fire("Ditolak!", "Properti telah dihapus.", "success");
+        try {
+          await axios.delete(`http://localhost:3004/properties/${id}`);
+          setProperties((prev) => prev.filter((p) => p.id !== id));
+          socket.emit("update_property", { id, deleted: true });
+          Swal.fire("Ditolak!", "Properti telah dihapus.", "success");
+        } catch (err) {
+          Swal.fire("Error!", "Gagal menolak properti.", "error");
+        }
       }
     });
   };
 
-  const handleDelete = id => {
+  const handleDelete = async (id) => {
     Swal.fire({
       title: "Hapus Properti?",
       text: "Data tidak dapat dikembalikan.",
@@ -68,22 +110,51 @@ export default function KelolaPropertiContent() {
       showCancelButton: true,
       confirmButtonText: "Hapus",
       cancelButtonText: "Batal"
-    }).then(res => {
+    }).then(async (res) => {
       if (res.isConfirmed) {
-        setProperties(prev => prev.filter(p => p.id !== id));
-        Swal.fire("Dihapus!", "Properti berhasil dihapus.", "success");
+        try {
+          await axios.delete(`http://localhost:3004/properties/${id}`);
+          setProperties((prev) => prev.filter((p) => p.id !== id));
+          socket.emit("update_property", { id, deleted: true });
+          Swal.fire("Dihapus!", "Properti berhasil dihapus.", "success");
+        } catch (err) {
+          Swal.fire("Error!", "Gagal menghapus properti.", "error");
+        }
       }
     });
   };
 
-  const handleEdit = prop => {
-    setEditData(prop); // buka modal
+  const handleEdit = (prop) => setEditData(prop);
+
+  const handleSaveEdit = async (updated) => {
+    try {
+      await axios.put(`http://localhost:3004/properties/${updated.id}`, updated);
+      setProperties((prev) => prev.map((p) => (p.id === updated.id ? updated : p)));
+      socket.emit("update_property", updated);
+      setEditData(null);
+      Swal.fire("Berhasil!", "Data properti berhasil diperbarui.", "success");
+    } catch (err) {
+      Swal.fire("Error!", "Gagal memperbarui properti.", "error");
+    }
   };
 
-  const handleSaveEdit = updated => {
-    setProperties(prev => prev.map(p => (p.id === updated.id ? updated : p)));
-    setEditData(null);
-    Swal.fire("Berhasil!", "Data properti berhasil diperbarui.", "success");
+  const handleDetail = (prop) => {
+    Swal.fire({
+      title: `Detail Properti: ${prop.namaProperti}`,
+      html: `
+        <b>Jenis:</b> ${prop.jenisProperti}<br/>
+        <b>Tipe:</b> ${prop.tipeProperti}<br/>
+        <b>Lokasi:</b> ${prop.lokasi}, ${prop.kecamatan || "-"}, ${prop.desa || "-"}<br/>
+        <b>Harga:</b> ${prop.harga.toLocaleString()}<br/>
+        <b>Periode:</b> ${prop.periodeSewa || "-"}<br/>
+        <b>Status:</b> ${prop.statusPostingan}<br/>
+        <b>Owner:</b> ${getOwnerName(prop.ownerId)}<br/>
+        <b>Posted At:</b> ${getTimestamp(prop.postedAt)}<br/>
+        <b>Deskripsi:</b> ${prop.deskripsi || "-"}
+      `,
+      icon: "info",
+      confirmButtonText: "Tutup"
+    });
   };
 
   // ---------- Pagination ----------
@@ -110,7 +181,7 @@ export default function KelolaPropertiContent() {
     );
   };
 
-  // ---------- Table ----------
+  // ---------- Render Table ----------
   const renderTable = (list, isPending = false) => (
     <div className={styles.tableWrapper}>
       <table className={styles.table}>
@@ -139,21 +210,24 @@ export default function KelolaPropertiContent() {
                 layout
               >
                 <td>{idx + 1}</td>
-                <td>{prop.title}</td>
-                <td>{prop.jenis}</td>
-                <td>{prop.tipe}</td>
-                <td>{prop.location}</td>
-                <td>{prop.price.toLocaleString()}</td>
-                <td>{prop.periode}</td>
-                <td>{prop.owner}</td>
+                <td>{prop.namaProperti}</td>
+                <td>{prop.jenisProperti}</td>
+                <td>{prop.tipeProperti}</td>
+                <td>{prop.lokasi}</td>
+                <td>{prop.harga.toLocaleString()}</td>
+                <td>{prop.periodeSewa || "-"}</td>
+                <td>{getOwnerName(prop.ownerId)}</td>
                 <td className={styles.statusCell}>
-                  {prop.status === "approved" ? (
+                  {prop.statusPostingan === "approved" ? (
                     <FaCheck className={styles.approved} />
                   ) : (
                     <FaTimes className={styles.pending} />
                   )}
                 </td>
                 <td className={styles.actions}>
+                  <button className={styles.iconBtn} onClick={() => handleDetail(prop)}>
+                    <FaInfoCircle style={{ color: "#17a2b8" }} />
+                  </button>
                   {isPending ? (
                     <>
                       <button className={styles.iconBtn} onClick={() => handleApprove(prop.id)}>
@@ -183,27 +257,33 @@ export default function KelolaPropertiContent() {
   );
 
   const filteredApproved = approvedProperties.filter(
-    p => approvedView === "admin" ? p.ownerId === adminId : p.ownerId !== adminId
+    (p) => (approvedView === "admin" ? p.ownerId === adminId : p.ownerId !== adminId)
   );
 
   return (
     <div className={styles.container}>
       <div className={styles.section}>
-        <p className={styles.subHeader}>Properti Menunggu Persetujuan ({pendingProperties.length})</p>
+        <p className={styles.subHeader}>
+          Properti Menunggu Persetujuan ({pendingProperties.length})
+        </p>
         {renderTable(paginate(pendingProperties, currentPagePending), true)}
         {renderPagination(pendingProperties.length, currentPagePending, setCurrentPagePending)}
       </div>
 
       <div className={styles.section}>
         <div className={styles.header}>
-          <p className={styles.subHeader}>Properti Disetujui ({filteredApproved.length})</p>
+          <p className={styles.subHeader}>
+            Properti Disetujui ({filteredApproved.length})
+          </p>
           <div className={styles.toggleContainer}>
             <span>User</span>
             <label className={styles.switch}>
               <input
                 type="checkbox"
                 checked={approvedView === "admin"}
-                onChange={() => setApprovedView(approvedView === "user" ? "admin" : "user")}
+                onChange={() =>
+                  setApprovedView(approvedView === "user" ? "admin" : "user")
+                }
               />
               <span className={styles.slider}></span>
             </label>
@@ -215,7 +295,6 @@ export default function KelolaPropertiContent() {
         {renderPagination(filteredApproved.length, currentPageApproved, setCurrentPageApproved)}
       </div>
 
-      {/* Modal Edit */}
       {editData && (
         <EditPropertyModal
           data={editData}
