@@ -282,6 +282,7 @@ export default function KelolaPropertiContent() {
 
   return (
     <div className={styles.container}>
+      <h2 className={styles.header}>Kelola Properti</h2>
       <div className={styles.section}>
         <p className={styles.subHeader}>
           Properti Menunggu Persetujuan ({pendingProperties.length})

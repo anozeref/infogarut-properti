@@ -3,6 +3,7 @@ import { FaCheck, FaClock, FaBan, FaInfoCircle } from "react-icons/fa";
 import { motion, AnimatePresence } from "framer-motion";
 import Swal from "sweetalert2";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 import styles from "./KelolaUserContent.module.css";
 import { ThemeContext } from "../DashboardAdmin";
 
@@ -10,6 +11,7 @@ const ITEMS_PER_PAGE = 5;
 
 const KelolaUserContent = () => {
   const { theme } = useContext(ThemeContext);
+  const navigate = useNavigate();
 
   const [users, setUsers] = useState([]);
   const [properties, setProperties] = useState([]);
@@ -19,7 +21,7 @@ const KelolaUserContent = () => {
   const [selectedUser, setSelectedUser] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
 
-  // ---------- Fetch data ----------
+  // ---------- Fetch data awal ----------
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -27,13 +29,10 @@ const KelolaUserContent = () => {
           axios.get("http://localhost:3004/users"),
           axios.get("http://localhost:3004/properties"),
         ]);
-
-        // pastikan verified ada
         const normalizedUsers = userRes.data.map(u => ({
           ...u,
-          verified: u.verified === true, // jika undefined, dianggap false
+          verified: u.verified === true,
         }));
-
         setUsers(normalizedUsers);
         setProperties(propRes.data);
       } catch (err) {
@@ -45,11 +44,11 @@ const KelolaUserContent = () => {
 
   // ---------- Filtering ----------
   const filteredUsers = users
-    .filter(u => u.role !== "admin") // exclude admin
+    .filter(u => u.role !== "admin")
     .filter(u => viewVerified === "verified" ? u.verified : !u.verified)
     .filter(u =>
       u.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      u.name.toLowerCase().includes(searchTerm.toLowerCase())
+      u.nama?.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
   // ---------- Pagination ----------
@@ -79,7 +78,6 @@ const KelolaUserContent = () => {
   const handleVerify = async id => {
     const target = users.find(u => u.id === id);
     if (!target) return;
-
     const confirm = await Swal.fire({
       title: `Verifikasi "${target.username}"?`,
       icon: "question",
@@ -88,7 +86,6 @@ const KelolaUserContent = () => {
       cancelButtonText: "Batal",
       confirmButtonColor: "#28a745",
     });
-
     if (confirm.isConfirmed) {
       try {
         const updatedUser = { ...target, verified: true };
@@ -101,9 +98,66 @@ const KelolaUserContent = () => {
     }
   };
 
-  const handleSuspend = id => { /* Implementasi sendiri */ };
-  const handleBanned = id => { /* Implementasi sendiri */ };
-  const handleDetail = user => { setSelectedUser(user); setModalOpen(true); };
+  const handleSuspend = async id => {
+    const target = users.find(u => u.id === id);
+    if (!target) return;
+    const confirm = await Swal.fire({
+      title: `Suspend "${target.username}"?`,
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Ya, suspend",
+      cancelButtonText: "Batal",
+      confirmButtonColor: "#ffc107",
+    });
+    if (confirm.isConfirmed) {
+      try {
+        const updatedUser = { ...target, suspended: true };
+        await axios.put(`http://localhost:3004/users/${id}`, updatedUser);
+        setUsers(prev => prev.map(u => u.id === id ? updatedUser : u));
+        Swal.fire("Berhasil!", "User telah disuspend.", "success");
+      } catch (err) {
+        Swal.fire("Error!", "Gagal suspend user.", "error");
+      }
+    }
+  };
+
+  const handleBanned = async id => {
+    const target = users.find(u => u.id === id);
+    if (!target) return;
+    const confirm = await Swal.fire({
+      title: `Banned "${target.username}"?`,
+      icon: "error",
+      showCancelButton: true,
+      confirmButtonText: "Ya, banned",
+      cancelButtonText: "Batal",
+      confirmButtonColor: "#dc3545",
+    });
+    if (confirm.isConfirmed) {
+      try {
+        const updatedUser = { ...target, banned: true };
+        await axios.put(`http://localhost:3004/users/${id}`, updatedUser);
+        setUsers(prev => prev.map(u => u.id === id ? updatedUser : u));
+        Swal.fire("Berhasil!", "User telah dibanned.", "success");
+      } catch (err) {
+        Swal.fire("Error!", "Gagal banned user.", "error");
+      }
+    }
+  };
+
+  const handleDetail = async (user) => {
+    try {
+      const userRes = await axios.get(`http://localhost:3004/users/${user.id}`);
+      const propRes = await axios.get(`http://localhost:3004/properties?ownerId=${user.id}`);
+      setSelectedUser(userRes.data);
+      setProperties(prev => {
+        const others = prev.filter(p => p.ownerId !== user.id);
+        return [...others, ...propRes.data];
+      });
+      setModalOpen(true);
+    } catch (err) {
+      Swal.fire("Error!", "Gagal mengambil detail user.", "error");
+    }
+  };
 
   // ---------- Render Table ----------
   const renderTable = list => (
@@ -122,15 +176,15 @@ const KelolaUserContent = () => {
                 <motion.tr key={user.id} initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.2 }}>
                   <td>{idx + 1 + (currentPage - 1) * ITEMS_PER_PAGE}</td>
                   <td>{user.username}</td>
-                  <td>{user.name}</td>
+                  <td>{user.nama}</td>
                   <td>{user.email}</td>
-                  <td>{user.hp}</td>
+                  <td>{user.no_hp}</td>
                   <td>{userProperties.length}</td>
                   <td className={styles.statusCell}>
                     {user.verified ? <span className={`${styles.statusIcon} ${styles.approved}`} title="Terverifikasi"><FaCheck /></span>
                     : <span className={`${styles.statusIcon} ${styles.pending}`} title="Belum Diverifikasi"><FaClock /></span>}
                   </td>
-                  <td>{user.joined}</td>
+                  <td>{user.joinedAt}</td>
                   <td className={styles.actions}>
                     {!user.verified && <motion.button whileHover={{ scale: 1.1 }} onClick={() => handleVerify(user.id)} className={`${styles.iconBtn} ${styles.verifyBtn}`} title="Verify"><FaCheck /></motion.button>}
                     <motion.button whileHover={{ scale: 1.1 }} onClick={() => handleSuspend(user.id)} className={`${styles.iconBtn} ${styles.suspendBtn}`} title="Suspend"><FaClock /></motion.button>
@@ -173,27 +227,38 @@ const KelolaUserContent = () => {
               <div className={styles.modalLeft}>
                 <h3>Profil User</h3>
                 <p><b>Username:</b> {selectedUser.username}</p>
-                <p><b>Nama:</b> {selectedUser.name}</p>
+                <p><b>Nama:</b> {selectedUser.nama}</p>
                 <p><b>Email:</b> {selectedUser.email}</p>
-                <p><b>HP:</b> {selectedUser.hp}</p>
+                <p><b>HP:</b> {selectedUser.no_hp}</p>
                 <p><b>Status:</b> {selectedUser.verified ? "Terverifikasi" : "Belum Diverifikasi"}</p>
-                <p><b>Tanggal Bergabung:</b> {selectedUser.joined}</p>
+                <p><b>Tanggal Bergabung:</b> {selectedUser.joinedAt}</p>
               </div>
               <div className={styles.modalRight}>
                 <h3>Properti</h3>
                 <table className={styles.table}>
                   <thead>
-                    <tr><th>No</th><th>Judul</th><th>Tipe</th><th>Status</th><th>Harga</th><th>Periode</th></tr>
+                    <tr>
+                      <th>No</th>
+                      <th>Nama Properti</th>
+                      <th>Tipe</th>
+                      <th>Status</th>
+                      <th>Harga</th>
+                      <th>Periode</th>
+                    </tr>
                   </thead>
                   <tbody>
                     {properties.filter(p => p.ownerId === selectedUser.id).map((p, i) => (
-                      <tr key={p.id}>
-                        <td>{i+1}</td>
-                        <td>{p.title}</td>
-                        <td>{p.tipe}</td>
-                        <td>{p.status}</td>
-                        <td>{p.price?.toLocaleString()}</td>
-                        <td>{p.periode}</td>
+                      <tr
+                        key={p.id}
+                        style={{ cursor: "pointer" }}
+                        onClick={() => navigate("/admin/properti", { state: { propertyId: p.id } })}
+                      >
+                        <td>{i + 1}</td>
+                        <td>{p.namaProperti}</td>
+                        <td>{p.tipeProperti}</td>
+                        <td>{p.statusPostingan}</td>
+                        <td>{p.harga?.toLocaleString()}</td>
+                        <td>{p.periodeSewa || "-"}</td>
                       </tr>
                     ))}
                   </tbody>

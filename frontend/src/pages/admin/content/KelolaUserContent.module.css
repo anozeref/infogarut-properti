@@ -13,7 +13,18 @@
 }
 
 /* Header */
-.header h2 { margin-bottom: 20px; }
+.header h2 {
+  font-weight: 700;
+  margin-bottom: 16px;
+  border-bottom: 1px solid #e5e7eb;
+  padding-bottom: 8px;
+  transition: border-color 0.3s ease, color 0.3s ease;
+}
+
+.dark .header h2 {
+  border-color: #444;
+  color: #f1f1f1;
+}
 
 /* Controls: search + toggle */
 .controls { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; }
