@@ -79,14 +79,14 @@
       "joinedAt": "14/10/2025, 11.21.00"
     }
   ],
-  "properti": [
+  "properties": [
     {
       "id": "1",
       "ownerId": 1,
       "namaProperti": "Rumah Asri Sukajaya",
       "tipeProperti": "Rumah",
       "jenisProperti": "sewa",
-      "periodeSewa": "per tahun",
+      "periodeSewa": "/1 tahun",
       "harga": 25000000,
       "luasTanah": 120,
       "luasBangunan": 90,
@@ -100,7 +100,7 @@
         "rumah1a.jpg",
         "rumah1b.jpg"
       ],
-      "statusPostingan": "aktif",
+      "statusPostingan": "approved",
       "postedAt": "10/03/2025 14:12:33",
       "koordinat": {
         "lat": -7.2204,
@@ -113,7 +113,7 @@
       "namaProperti": "Kost Bagendit Indah",
       "tipeProperti": "Kos",
       "jenisProperti": "sewa",
-      "periodeSewa": "per bulan",
+      "periodeSewa": "/1 bulan",
       "harga": 750000,
       "luasTanah": 200,
       "luasBangunan": 150,
@@ -154,7 +154,7 @@
         "ruko1a.jpg",
         "ruko1b.jpg"
       ],
-      "statusPostingan": "aktif",
+      "statusPostingan": "approved",
       "postedAt": "02/09/2025 16:20:41",
       "koordinat": {
         "lat": -7.3064,
@@ -181,7 +181,7 @@
         "tanah1a.jpg",
         "tanah1b.jpg"
       ],
-      "statusPostingan": "selesai",
+      "statusPostingan": "approved",
       "postedAt": "28/01/2025 11:55:10",
       "koordinat": {
         "lat": -7.1568,
