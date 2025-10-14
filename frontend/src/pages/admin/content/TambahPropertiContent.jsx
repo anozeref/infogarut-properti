@@ -7,7 +7,7 @@ import styles from "./TambahPropertiContent.module.css";
 import axios from "axios";
 import { io } from "socket.io-client";
 
-const socket = io("http://localhost:3005"); // connect ke server Socket.IO
+const socket = io("http://localhost:3005");
 
 const TambahPropertiContent = () => {
   const { theme } = useContext(ThemeContext);
@@ -27,13 +27,12 @@ const TambahPropertiContent = () => {
     kamarMandi: "",
     periodeAngka: "",
     periodeSatuan: "bulan",
-    periodeSewa: "",
     deskripsi: "",
     media: [],
     ownerId: "5",
     statusPostingan: "approved",
     postedAt: "",
-    koordinat: { lat: null, lng: null },
+    koordinat: { lat: 0, lng: 0 },
   });
 
   const [mediaFiles, setMediaFiles] = useState([]);
@@ -64,6 +63,7 @@ const TambahPropertiContent = () => {
   };
 
   const removePreview = (index) => {
+    URL.revokeObjectURL(mediaPreview[index].url);
     const newFiles = [...mediaFiles]; newFiles.splice(index,1);
     const newPreview = [...mediaPreview]; newPreview.splice(index,1);
     setMediaFiles(newFiles); setMediaPreview(newPreview);
@@ -104,15 +104,28 @@ const TambahPropertiContent = () => {
       const mediaNames = uploadRes.data.files;
 
       const propertiData = {
-        ...form,
-        periodeSewa,
-        media: mediaNames,
+        namaProperti: form.namaProperti,
+        jenisProperti: form.jenisProperti,
+        tipeProperti: form.tipeProperti,
+        harga: Number(form.harga),
+        luasTanah: Number(form.luasTanah),
+        luasBangunan: Number(form.luasBangunan),
+        kamarTidur: Number(form.kamarTidur),
+        kamarMandi: Number(form.kamarMandi),
+        lokasi: form.lokasi,
+        kecamatan: form.kecamatan,
+        desa: form.desa,
+        deskripsi: form.deskripsi,
+        statusPostingan: form.statusPostingan,
+        ownerId: form.ownerId,
         postedAt: getTimestamp(),
+        koordinat: { lat: Number(form.koordinat.lat), lng: Number(form.koordinat.lng) },
+        media: mediaNames,
+        periodeSewa
       };
 
       const res = await axios.post("http://localhost:3004/properties", propertiData);
 
-      // Emit ke socket supaya HomeContent update realtime
       socket.emit("new_property", {
         ...propertiData,
         id: res.data.id || new Date().getTime()
@@ -120,7 +133,8 @@ const TambahPropertiContent = () => {
 
       Swal.fire("Sukses", `Properti "${form.namaProperti}" berhasil ditambahkan!`, "success");
 
-      // Reset form
+      mediaPreview.forEach(m => URL.revokeObjectURL(m.url));
+
       setForm({
         namaProperti: "",
         jenisProperti: "Jual",
@@ -135,13 +149,12 @@ const TambahPropertiContent = () => {
         kamarMandi: "",
         periodeAngka: "",
         periodeSatuan: "bulan",
-        periodeSewa: "",
         deskripsi: "",
         media: [],
         ownerId: "5",
         statusPostingan: "approved",
         postedAt: "",
-        koordinat:{lat:null,lng:null}
+        koordinat:{lat:0,lng:0}
       });
       setMediaFiles([]);
       setMediaPreview([]);
@@ -223,7 +236,7 @@ const TambahPropertiContent = () => {
             <input type="file" multiple accept="image/*,video/*" onChange={handleFileChange} ref={fileInputRef}/>
             <div className={styles.mediaPreview}>
               {mediaPreview.map((m,idx)=>(
-                <div key={idx} draggable onDragStart={(e)=>handleDragStart(idx,e)} onDragOver={allowDrop} onDrop={(e)=>handleDrop(idx,e)} className={styles.mediaItem}>
+                <div key={`${m.file.name}-${idx}`} draggable onDragStart={(e)=>handleDragStart(idx,e)} onDragOver={allowDrop} onDrop={(e)=>handleDrop(idx,e)} className={styles.mediaItem}>
                   {m.file.type.startsWith("image/") ? <img src={m.url} alt="preview"/> : <video src={m.url} width={100} height={60} controls/>}
                   <button type="button" onClick={()=>removePreview(idx)}><FaTimes/></button>
                 </div>

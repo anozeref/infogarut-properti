@@ -7,9 +7,9 @@ import EditPropertyModal from "./EditPropertyModal";
 import axios from "axios";
 import { io } from "socket.io-client";
 
-const socket = io("http://localhost:3005"); // Socket.IO server
+const socket = io("http://localhost:3005");
 const ITEMS_PER_PAGE = 5;
-const adminId = 5;
+const adminId = "5";
 
 export default function KelolaPropertiContent() {
   const [properties, setProperties] = useState([]);
@@ -19,6 +19,26 @@ export default function KelolaPropertiContent() {
   const [approvedView, setApprovedView] = useState("user");
   const [editData, setEditData] = useState(null);
 
+  // ---------- Helpers ----------
+  const normalizeDate = (dateStr) => {
+    if (!dateStr) return null;
+    const parts = dateStr.split(/[/ :]/); // ["DD","MM","YYYY","HH","MM","SS"]
+    if (parts.length < 6) return null;
+    const [day, month, year, hour, min, sec] = parts.map(Number);
+    return new Date(year, month - 1, day, hour, min, sec);
+  };
+
+  const getTimestamp = (dateStr) => {
+    const d = normalizeDate(dateStr);
+    if (!d || isNaN(d)) return "-";
+    return `${String(d.getDate()).padStart(2,"0")}/${String(d.getMonth()+1).padStart(2,"0")}/${d.getFullYear()} ${String(d.getHours()).padStart(2,"0")}:${String(d.getMinutes()).padStart(2,"0")}:${String(d.getSeconds()).padStart(2,"0")}`;
+  };
+
+  const getOwnerName = (ownerId) => {
+    const u = users.find(u => String(u.id) === String(ownerId));
+    return u ? u.username : `User ID: ${ownerId || "-"}`;
+  };
+
   // ---------- Fetch data ----------
   useEffect(() => {
     const fetchData = async () => {
@@ -27,7 +47,14 @@ export default function KelolaPropertiContent() {
           axios.get("http://localhost:3004/properties"),
           axios.get("http://localhost:3004/users"),
         ]);
-        setProperties(propRes.data);
+
+        // Normalisasi postedAt
+        const normalizedProps = propRes.data.map(p => ({
+          ...p,
+          postedAt: p.postedAt ? p.postedAt : new Date().toISOString()
+        }));
+
+        setProperties(normalizedProps);
         setUsers(userRes.data);
       } catch (err) {
         console.error("Gagal fetch data:", err);
@@ -36,34 +63,25 @@ export default function KelolaPropertiContent() {
     fetchData();
 
     // Socket.IO
-    socket.on("new_property", (newProp) => setProperties((prev) => [...prev, newProp]));
-    socket.on("update_property", (updatedProp) =>
-      setProperties((prev) => prev.map((p) => (p.id === updatedProp.id ? updatedProp : p)))
-    );
+    socket.on("new_property", (newProp) => {
+      const p = { ...newProp, postedAt: newProp.postedAt ? newProp.postedAt : new Date().toISOString() };
+      setProperties((prev) => [...prev, p]);
+    });
+
+    socket.on("update_property", (updatedProp) => {
+      if (updatedProp.deleted) {
+        setProperties((prev) => prev.filter((p) => p.id !== updatedProp.id));
+      } else {
+        const p = { ...updatedProp, postedAt: updatedProp.postedAt ? updatedProp.postedAt : new Date().toISOString() };
+        setProperties((prev) => prev.map((prop) => (prop.id === p.id ? p : prop)));
+      }
+    });
 
     return () => {
       socket.off("new_property");
       socket.off("update_property");
     };
   }, []);
-
-  // ---------- Helpers ----------
-  const getOwnerName = (ownerId) => {
-    const u = users.find((user) => user.id === ownerId);
-    return u ? u.name : `ID: ${ownerId}`;
-  };
-
-  const getTimestamp = (dateStr) => {
-    if (!dateStr) return "-";
-    const d = new Date(dateStr);
-    if (isNaN(d)) return "-";
-    return `${String(d.getDate()).padStart(2, "0")}/${
-      String(d.getMonth() + 1).padStart(2, "0")
-    }/${d.getFullYear()} ${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}:${String(d.getSeconds()).padStart(2, "0")}`;
-  };
-
-  const pendingProperties = properties.filter((p) => p.statusPostingan === "pending");
-  const approvedProperties = properties.filter((p) => p.statusPostingan === "approved");
 
   // ---------- Actions ----------
   const handleApprove = async (id) => {
@@ -91,7 +109,7 @@ export default function KelolaPropertiContent() {
     }).then(async (res) => {
       if (res.isConfirmed) {
         try {
-          await axios.delete(`http://localhost:3004/properties/${id}`);
+          await axios.delete(`http://localhost:3005/properties/${id}`);
           setProperties((prev) => prev.filter((p) => p.id !== id));
           socket.emit("update_property", { id, deleted: true });
           Swal.fire("Ditolak!", "Properti telah dihapus.", "success");
@@ -113,7 +131,7 @@ export default function KelolaPropertiContent() {
     }).then(async (res) => {
       if (res.isConfirmed) {
         try {
-          await axios.delete(`http://localhost:3004/properties/${id}`);
+          await axios.delete(`http://localhost:3005/properties/${id}`);
           setProperties((prev) => prev.filter((p) => p.id !== id));
           socket.emit("update_property", { id, deleted: true });
           Swal.fire("Dihapus!", "Properti berhasil dihapus.", "success");
@@ -145,7 +163,7 @@ export default function KelolaPropertiContent() {
         <b>Jenis:</b> ${prop.jenisProperti}<br/>
         <b>Tipe:</b> ${prop.tipeProperti}<br/>
         <b>Lokasi:</b> ${prop.lokasi}, ${prop.kecamatan || "-"}, ${prop.desa || "-"}<br/>
-        <b>Harga:</b> ${prop.harga.toLocaleString()}<br/>
+        <b>Harga:</b> ${prop.harga ? prop.harga.toLocaleString() : "-"}<br/>
         <b>Periode:</b> ${prop.periodeSewa || "-"}<br/>
         <b>Status:</b> ${prop.statusPostingan}<br/>
         <b>Owner:</b> ${getOwnerName(prop.ownerId)}<br/>
@@ -181,8 +199,10 @@ export default function KelolaPropertiContent() {
     );
   };
 
-  // ---------- Render Table ----------
-  const renderTable = (list, isPending = false) => (
+  const pendingProperties = properties.filter((p) => p.statusPostingan === "pending");
+  const approvedProperties = properties.filter((p) => p.statusPostingan === "approved");
+
+  const renderTable = (list, isPending = false, currentPage = 1) => (
     <div className={styles.tableWrapper}>
       <table className={styles.table}>
         <thead>
@@ -209,12 +229,12 @@ export default function KelolaPropertiContent() {
                 exit={{ opacity: 0, y: -10 }}
                 layout
               >
-                <td>{idx + 1}</td>
+                <td>{(currentPage-1)*ITEMS_PER_PAGE + idx + 1}</td>
                 <td>{prop.namaProperti}</td>
                 <td>{prop.jenisProperti}</td>
                 <td>{prop.tipeProperti}</td>
                 <td>{prop.lokasi}</td>
-                <td>{prop.harga.toLocaleString()}</td>
+                <td>{prop.harga ? prop.harga.toLocaleString() : "-"}</td>
                 <td>{prop.periodeSewa || "-"}</td>
                 <td>{getOwnerName(prop.ownerId)}</td>
                 <td className={styles.statusCell}>
@@ -266,7 +286,7 @@ export default function KelolaPropertiContent() {
         <p className={styles.subHeader}>
           Properti Menunggu Persetujuan ({pendingProperties.length})
         </p>
-        {renderTable(paginate(pendingProperties, currentPagePending), true)}
+        {renderTable(paginate(pendingProperties, currentPagePending), true, currentPagePending)}
         {renderPagination(pendingProperties.length, currentPagePending, setCurrentPagePending)}
       </div>
 
@@ -291,7 +311,7 @@ export default function KelolaPropertiContent() {
           </div>
         </div>
 
-        {renderTable(paginate(filteredApproved, currentPageApproved))}
+        {renderTable(paginate(filteredApproved, currentPageApproved), false, currentPageApproved)}
         {renderPagination(filteredApproved.length, currentPageApproved, setCurrentPageApproved)}
       </div>
 

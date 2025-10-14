@@ -1,40 +1,58 @@
-import React, { useState, useContext } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { FaCheck, FaClock, FaBan, FaInfoCircle } from "react-icons/fa";
 import { motion, AnimatePresence } from "framer-motion";
 import Swal from "sweetalert2";
+import axios from "axios";
 import styles from "./KelolaUserContent.module.css";
-import { ThemeContext } from "../DashboardAdmin"; // pastikan path benar
-
-const usersData = [
-  { id: 2, username: "andi", name: "Andi Setiawan", email: "andi@mail.com", hp: "081234567890", joined: "2025-01-10", verified: true },
-  { id: 3, username: "budi", name: "Budi Santoso", email: "budi@mail.com", hp: "081234567891", joined: "2025-02-15", verified: false },
-  { id: 4, username: "citra", name: "Citra Rahma", email: "citra@mail.com", hp: "081234567892", joined: "2025-03-05", verified: true },
-  { id: 5, username: "dina", name: "Dina Lestari", email: "dina@mail.com", hp: "081234567893", joined: "2025-04-01", verified: false },
-];
-
-const propertiesData = [
-  { id: 1, ownerId: 2, title: "Rumah Minimalis", tipe: "Rumah", status: "approved", price: 350000000, periode: "1 tahun" },
-  { id: 2, ownerId: 2, title: "Kost Mahasiswa", tipe: "Kost", status: "pending", price: 1200000, periode: "1 bulan" },
-  { id: 3, ownerId: 3, title: "Vila Eksklusif", tipe: "Villa", status: "approved", price: 1500000000, periode: "2 tahun" },
-  { id: 4, ownerId: 4, title: "Ruko Strategis", tipe: "Ruko", status: "approved", price: 850000000, periode: "-" },
-];
+import { ThemeContext } from "../DashboardAdmin";
 
 const ITEMS_PER_PAGE = 5;
 
 const KelolaUserContent = () => {
   const { theme } = useContext(ThemeContext);
 
-  const [users, setUsers] = useState(usersData);
+  const [users, setUsers] = useState([]);
+  const [properties, setProperties] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [viewVerified, setViewVerified] = useState("user");
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedUser, setSelectedUser] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
 
-  const filteredUsers = users
-    .filter(u => viewVerified === "verified" ? u.verified : !u.verified)
-    .filter(u => u.username.toLowerCase().includes(searchTerm.toLowerCase()) || u.name.toLowerCase().includes(searchTerm.toLowerCase()));
+  // ---------- Fetch data ----------
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [userRes, propRes] = await Promise.all([
+          axios.get("http://localhost:3004/users"),
+          axios.get("http://localhost:3004/properties"),
+        ]);
 
+        // pastikan verified ada
+        const normalizedUsers = userRes.data.map(u => ({
+          ...u,
+          verified: u.verified === true, // jika undefined, dianggap false
+        }));
+
+        setUsers(normalizedUsers);
+        setProperties(propRes.data);
+      } catch (err) {
+        console.error("Gagal fetch data:", err);
+      }
+    };
+    fetchData();
+  }, []);
+
+  // ---------- Filtering ----------
+  const filteredUsers = users
+    .filter(u => u.role !== "admin") // exclude admin
+    .filter(u => viewVerified === "verified" ? u.verified : !u.verified)
+    .filter(u =>
+      u.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      u.name.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+
+  // ---------- Pagination ----------
   const paginate = (list, page) => {
     const start = (page - 1) * ITEMS_PER_PAGE;
     return list.slice(start, start + ITEMS_PER_PAGE);
@@ -57,25 +75,37 @@ const KelolaUserContent = () => {
     );
   };
 
-  // Actions: verify, suspend, banned, detail
-  const handleVerify = id => {
+  // ---------- Actions ----------
+  const handleVerify = async id => {
     const target = users.find(u => u.id === id);
-    Swal.fire({
+    if (!target) return;
+
+    const confirm = await Swal.fire({
       title: `Verifikasi "${target.username}"?`,
       icon: "question",
       showCancelButton: true,
       confirmButtonText: "Ya, verifikasi",
       cancelButtonText: "Batal",
       confirmButtonColor: "#28a745",
-    }).then(result => {
-      if (result.isConfirmed) setUsers(prev => prev.map(u => u.id === id ? { ...u, verified: true } : u));
     });
+
+    if (confirm.isConfirmed) {
+      try {
+        const updatedUser = { ...target, verified: true };
+        await axios.put(`http://localhost:3004/users/${id}`, updatedUser);
+        setUsers(prev => prev.map(u => u.id === id ? updatedUser : u));
+        Swal.fire("Berhasil!", "User telah diverifikasi.", "success");
+      } catch (err) {
+        Swal.fire("Error!", "Gagal verifikasi user.", "error");
+      }
+    }
   };
 
-  const handleSuspend = id => { /* ... sama seperti di atas */ };
-  const handleBanned = id => { /* ... sama seperti di atas */ };
+  const handleSuspend = id => { /* Implementasi sendiri */ };
+  const handleBanned = id => { /* Implementasi sendiri */ };
   const handleDetail = user => { setSelectedUser(user); setModalOpen(true); };
 
+  // ---------- Render Table ----------
   const renderTable = list => (
     <div className={styles.tableWrapper}>
       <table className={styles.table}>
@@ -87,7 +117,7 @@ const KelolaUserContent = () => {
         <tbody>
           <AnimatePresence>
             {list.map((user, idx) => {
-              const userProperties = propertiesData.filter(p => p.ownerId === user.id);
+              const userProperties = properties.filter(p => p.ownerId === user.id);
               return (
                 <motion.tr key={user.id} initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.2 }}>
                   <td>{idx + 1 + (currentPage - 1) * ITEMS_PER_PAGE}</td>
@@ -117,6 +147,7 @@ const KelolaUserContent = () => {
     </div>
   );
 
+  // ---------- Render ----------
   return (
     <div className={`${styles.container} ${theme === "dark" ? styles.dark : ""}`}>
       <div className={styles.header}><h2>Kelola User</h2></div>
@@ -155,7 +186,7 @@ const KelolaUserContent = () => {
                     <tr><th>No</th><th>Judul</th><th>Tipe</th><th>Status</th><th>Harga</th><th>Periode</th></tr>
                   </thead>
                   <tbody>
-                    {propertiesData.filter(p => p.ownerId === selectedUser.id).map((p, i) => (
+                    {properties.filter(p => p.ownerId === selectedUser.id).map((p, i) => (
                       <tr key={p.id}>
                         <td>{i+1}</td>
                         <td>{p.title}</td>
