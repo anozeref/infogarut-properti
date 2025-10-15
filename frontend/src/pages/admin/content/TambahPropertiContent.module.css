@@ -1,193 +1,180 @@
-/* TambahPropertiContent.module.css */
 .container {
-  width: 90%;
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 20px;
-  background-color: #f9f9f9;
-  color: #333;
-  border-radius: 12px;
-  transition: background-color 0.3s ease, color 0.3s ease;
-}
-
-/* Dark mode */
-.dark {
-  background-color: #1f1f1f;
-  color: #f1f1f1;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
 }
 
 .header h2 {
+  margin: 0;
+  font-size: 1.75rem;
   font-weight: 700;
-  margin-bottom: 16px;
-  border-bottom: 1px solid #e5e7eb;
-  padding-bottom: 8px;
-  transition: border-color 0.3s ease, color 0.3s ease;
+  color: var(--text-color);
+}
+.header p {
+  margin-top: 4px;
+  color: var(--text-color-secondary);
 }
 
-.dark .header h2 {
-  border-color: #444;
-  color: #f1f1f1;
-}
-
-.form {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-  background-color: rgba(255, 255, 255, 0.85);
-  padding: 20px;
+.formCard {
+  background-color: var(--main-bg-color);
   border-radius: 12px;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
-  transition: background-color 0.3s ease, color 0.3s ease;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+  padding: 32px;
 }
 
-.dark .form {
-  background-color: rgba(50, 50, 50, 0.85);
-  color: #f1f1f1;
+.formSection {
+  margin-bottom: 32px;
+  padding-bottom: 24px;
+  border-bottom: 1px solid var(--border-color);
+}
+.formSection:last-of-type {
+  border-bottom: none;
+  margin-bottom: 0;
+}
+.formSection h4 {
+  margin-top: 0;
+  margin-bottom: 20px;
+  color: var(--text-color);
+  font-weight: 600;
 }
 
-.formRow {
-  display: flex;
-  gap: 20px;
-  flex-wrap: wrap;
+.formGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px 24px;
 }
 
-.col {
-  flex: 1;
+.formGroup {
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  min-width: 250px; /* responsive breakpoint */
 }
-
-input,
-select,
-textarea {
-  padding: 8px 10px;
-  border-radius: 6px;
-  border: 1px solid #ccc;
+.formGroup label {
+  margin-bottom: 8px;
+  font-weight: 500;
+  color: var(--text-color);
+  font-size: 0.9rem;
+}
+.formGroup input, .formGroup select, .formGroup textarea {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  background-color: var(--bg-color);
+  color: var(--text-color);
   font-size: 0.95rem;
-  transition: all 0.3s ease;
-  background-color: #fff;
-  color: #333;
+  transition: border-color 0.2s, box-shadow 0.2s;
 }
-
-.dark input,
-.dark select,
-.dark textarea {
-  background-color: #2c2c2c;
-  color: #f1f1f1;
-  border: 1px solid #555;
-}
-
-input:focus,
-select:focus,
-textarea:focus {
+.formGroup input:focus, .formGroup select:focus, .formGroup textarea:focus {
   outline: none;
-  border-color: #007bff;
-  box-shadow: 0 0 4px rgba(0, 123, 255, 0.3);
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
 }
 
-textarea {
-  min-height: 80px;
-  resize: vertical;
+.periodeSewa {
+  grid-column: span 2;
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 16px;
 }
 
-.submitBtn {
-  display: inline-flex;
+.mediaUploader {
+  display: grid;
+  grid-template-columns: 200px 1fr;
+  gap: 24px;
+}
+
+.dropZone {
+  border: 2px dashed var(--border-color);
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  background-color: #007bff;
-  color: #fff;
-  padding: 8px 12px;
-  font-weight: 500;
-  border-radius: 6px;
-  border: none;
+  text-align: center;
+  padding: 20px;
   cursor: pointer;
-  font-size: 0.95rem;
-  transition: background-color 0.3s ease, color 0.3s ease;
+  transition: border-color 0.2s, background-color 0.2s;
+  color: var(--text-color-secondary);
 }
-
-.submitBtn:hover {
-  background-color: #0056b3;
+.dropZone:hover {
+  border-color: #3b82f6;
+  background-color: #f9fafb;
 }
-
-.dark .submitBtn {
-  background-color: #0a66c2;
-  color: #fff;
+[data-theme="dark"] .dropZone:hover {
+  background-color: #2c3a4b;
 }
+.dropZone svg { font-size: 2rem; }
+.dropZone p { font-weight: 600; margin: 8px 0; }
+.dropZone span { font-size: 0.8rem; }
 
-.dark .submitBtn:hover {
-  background-color: #004080;
-}
-
-/* ===== Media Preview ===== */
 .mediaPreview {
   display: flex;
   flex-wrap: wrap;
   gap: 12px;
-  margin-top: 8px;
 }
-
 .mediaItem {
   position: relative;
-  width: 100px;
-  height: 100px;
+  width: 120px;
+  height: 80px;
   border-radius: 8px;
   overflow: hidden;
-  border: 1px solid #ccc;
-  cursor: grab;
-  background-color: #f3f4f6;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  border: 1px solid var(--border-color);
 }
-
-.mediaItem img,
-.mediaItem video {
+.mediaItem img, .mediaItem video {
   width: 100%;
   height: 100%;
   object-fit: cover;
 }
-
 .mediaItem button {
   position: absolute;
   top: 4px;
   right: 4px;
-  background-color: rgba(0,0,0,0.6);
-  color: #fff;
+  background-color: rgba(0, 0, 0, 0.6);
+  color: white;
   border: none;
   border-radius: 50%;
   width: 20px;
   height: 20px;
-  font-size: 0.7rem;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: background-color 0.2s ease;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+.mediaItem:hover button {
+  opacity: 1;
 }
 
-.mediaItem button:hover {
-  background-color: rgba(255,0,0,0.8);
+.submitSection {
+  padding-top: 24px;
+  display: flex;
+  justify-content: flex-end;
+}
+.submitBtn {
+  background-color: #3b82f6;
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: background-color 0.2s;
+}
+.submitBtn:hover {
+  background-color: #2563eb;
+}
+.submitBtn:disabled {
+  background-color: #9ca3af;
+  cursor: not-allowed;
 }
 
-.dark .mediaItem {
-  border: 1px solid #555;
-  background-color: #2a2a2a;
-}
-
-.dark .mediaItem button {
-  background-color: rgba(255,255,255,0.3);
-  color: #fff;
-}
-
-.dark .mediaItem button:hover {
-  background-color: rgba(255,0,0,0.8);
-}
-
-/* Responsive: mobile stack columns */
-@media (max-width: 768px) {
-  .formRow {
-    flex-direction: column;
-  }
+@media (max-width: 992px) {
+  .formGrid { grid-template-columns: 1fr; }
+  .periodeSewa { grid-column: auto; }
+  .mediaUploader { grid-template-columns: 1fr; }
 }

@@ -97,7 +97,7 @@
   transform: translateX(22px);
 }
 
-/* === Card & Tabel (Untuk TabelUserAktif, dll) === */
+/* === Card & Tabel (Untuk TabelUser.jsx) === */
 .tableWrapper {
   background-color: var(--main-bg-color);
   border-radius: 12px;
@@ -155,15 +155,10 @@
   font-weight: 600;
 }
 
-.approved {
-  background-color: #d1fae5;
-  color: #065f46;
-}
-
-.pending {
-  background-color: #fef3c7;
-  color: #92400e;
-}
+.approved { background-color: #d1fae5; color: #065f46; }
+.pending { background-color: #fef3c7; color: #92400e; }
+.suspended { background-color: #feebc8; color: #9c4221; }
+.banned { background-color: #fee2e2; color: #991b1b; }
 
 .actions {
   display: flex;
@@ -252,4 +247,37 @@
   background-color: #3b82f6;
   color: white;
   border-color: #3b82f6;
+}
+
+/* === UX States: Loading & Empty === */
+.spinnerContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 80px;
+}
+
+.spinner {
+  width: 48px;
+  height: 48px;
+  border: 5px solid #f3f4f6;
+  border-top: 5px solid #3b82f6;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+[data-theme="dark"] .spinner {
+  border: 5px solid #374151;
+  border-top: 5px solid #3b82f6;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.emptyState {
+  text-align: center;
+  padding: 48px 24px;
+  color: var(--text-color-secondary);
+  font-style: italic;
 }

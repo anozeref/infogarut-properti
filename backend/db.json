@@ -14,7 +14,7 @@
       "no_hp": "081234567890",
       "id": "1",
       "verified": true,
-      "suspendedUntil": "2025-10-16T04:55:45.236Z",
+      "suspendedUntil": null,
       "suspend": null
     },
     {
@@ -270,6 +270,37 @@
         "lat": -7.2512,
         "lng": 107.8855
       }
+    },
+    {
+      "id": "e5ca",
+      "namaProperti": "Loli 2",
+      "jenisProperti": "Jual",
+      "tipeProperti": "Rumah",
+      "lokasi": "Jl. Cimanuk No.45, Tarogong Kidul, Garut",
+      "kecamatan": "Tar Dulu",
+      "desa": "Sukagila",
+      "harga": 2131231,
+      "luasTanah": 145,
+      "luasBangunan": 1234,
+      "kamarTidur": 11,
+      "kamarMandi": 21,
+      "periodeAngka": "",
+      "periodeSatuan": "bulan",
+      "deskripsi": "Kalau mau, aku bisa bikin versi ini siap pakai langsung tanpa perlu constant.js sama sekali, biar jelas 100% jalan di local. Mau aku buatkan?",
+      "media": [
+        "1760549704833-559812455.png",
+        "1760549704889-364435619.png",
+        "1760549704910-455585677.png",
+        "1760549704917-848736875.png"
+      ],
+      "ownerId": "5",
+      "statusPostingan": "approved",
+      "postedAt": "2025-10-15T17:35:04.953Z",
+      "koordinat": {
+        "lat": 0,
+        "lng": 0
+      },
+      "periodeSewa": ""
     }
   ]
 }
