@@ -106,7 +106,6 @@ const KelolaUserContent = () => {
   };
 
   const handleDetail = user => {
-    const userProps = properties.filter(p => p.ownerId === user.id);
     setSelectedUser({ ...user });
     setModalOpen(true);
   };
@@ -134,14 +133,27 @@ const KelolaUserContent = () => {
   );
 
   return (
-    <div className={`${styles.container} ${theme==="dark"?styles.dark:""}`}>
+    <div className={styles.container} data-theme={theme}>
       <div className={styles.header}><h2>Kelola User</h2></div>
+
       <div className={styles.controls}>
-        <input type="text" placeholder="Cari user..." value={searchTerm} onChange={e=>setSearchTerm(e.target.value)} className={styles.searchInput}/>
+        <div className={styles.searchBox}>
+          <input
+            type="text"
+            placeholder="Cari user..."
+            value={searchTerm}
+            onChange={e => setSearchTerm(e.target.value)}
+          />
+        </div>
+
         <div className={styles.toggleContainer}>
           <span><b>Unverified</b></span>
           <label>
-            <input type="checkbox" checked={viewVerified==="verified"} onChange={()=>setViewVerified(viewVerified==="verified"?"user":"verified")}/>
+            <input
+              type="checkbox"
+              checked={viewVerified === "verified"}
+              onChange={() => setViewVerified(viewVerified === "verified" ? "user" : "verified")}
+            />
             <div className={styles.slider}><div className={styles.sliderBall}></div></div>
           </label>
           <span><b>Verified</b></span>
@@ -152,7 +164,15 @@ const KelolaUserContent = () => {
       <TabelUserSuspend users={suspendUsers} properties={properties} actions={actionsForSuspend} theme={theme} />
       <TabelUserBanned users={bannedUsers} properties={properties} actions={actionsForBanned} theme={theme} />
 
-      {modalOpen && <ModalUser open={modalOpen} onClose={()=>setModalOpen(false)} user={selectedUser} properties={properties.filter(p => p.ownerId === selectedUser.id)} theme={theme} />}
+      {modalOpen && (
+        <ModalUser
+          open={modalOpen}
+          onClose={() => setModalOpen(false)}
+          user={selectedUser}
+          properties={properties.filter(p => p.ownerId === selectedUser.id)}
+          theme={theme}
+        />
+      )}
     </div>
   );
 };

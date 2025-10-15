@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import Swal from "sweetalert2";
 import styles from "./KelolaPropertiContent.module.css";
 import EditPropertyModal from "./EditPropertyModal";
+import DetailPropertyModal from "./DetailPropertyModal";
 import axios from "axios";
 import { io } from "socket.io-client";
 
@@ -18,11 +19,12 @@ export default function KelolaPropertiContent() {
   const [currentPageApproved, setCurrentPageApproved] = useState(1);
   const [approvedView, setApprovedView] = useState("user");
   const [editData, setEditData] = useState(null);
+  const [detailData, setDetailData] = useState(null);
 
   // ---------- Helpers ----------
   const normalizeDate = (dateStr) => {
     if (!dateStr) return null;
-    const parts = dateStr.split(/[/ :]/); // ["DD","MM","YYYY","HH","MM","SS"]
+    const parts = dateStr.split(/[/ :]/);
     if (parts.length < 6) return null;
     const [day, month, year, hour, min, sec] = parts.map(Number);
     return new Date(year, month - 1, day, hour, min, sec);
@@ -47,13 +49,10 @@ export default function KelolaPropertiContent() {
           axios.get("http://localhost:3004/properties"),
           axios.get("http://localhost:3004/users"),
         ]);
-
-        // Normalisasi postedAt
         const normalizedProps = propRes.data.map(p => ({
           ...p,
           postedAt: p.postedAt ? p.postedAt : new Date().toISOString()
         }));
-
         setProperties(normalizedProps);
         setUsers(userRes.data);
       } catch (err) {
@@ -62,7 +61,6 @@ export default function KelolaPropertiContent() {
     };
     fetchData();
 
-    // Socket.IO
     socket.on("new_property", (newProp) => {
       const p = { ...newProp, postedAt: newProp.postedAt ? newProp.postedAt : new Date().toISOString() };
       setProperties((prev) => [...prev, p]);
@@ -157,25 +155,9 @@ export default function KelolaPropertiContent() {
   };
 
   const handleDetail = (prop) => {
-    Swal.fire({
-      title: `Detail Properti: ${prop.namaProperti}`,
-      html: `
-        <b>Jenis:</b> ${prop.jenisProperti}<br/>
-        <b>Tipe:</b> ${prop.tipeProperti}<br/>
-        <b>Lokasi:</b> ${prop.lokasi}, ${prop.kecamatan || "-"}, ${prop.desa || "-"}<br/>
-        <b>Harga:</b> ${prop.harga ? prop.harga.toLocaleString() : "-"}<br/>
-        <b>Periode:</b> ${prop.periodeSewa || "-"}<br/>
-        <b>Status:</b> ${prop.statusPostingan}<br/>
-        <b>Owner:</b> ${getOwnerName(prop.ownerId)}<br/>
-        <b>Posted At:</b> ${getTimestamp(prop.postedAt)}<br/>
-        <b>Deskripsi:</b> ${prop.deskripsi || "-"}
-      `,
-      icon: "info",
-      confirmButtonText: "Tutup"
-    });
+    setDetailData(prop);
   };
 
-  // ---------- Pagination ----------
   const paginate = (list, page) => {
     const start = (page - 1) * ITEMS_PER_PAGE;
     return list.slice(start, start + ITEMS_PER_PAGE);
@@ -234,7 +216,7 @@ export default function KelolaPropertiContent() {
                 <td>{prop.jenisProperti}</td>
                 <td>{prop.tipeProperti}</td>
                 <td>{prop.lokasi}</td>
-                <td>{prop.harga ? prop.harga.toLocaleString() : "-"}</td>
+                <td>{prop.harga ? Number(prop.harga).toLocaleString('id-ID') : "-"}</td>
                 <td>{prop.periodeSewa || "-"}</td>
                 <td>{getOwnerName(prop.ownerId)}</td>
                 <td className={styles.statusCell}>
@@ -277,7 +259,7 @@ export default function KelolaPropertiContent() {
   );
 
   const filteredApproved = approvedProperties.filter(
-    (p) => (approvedView === "admin" ? p.ownerId === adminId : p.ownerId !== adminId)
+    (p) => (approvedView === "admin" ? String(p.ownerId) === String(adminId) : String(p.ownerId) !== String(adminId))
   );
 
   return (
@@ -311,7 +293,6 @@ export default function KelolaPropertiContent() {
             <span>Admin</span>
           </div>
         </div>
-
         {renderTable(paginate(filteredApproved, currentPageApproved), false, currentPageApproved)}
         {renderPagination(filteredApproved.length, currentPageApproved, setCurrentPageApproved)}
       </div>
@@ -321,6 +302,15 @@ export default function KelolaPropertiContent() {
           data={editData}
           onClose={() => setEditData(null)}
           onSave={handleSaveEdit}
+        />
+      )}
+      
+      {detailData && (
+        <DetailPropertyModal
+          data={detailData}
+          onClose={() => setDetailData(null)}
+          ownerName={getOwnerName(detailData.ownerId)}
+          postedAt={getTimestamp(detailData.postedAt)}
         />
       )}
     </div>

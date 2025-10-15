@@ -20,7 +20,7 @@ const mediaDir = path.join(__dirname, "public/media");
 if (!fs.existsSync(mediaDir)) fs.mkdirSync(mediaDir, { recursive: true });
 
 // Serve file statis (gambar properti)
-app.use("/media/properties", express.static(mediaDir));
+app.use("/media", express.static(mediaDir));
 
 // === Setup HTTP + Socket.IO ===
 const server = createServer(app);
