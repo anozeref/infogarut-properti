@@ -113,11 +113,6 @@ const PropertyForm = ({ onSave, initialData }) => {
 
   return (
     <div className={styles.container}>
-      <button onClick={() => navigate("/dashboarduser")} className={styles.backButton}>
-        <FaArrowLeft className={styles.backIcon} />
-        Kembali ke Dashboard
-      </button>
-
       <div className={styles.card}>
         <h2 className={styles.title}>{formTitle}</h2>
 

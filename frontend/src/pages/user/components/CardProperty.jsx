@@ -5,6 +5,8 @@ import {
   FaEdit,
   FaTrash,
 } from "react-icons/fa";
+import Swal from "sweetalert2";
+import { useNavigate } from "react-router-dom";
 import styles from "./CardProperty.module.css";
 
 export default function CardProperty({
@@ -15,9 +17,12 @@ export default function CardProperty({
   price,
   desc,
   darkMode,
-  status, // ✅ Tambahan: status = "pending" | "aktif" | "ditolak"
+  status, // "pending" | "aktif" | "ditolak"
+  onDelete,
 }) {
   const [isHovered, setIsHovered] = useState(false);
+  const navigate = useNavigate();
+
   const fallbackImage =
     "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=600&q=60";
 
@@ -46,6 +51,41 @@ export default function CardProperty({
 
   const badgeStyle = getStatusBadgeStyle();
 
+  // ⚠️ Hapus Properti (SweetAlert2)
+  const handleDelete = async () => {
+    const result = await Swal.fire({
+      title: "Yakin hapus properti ini?",
+      text: `Properti "${title}" akan dihapus permanen.`,
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#e02424",
+      cancelButtonColor: "#6b7280",
+      confirmButtonText: "Ya, hapus",
+      cancelButtonText: "Batal",
+      background: darkMode ? "#1f2937" : "#fff",
+      color: darkMode ? "#fff" : "#000",
+    });
+
+    if (result.isConfirmed) {
+      Swal.fire({
+        title: "Terhapus!",
+        text: "Properti berhasil dihapus.",
+        icon: "success",
+        timer: 1500,
+        showConfirmButton: false,
+        background: darkMode ? "#1f2937" : "#fff",
+        color: darkMode ? "#fff" : "#000",
+      });
+
+      if (onDelete) onDelete();
+    }
+  };
+
+  // ✏️ Navigasi ke halaman EditProperty (tanpa id)
+  const handleEdit = () => {
+    navigate("/user/edit-property");
+  };
+
   return (
     <div
       className={`${styles.card} ${darkMode ? styles.dark : ""}`}
@@ -61,6 +101,7 @@ export default function CardProperty({
           : "0 4px 10px rgba(0,0,0,0.1)",
       }}
     >
+      {/* Gambar */}
       <div className={styles.imageWrapper}>
         <img
           src={image || fallbackImage}
@@ -71,7 +112,7 @@ export default function CardProperty({
         />
       </div>
 
-      {/* 🟡 Status Badge (nempel di pojok kanan atas) */}
+      {/* Status Badge */}
       {badgeStyle && (
         <div
           style={{
@@ -84,16 +125,13 @@ export default function CardProperty({
             padding: "6px 10px",
             borderRadius: "8px",
             fontSize: "0.8rem",
-            boxShadow: isHovered
-              ? "0 4px 10px rgba(0,0,0,0.3)"
-              : "0 2px 6px rgba(0,0,0,0.2)",
-            transition: "all 0.25s ease",
           }}
         >
           {badgeStyle.text}
         </div>
       )}
 
+      {/* Body Card */}
       <div className={styles.cardBody}>
         {type && (
           <span
@@ -119,24 +157,23 @@ export default function CardProperty({
 
         {desc && <p className={styles.cardDesc}>{desc}</p>}
 
-        <div className={styles.cardActions}>
-          <button
-            className={`${styles.editBtn} ${
-              darkMode ? styles.editBtnDark : ""
-            }`}
-            title="Edit properti"
-          >
-            <FaEdit />
-          </button>
-          <button
-            className={`${styles.deleteBtn} ${
-              darkMode ? styles.deleteBtnDark : ""
-            }`}
-            title="Hapus properti"
-          >
-            <FaTrash />
-          </button>
-        </div>
+        {/* Tombol Edit & Delete */}
+        <div className={styles.actionButtons}>
+  <button
+    className={`${styles.editBtn} ${darkMode ? styles.editBtnDark : ""}`}
+    onClick={handleEdit}
+  >
+    <FaEdit />
+  </button>
+
+  <button
+    className={`${styles.deleteBtn} ${darkMode ? styles.deleteBtnDark : ""}`}
+    onClick={handleDelete}
+  >
+    <FaTrash />
+  </button>
+</div>
+
       </div>
     </div>
   );

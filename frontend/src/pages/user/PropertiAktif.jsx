@@ -1,9 +1,9 @@
-import React, { useState } from "react";
+import React from "react";
 import CardProperty from "./components/CardProperty";
 import { useOutletContext } from "react-router-dom";
 
 export default function PropertiAktif() {
-  const {darkMode} = useOutletContext();
+  const { darkMode } = useOutletContext();
 
   const myProperties = [
     {
@@ -47,14 +47,15 @@ export default function PropertiAktif() {
       >
         {myProperties.map((prop) => (
           <CardProperty
-            darkMode={darkMode}
             key={prop.id}
+            darkMode={darkMode}
             image={prop.image}
             type={prop.type}
             title={prop.title}
             location={prop.location}
             price={prop.price}
             desc={prop.desc}
+            showActions={false} // ❌ Tidak ada tombol Edit & Hapus
             status="aktif"
           />
         ))}
