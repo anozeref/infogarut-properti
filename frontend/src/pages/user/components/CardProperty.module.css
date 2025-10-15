@@ -1,22 +1,24 @@
 .card {
-  background: #fff;
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  background-color: #ffffff;
+  border-radius: 16px;
   overflow: hidden;
-  width: 300px;
-  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  transition: all 0.3s ease;
   display: flex;
   flex-direction: column;
+  height: 100%;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
 }
 
-.card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+.dark {
+  background-color: #1f2937;
+  color: #f9fafb;
 }
 
+/* 🖼️ Gambar */
 .imageWrapper {
+  position: relative;
   width: 100%;
-  height: 180px;
+  height: 200px;
   overflow: hidden;
 }
 
@@ -24,129 +26,202 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
-  display: block;
-  transition: transform 0.3s ease;
+  transition: transform 0.4s ease;
 }
 
 .card:hover .image {
   transform: scale(1.05);
 }
 
+/* 📄 Isi Kartu */
 .cardBody {
-  padding: 16px;
+  padding: 1rem 1.25rem;
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  justify-content: space-between;
+  flex-grow: 1;
+}
+
+/* 🏷️ Badge */
+.badgeGroup {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 0.4rem;
 }
 
 .badge {
-  background: #4f46e5;
+  background-color: #2563eb;
   color: #fff;
-  font-size: 12px;
+  font-size: 0.75rem;
+  padding: 4px 8px;
+  border-radius: 8px;
   font-weight: 600;
-  padding: 4px 10px;
-  border-radius: 6px;
-  width: fit-content;
   text-transform: uppercase;
 }
 
-.cardTitle {
-  font-size: 18px;
-  font-weight: 600;
-  color: #1e1e1e;
-  margin: 4px 0;
+.badgeSecondary {
+  background-color: #6b7280;
+  color: #fff;
+  font-size: 0.75rem;
+  padding: 4px 8px;
+  border-radius: 8px;
+  font-weight: 500;
 }
 
-.cardLocation,
-.cardPrice {
+.badgeDark {
+  background-color: #374151 !important;
+}
+
+/* 🏠 Nama Properti */
+.cardTitle {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #111827;
+  margin: 0.25rem 0 0.5rem 0;
+}
+
+.dark .cardTitle {
+  color: #f9fafb;
+}
+
+/* 📍 Lokasi */
+.cardLocation {
   display: flex;
   align-items: center;
-  font-size: 14px;
-  color: #555;
+  font-size: 0.9rem;
+  color: #4b5563;
+  margin: 0.25rem 0;
   gap: 6px;
 }
 
+.dark .cardLocation {
+  color: #d1d5db;
+}
+
+/* 💰 Harga */
+.cardPrice {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 700;
+  color: #10b981;
+  font-size: 1rem;
+  margin: 0.5rem 0;
+}
+
+.periode {
+  color: #6b7280;
+  font-weight: 500;
+  font-size: 0.85rem;
+}
+
+.dark .periode {
+  color: #9ca3af;
+}
+
+/* 📏 Detail Properti */
+.propertyDetails {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  font-size: 0.85rem;
+  color: #4b5563;
+  margin: 0.5rem 0;
+}
+
+.dark .propertyDetails {
+  color: #d1d5db;
+}
+
+.iconSmall {
+  margin-right: 4px;
+  color: #9ca3af;
+}
+
+/* 📝 Deskripsi */
 .cardDesc {
-  font-size: 13px;
-  color: #777;
+  font-size: 0.9rem;
   line-height: 1.4;
-  margin: 6px 0;
+  color: #374151;
+  margin-bottom: 0.75rem;
 }
 
-.icon {
-  color: #4f46e5;
+.dark .cardDesc {
+  color: #d1d5db;
 }
 
-.cardActions {
+/* ✏️ Tombol aksi */
+.actionButtons {
   display: flex;
   justify-content: flex-end;
-  gap: 8px;
-  margin-top: 10px;
+  gap: 0.6rem;
+  margin-top: auto;
 }
 
 .editBtn,
 .deleteBtn {
   border: none;
-  border-radius: 6px;
+  border-radius: 10px;
   padding: 8px 10px;
-  font-size: 14px;
+  font-size: 1rem;
   cursor: pointer;
-  transition: all 0.2s ease;
-}
-.actionButtons {
+  transition: all 0.3s ease;
   display: flex;
-  justify-content: flex-end; /* Biar ke kanan */
   align-items: center;
-  gap: 10px;
+  justify-content: center;
 }
 
 .editBtn {
-  background: #6366f1;
+  background-color: #3b82f6;
   color: #fff;
 }
 
 .editBtn:hover {
-  background: #4f46e5;
+  background-color: #2563eb;
 }
 
 .deleteBtn {
-  background: #ef4444;
+  background-color: #ef4444;
   color: #fff;
 }
 
 .deleteBtn:hover {
-  background: #dc2626;
+  background-color: #dc2626;
 }
 
-/* 🌙 DARK MODE */
-.dark {
-  background: #1f1f1f;
-  color: #e5e5e5;
-  box-shadow: 0 2px 8px rgba(255, 255, 255, 0.05);
-}
-
-.dark .badge {
-  background: #6366f1;
-}
-
-.dark .cardTitle {
-  color: #f5f5f5;
-}
-
-.dark .cardLocation,
-.dark .cardPrice,
-.dark .cardDesc {
-  color: #aaa;
-}
-
-.dark .icon {
-  color: #818cf8;
-}
-
+/* 🌙 Dark mode tombol */
 .editBtnDark {
-  background: #4f46e5;
+  background-color: #1d4ed8;
 }
 
 .deleteBtnDark {
-  background: #b91c1c;
+  background-color: #991b1b;
 }
+
+
+/* === PropertiSaya layout (pakai style yang sama) === */
+.cardContainer {
+  padding: 20px;
+  min-height: 100vh;
+  background-color: #f9fafb;
+}
+
+.dark.cardContainer {
+  background-color: #111827;
+  color: #f9fafb;
+}
+
+.pageTitle {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 20px;
+}
+
+.gridContainer {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 2rem;
+  max-width: 400px;
+}
+
+
