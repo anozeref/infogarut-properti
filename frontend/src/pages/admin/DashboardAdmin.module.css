@@ -1,9 +1,12 @@
+/* =================================
+   Struktur Utama Dashboard
+   ================================= */
 .dashboardContainer {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-  background-color: var(--bg-color, #f9f9f9);
-  color: var(--text-color, #333);
+  background-color: var(--bg-color); /* Latar belakang utama halaman */
+  color: var(--text-color);
   transition: background-color 0.3s, color 0.3s;
 }
 
@@ -18,36 +21,43 @@
   flex: 1;
   padding: 24px;
   overflow-y: auto;
-  background-color: var(--main-bg-color, #fafafa);
-  border-radius: 12px;
-  transition: background-color 0.3s;
+  /* Kita sengaja KOSONGKAN background di sini.
+     Area ini akan menjadi "kanvas" transparan di atas .dashboardContainer.
+     Nanti, card di dalamnya yang akan memiliki warna putih. */
 }
 
-/* Footer */
-footer {
+/* Anda mungkin perlu menambahkan className={styles.footer} di komponen FooterAdmin Anda */
+.footer {
   height: 60px;
-  background-color: var(--footer-bg-color, #ffffff);
-  border-top: 1px solid #e6e6e6;
+  background-color: var(--footer-bg-color);
+  border-top: 1px solid var(--border-color);
   display: flex;
   align-items: center;
   justify-content: center;
   box-shadow: 0 -2px 6px rgba(0, 0, 0, 0.05);
-  transition: background-color 0.3s;
+  transition: background-color 0.3s, border-color 0.3s;
+  color: var(--text-color-secondary);
+  font-size: 0.875rem;
 }
 
-/* ===========================
+
+/* =================================
    Light / Dark Theme Variables
-   =========================== */
+   ================================= */
 [data-theme="light"] {
-  --bg-color: #f9f9f9;
-  --text-color: #333;
-  --main-bg-color: #fafafa;
+  --bg-color: #f8fafc;                 /* Latar utama abu-abu netral */
+  --main-bg-color: #ffffff;           /* Latar untuk komponen seperti card */
+  --text-color: #1f2937;              /* Warna teks utama yang kontras */
+  --text-color-secondary: #6b7280;     /* Warna teks sekunder (abu-abu) */
   --footer-bg-color: #ffffff;
+  --border-color: #e5e7eb;
 }
 
 [data-theme="dark"] {
-  --bg-color: #1c1c1e;
-  --text-color: #eee;
-  --main-bg-color: #2c2c2e;
-  --footer-bg-color: #252526;
+  --bg-color: #111827;
+  --main-bg-color: #1f2937;
+  --text-color: #d1d5db;
+  --text-color-secondary: #9ca3af;
+  --footer-bg-color: #1f2937;
+  --border-color: #374151;
 }

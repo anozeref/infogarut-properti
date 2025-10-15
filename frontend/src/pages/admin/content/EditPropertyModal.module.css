@@ -1,85 +1,180 @@
 .backdrop {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.4);
+  background: rgba(0, 0, 0, 0.6);
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 999;
-  overflow-y: auto;      /* tambahkan agar scrollable jika tinggi layar kecil */
-  padding: 20px;         /* beri jarak atas/bawah agar modal tidak nempel */
+  z-index: 1050;
+  padding: 20px;
+  overflow-y: auto;
 }
 
 .modal {
-  background: #fff;
-  padding: 25px 30px;
-  border-radius: 16px;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-  width: 400px;
-  max-width: 90%;
-  max-height: 90vh;       /* modal maksimal 90% tinggi viewport */
-  overflow-y: auto;       /* scroll jika konten lebih tinggi */
+  background: white;
+  border-radius: 12px;
+  padding: 24px;
+  width: 90%;
+  max-width: 800px;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.25);
+  max-height: 90vh;
+  overflow-y: auto;
 }
 
-h3 {
-  margin-bottom: 15px;
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #e9ecef;
+  padding-bottom: 12px;
+  margin-bottom: 24px;
+}
+
+.header h3 {
+  margin: 0;
+  font-size: 1.5rem;
   color: #333;
-  text-align: center;
 }
 
-form {
+.closeButton {
+  background: none;
+  border: none;
+  font-size: 1.2rem;
+  color: #888;
+  cursor: pointer;
+}
+
+.formGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 20px;
+  margin-bottom: 20px;
+}
+
+.formColumn {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 16px;
 }
 
-input, textarea {
-  padding: 8px 10px;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  outline: none;
+.formGroup {
+  display: flex;
+  flex-direction: column;
+}
+
+.formGroup label {
+  font-size: 0.9rem;
+  font-weight: 500;
+  margin-bottom: 6px;
+  color: #495057;
+}
+
+.formGroup input,
+.formGroup select,
+.formGroup textarea {
   width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #ced4da;
+  border-radius: 6px;
+  font-size: 1rem;
   box-sizing: border-box;
+  transition: border-color 0.2s, box-shadow 0.2s;
 }
 
-input:focus, textarea:focus {
-  border-color: #0d6efd;
+.formGroup input:focus,
+.formGroup select:focus,
+.formGroup textarea:focus {
+  outline: none;
+  border-color: #80bdff;
+  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
 }
 
-textarea {
-  resize: vertical;
-  min-height: 60px;
-  max-height: 200px;
+.fileInput {
+  margin-top: 8px;
+}
+
+.previewContainer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 12px;
+  padding: 10px;
+  border: 1px dashed #ced4da;
+  border-radius: 6px;
+  min-height: 80px;
+}
+
+.previewItem {
+  position: relative;
+  width: 100px;
+  height: 100px;
+  cursor: grab;
+}
+
+.previewItem:active {
+  cursor: grabbing;
+}
+
+.previewItem img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 6px;
+  pointer-events: none; /* Mencegah gambar mengganggu event drag */
+}
+
+.removeButton {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  background-color: rgba(0, 0, 0, 0.6);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  font-size: 0.8rem;
+  z-index: 10;
 }
 
 .btnGroup {
   display: flex;
   justify-content: flex-end;
-  gap: 10px;
-  margin-top: 15px;
+  gap: 12px;
+  margin-top: 30px;
+  padding-top: 20px;
+  border-top: 1px solid #e9ecef;
 }
 
-.save {
-  background: #0d6efd;
-  color: #fff;
+.saveBtn, .cancelBtn {
+  padding: 10px 24px;
   border: none;
-  padding: 8px 14px;
   border-radius: 6px;
+  font-size: 1rem;
+  font-weight: bold;
   cursor: pointer;
+  transition: background-color 0.2s;
 }
 
-.cancel {
-  background: #ccc;
-  border: none;
-  padding: 8px 14px;
-  border-radius: 6px;
-  cursor: pointer;
+.saveBtn {
+  background-color: #0d6efd;
+  color: white;
 }
 
-.save:hover {
-  background: #0b5ed7;
+.saveBtn:hover {
+  background-color: #0b5ed7;
 }
 
-.cancel:hover {
-  background: #b3b3b3;
+.cancelBtn {
+  background-color: #f8f9fa;
+  color: #333;
+  border: 1px solid #ced4da;
+}
+
+.cancelBtn:hover {
+  background-color: #e2e6ea;
 }

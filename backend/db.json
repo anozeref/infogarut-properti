@@ -5,7 +5,6 @@
       "username": "ahmadfz",
       "email": "ahmadfz@gmail.com",
       "password": "pass1234",
-      "noHp": "081234567890",
       "alamat": "Jl. Cimanuk No.45, Tarogong Kidul, Garut",
       "biodata": "",
       "kecamatan": "CISEWU",
@@ -214,17 +213,63 @@
       }
     },
     {
-      "id": "576e",
+      "id": "c162",
       "namaProperti": "Loli",
-      "jenisProperti": "Sewa",
+      "jenisProperti": "sewa",
       "tipeProperti": "Kost",
-      "lokasi": "Nusa Indah, Garut",
-      "harga": "249999",
-      "periodeSewa": "/13 tahun",
-      "deskripsi": "carita.na testing koneksi backend+update db+input post",
+      "harga": "250000",
+      "luasTanah": 152,
+      "luasBangunan": "48",
+      "kamarTidur": 1,
+      "kamarMandi": 2,
+      "lokasi": "Jl. Cimanuk No.45, Tarogong Kidul, Garut",
+      "kecamatan": "Tar Dulu",
+      "desa": "Sukajaya",
+      "deskripsi": "Fitur ini digunakan untuk memastikan sistem backend dan frontend berfungsi dengan baik. Test database memeriksa koneksi ke database, menjalankan operasi CRUD, dan menampilkan log kesalahan jika terjadi masalah. Test koneksi menguji endpoint API, memverifikasi response code dan kestabilan koneksi. Test gambar memastikan sistem dapat menerima, menyimpan, dan menampilkan file gambar dengan format dan ukuran yang valid, termasuk preview upload. Proses ini membantu mendeteksi masalah sejak awal, memastikan integritas data, koneksi stabil, dan upload file berjalan lancar, sehingga sistem siap digunakan sebelum deployment.",
       "statusPostingan": "approved",
       "ownerId": "5",
-      "postedAt": "15/10/2025 00:09:41"
+      "postedAt": "15/10/2025 18:52:08",
+      "koordinat": {
+        "lat": 0,
+        "lng": 0
+      },
+      "media": [
+        "1760529128364-62399065.png",
+        "1760529128470-485992763.png",
+        "1760529128459-481005157.png",
+        "1760529128439-751578138.png"
+      ],
+      "periodeSewa": "/13 tahun",
+      "periodeAngka": 13,
+      "periodeSatuan": "tahun"
+    },
+    {
+      "id": "a4b1",
+      "ownerId": "3",
+      "namaProperti": "Villa Sejuk di Kaki Gunung",
+      "tipeProperti": "Villa",
+      "jenisProperti": "sewa",
+      "periodeSewa": "/1 bulan",
+      "harga": 15000000,
+      "luasTanah": 500,
+      "luasBangunan": 250,
+      "kamarTidur": 4,
+      "kamarMandi": 3,
+      "lokasi": "Jalan Raya Samarang, Kp. Sampireun, Garut",
+      "kecamatan": "Samarang",
+      "desa": "Sukakarya",
+      "deskripsi": "Villa dengan pemandangan langsung ke pegunungan, udara sejuk dan fasilitas lengkap. Baru diajukan untuk disewakan.",
+      "media": [
+        "villa_samarang_1.jpg",
+        "villa_samarang_2.jpg",
+        "villa_samarang_3.jpg"
+      ],
+      "statusPostingan": "pending",
+      "postedAt": "15/10/2025 19:30:00",
+      "koordinat": {
+        "lat": -7.2512,
+        "lng": 107.8855
+      }
     }
   ]
 }
