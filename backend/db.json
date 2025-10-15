@@ -4,13 +4,19 @@
       "nama": "Ahmad Fauzi",
       "username": "ahmadfz",
       "email": "ahmadfz@gmail.com",
+      "password": "pass1234",
       "noHp": "081234567890",
       "alamat": "Jl. Cimanuk No.45, Tarogong Kidul, Garut",
       "biodata": "",
       "kecamatan": "CISEWU",
+      "joinedAt": "14/02/2025 09:32:41",
+      "role": "user",
       "desa": "",
       "no_hp": "081234567890",
-      "id": "1"
+      "id": "1",
+      "verified": true,
+      "suspendedUntil": "2025-10-16T04:55:45.236Z",
+      "suspend": null
     },
     {
       "id": "2",
@@ -23,7 +29,9 @@
       "kecamatan": "Banyuresmi",
       "desa": "Bagendit",
       "alamat": "Jl. Raya Bagendit No.12, Banyuresmi, Garut",
-      "joinedAt": "05/05/2025 15:08:12"
+      "joinedAt": "05/05/2025 15:08:12",
+      "verified": false,
+      "banned": true
     },
     {
       "id": "3",
@@ -36,7 +44,9 @@
       "kecamatan": "Cisurupan",
       "desa": "Sukalaksana",
       "alamat": "Kp. Cikajang No.8, Cisurupan, Garut",
-      "joinedAt": "27/07/2025 10:55:37"
+      "joinedAt": "27/07/2025 10:55:37",
+      "verified": true,
+      "suspend": null
     },
     {
       "id": "4",
@@ -75,13 +85,29 @@
       "desa": "Jayaraga",
       "alamat": "RT 04 / RW 02",
       "role": "user",
-      "joinedAt": "14/10/2025 11:21:00"
+      "joinedAt": "14/10/2025 11:21:00",
+      "verified": true
+    },
+    {
+      "id": "93ce",
+      "nama": "Ahmad Dahlan",
+      "username": "ahdahla",
+      "email": "ahdahla@gmail.com",
+      "password": "coba1234",
+      "no_hp": "082318141477",
+      "kecamatan": "Tar Dulu",
+      "desa": "Jayawaras",
+      "alamat": "Jl. Harapan yang tak kunjung Nyata",
+      "role": "user",
+      "joinedAt": "15/10/2025 11:45:36",
+      "verified": false,
+      "banned": true
     }
   ],
   "properties": [
     {
       "id": "1",
-      "ownerId": 1,
+      "ownerId": "1",
       "namaProperti": "Rumah Asri Sukajaya",
       "tipeProperti": "Rumah",
       "jenisProperti": "sewa",
@@ -126,7 +152,7 @@
         "kost1a.jpg",
         "kost1b.jpg"
       ],
-      "statusPostingan": "pending",
+      "statusPostingan": "approved",
       "postedAt": "21/07/2025 09:45:22",
       "koordinat": {
         "lat": -7.1903,
@@ -188,65 +214,17 @@
       }
     },
     {
-      "id": "e749",
+      "id": "576e",
       "namaProperti": "Loli",
       "jenisProperti": "Sewa",
-      "tipeProperti": "Rumah",
+      "tipeProperti": "Kost",
       "lokasi": "Nusa Indah, Garut",
-      "kecamatan": "Tarogong Kidul",
-      "desa": "Jayaraga",
       "harga": "249999",
-      "luasTanah": "155",
-      "luasBangunan": "48",
-      "kamarTidur": "1",
-      "kamarMandi": "2",
-      "periodeAngka": "13",
-      "periodeSatuan": "tahun",
       "periodeSewa": "/13 tahun",
-      "deskripsi": "Testing DB+Koneksi+Input",
-      "media": [
-        "1760432044008-88928871.png",
-        "1760432044036-976278464.png",
-        "1760432044056-647509559.png",
-        "1760432044070-189406882.png"
-      ],
-      "ownerId": "5",
+      "deskripsi": "carita.na testing koneksi backend+update db+input post",
       "statusPostingan": "approved",
-      "postedAt": "14/10/2025 15:54:04",
-      "koordinat": {
-        "lat": null,
-        "lng": null
-      }
-    },
-    {
-      "id": "0f28",
-      "namaProperti": "Loli 2",
-      "jenisProperti": "Jual",
-      "tipeProperti": "Rumah",
-      "lokasi": "Nusa Indah, Garut",
-      "kecamatan": "Tarogong Kidul",
-      "desa": "Jayaraga",
-      "harga": "124000000",
-      "luasTanah": "165",
-      "luasBangunan": "55",
-      "kamarTidur": "2",
-      "kamarMandi": "1",
-      "periodeAngka": "",
-      "periodeSatuan": "bulan",
-      "periodeSewa": "",
-      "deskripsi": "Test Ulang",
-      "media": [
-        "1760432639518-782539961.png",
-        "1760432639547-788193666.png",
-        "1760432639569-319147138.png"
-      ],
       "ownerId": "5",
-      "statusPostingan": "approved",
-      "postedAt": "14/10/2025 16:03:59",
-      "koordinat": {
-        "lat": null,
-        "lng": null
-      }
+      "postedAt": "15/10/2025 00:09:41"
     }
   ]
 }

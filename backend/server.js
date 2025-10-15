@@ -1,70 +1,120 @@
-// server.js
 const express = require("express");
 const multer = require("multer");
 const path = require("path");
+const fs = require("fs");
 const cors = require("cors");
+const axios = require("axios");
 const { createServer } = require("http");
 const { Server } = require("socket.io");
 
 const app = express();
+const PORT = 3005;
+const DB_URL = "http://localhost:3004";
+
+// === Setup basic middleware ===
 app.use(cors());
-app.use(express.json()); // tambahan untuk parsing JSON body
-app.use("/media/properties", express.static(path.join(__dirname, "public/media")));
+app.use(express.json());
+
+// Pastikan folder media ada
+const mediaDir = path.join(__dirname, "public/media");
+if (!fs.existsSync(mediaDir)) fs.mkdirSync(mediaDir, { recursive: true });
+
+// Serve file statis (gambar properti)
+app.use("/media", express.static(mediaDir));
 
 // === Setup HTTP + Socket.IO ===
 const server = createServer(app);
-const io = new Server(server, {
-  cors: { origin: "*" },
-});
+const io = new Server(server, { cors: { origin: "*" } });
 
-// Socket.IO: koneksi client
 io.on("connection", (socket) => {
-  console.log("Client connected:", socket.id);
-
-  // Event real-time user baru
-  socket.on("new_user", (data) => {
-    console.log("New user registered:", data);
-    io.emit("userUpdate", data); // broadcast ke semua client HomeContent
-  });
-
-  // Event real-time property baru
-  socket.on("new_property", (data) => {
-    console.log("New property added:", data);
-    io.emit("propertyUpdate", data);
-  });
-
-  socket.on("disconnect", () => {
-    console.log("Client disconnected:", socket.id);
-  });
+  console.log("✅ Connected:", socket.id);
+  socket.on("new_property", (data) => io.emit("propertyUpdate", data));
+  socket.on("new_user", (data) => io.emit("userUpdate", data));
+  socket.on("disconnect", () => console.log("❌ Disconnected:", socket.id));
 });
 
-// === Setup Multer untuk upload ===
+// === MULTER Setup (Upload) ===
 const storage = multer.diskStorage({
-  destination: (req, file, cb) => cb(null, "public/media"),
+  destination: (req, file, cb) => cb(null, mediaDir),
   filename: (req, file, cb) => {
-    const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
-    cb(null, uniqueSuffix + path.extname(file.originalname));
+    const unique = Date.now() + "-" + Math.round(Math.random() * 1e9);
+    cb(null, unique + path.extname(file.originalname));
   },
 });
 
 const upload = multer({
   storage,
-  limits: { fileSize: 2 * 1024 * 1024 }, // 2MB per file
+  limits: { fileSize: 2 * 1024 * 1024 }, // 2 MB per file
 }).array("media", 4); // max 4 files
 
-// === Endpoint upload ===
+// === Upload Endpoint ===
 app.post("/upload", (req, res) => {
-  upload(req, res, function (err) {
-    if (err) return res.status(400).json({ error: err.message });
+  upload(req, res, (err) => {
+    if (err) {
+      console.error("❌ Upload error:", err.message);
+      return res.status(400).json({ error: err.message });
+    }
+
+    if (!req.files || req.files.length === 0) {
+      return res.status(400).json({ error: "No files uploaded" });
+    }
 
     const files = req.files.map((f) => f.filename);
-    res.json({ files });
+    console.log("📸 Uploaded:", files);
 
-    // Emit event ke semua client (contoh: notifikasi upload baru)
+    res.json({ files });
     io.emit("new_upload", { files, time: new Date() });
   });
 });
 
-// Jalankan server HTTP
-const PORT = 3005;
-server.listen(PORT, () => console.log(`🚀 Server with Socket.IO running on port ${PORT}`));
+// === GET users & properties ===
+app.get("/users", async (_, res) => {
+  try {
+    const { data } = await axios.get(`${DB_URL}/users`);
+    res.json(data);
+  } catch {
+    res.status(500).json({ error: "Failed to fetch users" });
+  }
+});
+
+app.get("/properties", async (_, res) => {
+  try {
+    const { data } = await axios.get(`${DB_URL}/properties`);
+    res.json(data);
+  } catch {
+    res.status(500).json({ error: "Failed to fetch properties" });
+  }
+});
+
+// === DELETE property + media ===
+app.delete("/properties/:id", async (req, res) => {
+  const { id } = req.params;
+  try {
+    const { data: properties } = await axios.get(`${DB_URL}/properties`);
+    const property = properties.find((p) => String(p.id) === String(id));
+
+    if (!property) return res.status(404).json({ error: "Property not found" });
+
+    // Hapus file media
+    if (property.media && Array.isArray(property.media)) {
+      property.media.forEach((file) => {
+        const filePath = path.join(mediaDir, file);
+        if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
+      });
+    }
+
+    // Hapus dari DB
+    await axios.delete(`${DB_URL}/properties/${id}`);
+
+    io.emit("update_property", { id, deleted: true });
+    res.json({ success: true, deletedId: id });
+  } catch (err) {
+    console.error("❌ Delete error:", err.message);
+    res.status(500).json({ error: "Failed to delete property" });
+  }
+});
+
+// === Jalankan server ===
+server.listen(PORT, () => {
+  console.log(`🚀 Backend aktif di http://localhost:${PORT}`);
+});

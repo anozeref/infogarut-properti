@@ -7,7 +7,6 @@ import styles from "./HomeContent.module.css";
 import { ThemeContext } from "../DashboardAdmin";
 import { API_URL } from "../../../utils/constant";
 
-// Parse tanggal DD/MM/YYYY HH:mm:ss ke Date
 const parseCustomDate = (str) => {
   if (!str) return null;
   const [day, month, yearTime] = str.split("/");
