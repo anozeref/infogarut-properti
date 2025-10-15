@@ -4,10 +4,13 @@
       "nama": "Ahmad Fauzi",
       "username": "ahmadfz",
       "email": "ahmadfz@gmail.com",
+      "password": "pass1234",
       "noHp": "081234567890",
       "alamat": "Jl. Cimanuk No.45, Tarogong Kidul, Garut",
       "biodata": "",
       "kecamatan": "CISEWU",
+      "joinedAt": "14/02/2025 09:32:41",
+      "role":"user",
       "desa": "",
       "no_hp": "081234567890",
       "id": "1"

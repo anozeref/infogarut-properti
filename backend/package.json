@@ -7,9 +7,11 @@
     "multer": "^2.0.2",
     "socket.io": "^4.8.1"
   },
-  "scripts": {
-    "start:db": "json-server --watch db.json --port 3004",
-    "start:server": "node server.js",
-    "start:all": "concurrently \"npm run start:db\" \"npm run start:server\""
-  }
+"scripts": {
+  "start:db": "json-server --watch db.json --port 3004",
+  "start:server": "node server.js",
+  "start:frontend": "cd ../frontend && npm run dev",
+  "start:all": "concurrently \"npm run start:db\" \"npm run start:server\" \"npm run start:frontend\""
 }
+}
+
