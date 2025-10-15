@@ -1,158 +1,261 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { FaArrowLeft } from "react-icons/fa";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
+import axios from "axios";
+import Swal from "sweetalert2";
 import styles from "./EditProperty.module.css";
 
-const PropertyType = {
-  RUMAH: "RUMAH",
-  APARTEMEN: "APARTEMEN",
-  TANAH: "TANAH",
-  RUKO: "RUKO",
-};
-
-const InputField = ({ label, name, type = "text", value, onChange, children }) => (
-  <div className={styles.inputGroup}>
-    <label htmlFor={name} className={styles.label}>{label}</label>
-    <div className={styles.inputWrapper}>
-      {children ? (
-        children
-      ) : (
-        <input
-          type={type}
-          name={name}
-          id={name}
-          value={value}
-          onChange={onChange}
-          className={styles.input}
-          required={["name", "location", "price"].includes(name)}
-        />
-      )}
-    </div>
-  </div>
-);
-
-const PropertyForm = ({ onSave, initialData }) => {
-  const [formData, setFormData] = useState({
-    name: "",
-    description: "",
-    price: "",
-    location: "",
-    type: PropertyType.RUMAH,
-    buildingArea: "",
-    landArea: "",
-    bedrooms: "",
-    bathrooms: "",
-    files: [], // ✅ hanya satu array file
-    id: null,
-  });
-
-  // ✅ State untuk modal preview
-  const [previewModal, setPreviewModal] = useState(null);
-
+export default function EditProperty() {
+  const { id } = useParams();
   const navigate = useNavigate();
 
-  // ✅ Upload file gabungan (gambar & video)
+  // ✅ Sesuai field di db.json
+  const [formData, setFormData] = useState({
+    namaProperti: "",
+    tipeProperti: "Rumah",
+    jenisProperti: "jual",
+    periodeSewa: "",
+    harga: "",
+    luasTanah: "",
+    luasBangunan: "",
+    kamarTidur: "",
+    kamarMandi: "",
+    lokasi: "",
+    kecamatan: "",
+    desa: "",
+    deskripsi: "",
+    media: [],
+  });
+
+  const [previewModal, setPreviewModal] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  // ✅ Ambil data berdasarkan ID
+  useEffect(() => {
+    axios
+      .get(`http://localhost:3004/properties/${id}`)
+      .then((res) => {
+        setFormData({
+          ...res.data,
+          media: res.data.media || [],
+        });
+      })
+      .catch(() => {
+        Swal.fire("Error", "Data properti tidak ditemukan.", "error");
+        navigate("/user/propertisaya");
+      })
+      .finally(() => setLoading(false));
+  }, [id, navigate]);
+
+  // ✅ Handle input teks / number / select
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  // ✅ Upload gambar/video (preview lokal)
   const handleFileChange = (e) => {
     const files = Array.from(e.target.files);
     const filePreviews = files.map((file) => ({
       url: URL.createObjectURL(file),
-      type: file.type.startsWith("image")
-        ? "image"
-        : file.type.startsWith("video")
-        ? "video"
-        : "other",
       name: file.name,
+      type: file.type.startsWith("image") ? "image" : "video",
     }));
 
     setFormData((prev) => ({
       ...prev,
-      files: [...prev.files, ...filePreviews],
+      media: [...prev.media, ...filePreviews],
     }));
   };
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-  };
-
-  const handleSubmit = (e) => {
+  // ✅ Simpan (PUT) ke db.json
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!formData.name || !formData.location || parseFloat(formData.price) <= 0) {
-      alert("Harap isi Nama Properti, Harga, dan Lokasi.");
+    if (!formData.namaProperti || !formData.harga || !formData.lokasi) {
+      Swal.fire("Gagal", "Harap isi Nama Properti, Harga, dan Lokasi.", "warning");
       return;
     }
 
-    const dataToSave = {
-      ...formData,
-      price: parseFloat(formData.price),
-      buildingArea: parseFloat(formData.buildingArea) || 0,
-      landArea: parseFloat(formData.landArea) || 0,
-      bedrooms: parseInt(formData.bedrooms) || 0,
-      bathrooms: parseInt(formData.bathrooms) || 0,
-      id: formData.id || new Date().toISOString(),
-    };
-
-    onSave?.(dataToSave);
+    try {
+      // PUT ke endpoint
+      await axios.put(`http://localhost:3004/properties/${id}`, formData);
+      Swal.fire({
+        title: "Berhasil!",
+        text: "Properti berhasil diperbarui.",
+        icon: "success",
+        timer: 1500,
+        showConfirmButton: false,
+      });
+      navigate("/user/propertisaya");
+    } catch (err) {
+      Swal.fire("Error", "Gagal memperbarui data.", "error");
+      console.error(err);
+    }
   };
 
-  const formTitle = formData.id ? "Edit Properti" : "Edit Properti";
+  const openPreview = (file) => setPreviewModal(file);
+  const closePreview = () => setPreviewModal(null);
 
-  // ✅ Buka modal preview
-  const openPreview = (file) => {
-    setPreviewModal(file);
-  };
-
-  // ✅ Tutup modal preview
-  const closePreview = () => {
-    setPreviewModal(null);
-  };
+  if (loading) return <div className={styles.loading}>Memuat data properti...</div>;
 
   return (
     <div className={styles.container}>
       <div className={styles.card}>
-        <h2 className={styles.title}>{formTitle}</h2>
+        <h2 className={styles.title}>Edit Properti</h2>
 
         <form onSubmit={handleSubmit} className={styles.form}>
           <div className={styles.grid}>
             <div className={styles.colFull}>
-              <InputField label="Nama Properti" name="name" value={formData.name} onChange={handleChange} />
+              <label>Nama Properti</label>
+              <input
+                name="namaProperti"
+                value={formData.namaProperti}
+                onChange={handleChange}
+                className={styles.input}
+                required
+              />
             </div>
 
             <div className={styles.colFull}>
-              <label htmlFor="description" className={styles.label}>Deskripsi</label>
+              <label>Deskripsi</label>
               <textarea
-                name="description"
-                id="description"
-                rows={4}
-                value={formData.description}
+                name="deskripsi"
+                rows={3}
+                value={formData.deskripsi}
                 onChange={handleChange}
                 className={styles.textarea}
               />
             </div>
 
-            <InputField label="Harga (IDR)" name="price" type="number" value={formData.price} onChange={handleChange} />
-            <InputField label="Lokasi" name="location" value={formData.location} onChange={handleChange} />
+            <div>
+              <label>Harga (IDR)</label>
+              <input
+                type="number"
+                name="harga"
+                value={formData.harga}
+                onChange={handleChange}
+                className={styles.input}
+              />
+            </div>
 
-            <InputField label="Tipe Properti" name="type" value={formData.type} onChange={handleChange}>
+            <div>
+              <label>Lokasi</label>
+              <input
+                name="lokasi"
+                value={formData.lokasi}
+                onChange={handleChange}
+                className={styles.input}
+              />
+            </div>
+
+            <div>
+              <label>Kecamatan</label>
+              <input
+                name="kecamatan"
+                value={formData.kecamatan}
+                onChange={handleChange}
+                className={styles.input}
+              />
+            </div>
+
+            <div>
+              <label>Desa</label>
+              <input
+                name="desa"
+                value={formData.desa}
+                onChange={handleChange}
+                className={styles.input}
+              />
+            </div>
+
+            <div>
+              <label>Tipe Properti</label>
               <select
-                name="type"
-                id="type"
-                value={formData.type}
+                name="tipeProperti"
+                value={formData.tipeProperti}
                 onChange={handleChange}
                 className={styles.select}
               >
-                {Object.values(PropertyType).map((type) => (
-                  <option key={type} value={type}>{type}</option>
-                ))}
+                <option>Rumah</option>
+                <option>Apartemen</option>
+                <option>Tanah</option>
+                <option>Ruko</option>
               </select>
-            </InputField>
+            </div>
 
-            {/* ✅ Upload gabungan (gambar & video) */}
-            <InputField label="Upload File (Gambar/Video)" name="files">
+            <div>
+              <label>Jenis Properti</label>
+              <select
+                name="jenisProperti"
+                value={formData.jenisProperti}
+                onChange={handleChange}
+                className={styles.select}
+              >
+                <option value="jual">Dijual</option>
+                <option value="sewa">Disewa</option>
+              </select>
+            </div>
+
+            {formData.jenisProperti === "sewa" && (
+              <div>
+                <label>Periode Sewa</label>
+                <input
+                  name="periodeSewa"
+                  value={formData.periodeSewa}
+                  onChange={handleChange}
+                  placeholder="/1 tahun"
+                  className={styles.input}
+                />
+              </div>
+            )}
+
+            <div>
+              <label>Luas Tanah (m²)</label>
+              <input
+                type="number"
+                name="luasTanah"
+                value={formData.luasTanah}
+                onChange={handleChange}
+                className={styles.input}
+              />
+            </div>
+
+            <div>
+              <label>Luas Bangunan (m²)</label>
+              <input
+                type="number"
+                name="luasBangunan"
+                value={formData.luasBangunan}
+                onChange={handleChange}
+                className={styles.input}
+              />
+            </div>
+
+            <div>
+              <label>Kamar Tidur</label>
+              <input
+                type="number"
+                name="kamarTidur"
+                value={formData.kamarTidur}
+                onChange={handleChange}
+                className={styles.input}
+              />
+            </div>
+
+            <div>
+              <label>Kamar Mandi</label>
+              <input
+                type="number"
+                name="kamarMandi"
+                value={formData.kamarMandi}
+                onChange={handleChange}
+                className={styles.input}
+              />
+            </div>
+
+            <div className={styles.colFull}>
+              <label>Upload Media (Gambar/Video)</label>
               <input
                 type="file"
                 accept="image/*,video/*"
@@ -160,27 +263,19 @@ const PropertyForm = ({ onSave, initialData }) => {
                 onChange={handleFileChange}
                 className={styles.fileInput}
               />
-            </InputField>
-
-            <InputField label="Luas Bangunan (m²)" name="buildingArea" type="number" value={formData.buildingArea} onChange={handleChange} />
-            <InputField label="Luas Tanah (m²)" name="landArea" type="number" value={formData.landArea} onChange={handleChange} />
-            <InputField label="Kamar Tidur" name="bedrooms" type="number" value={formData.bedrooms} onChange={handleChange} />
-            <InputField label="Kamar Mandi" name="bathrooms" type="number" value={formData.bathrooms} onChange={handleChange} />
+            </div>
           </div>
 
-          {/* ✅ Preview semua file */}
-          {formData.files.length > 0 && (
+          {formData.media.length > 0 && (
             <div className={styles.previewSection}>
-              <h4 className={styles.previewTitle}>Preview File</h4>
+              <h4>Preview Media</h4>
               <div className={styles.previewGrid}>
-                {formData.files.map((file, i) => (
+                {formData.media.map((file, i) => (
                   <div key={i} className={styles.previewItem} onClick={() => openPreview(file)}>
                     {file.type === "image" ? (
-                      <img src={file.url} alt={file.name} className={styles.previewImage} />
-                    ) : file.type === "video" ? (
-                      <video src={file.url} className={styles.previewVideo} />
+                      <img src={file.url || file} alt={file.name || file} className={styles.previewImage} />
                     ) : (
-                      <p>{file.name}</p>
+                      <video src={file.url || file} className={styles.previewVideo} />
                     )}
                   </div>
                 ))}
@@ -188,11 +283,12 @@ const PropertyForm = ({ onSave, initialData }) => {
             </div>
           )}
 
-          <button type="submit" className={styles.submitBtn}>Simpan Properti</button>
+          <button type="submit" className={styles.submitBtn}>
+            Simpan Properti
+          </button>
         </form>
       </div>
 
-      {/* ✅ Modal preview */}
       {previewModal && (
         <div className={styles.modalOverlay} onClick={closePreview}>
           <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
@@ -207,6 +303,4 @@ const PropertyForm = ({ onSave, initialData }) => {
       )}
     </div>
   );
-};
-
-export default PropertyForm;
+}

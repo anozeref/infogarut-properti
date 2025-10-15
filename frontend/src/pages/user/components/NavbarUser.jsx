@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useContext } from "react";
 import {
   FaBell,
   FaUserCircle,
@@ -8,16 +8,20 @@ import {
   FaMoon,
   FaSun,
 } from "react-icons/fa";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import Swal from "sweetalert2";
+import { AuthContext } from "../../../context/AuthContext";
 import styles from "./NavbarUser.module.css";
 import logo from "../../../assets/logo.png";
 
 export default function NavbarUser({ darkMode, toggleTheme }) {
   const [showNotif, setShowNotif] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
-
   const notifRef = useRef(null);
   const profileRef = useRef(null);
+  const navigate = useNavigate();
+
+  const { logout } = useContext(AuthContext);
 
   const toggleNotif = () => {
     setShowNotif(!showNotif);
@@ -25,8 +29,34 @@ export default function NavbarUser({ darkMode, toggleTheme }) {
   };
 
   const toggleProfile = () => {
-    setShowProfile(prev => !prev);
+    setShowProfile((prev) => !prev);
     setShowNotif(false);
+  };
+
+  // ✅ Fungsi logout
+  const handleLogout = async () => {
+    const confirm = await Swal.fire({
+      title: "Yakin mau keluar?",
+      text: "Kamu akan keluar dari akun ini.",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Ya, Logout",
+      cancelButtonText: "Batal",
+      confirmButtonColor: "#4f46e5",
+      cancelButtonColor: "#6b7280",
+    });
+
+    if (confirm.isConfirmed) {
+      logout();
+      Swal.fire({
+        title: "Berhasil Logout!",
+        text: "Kamu telah keluar dari akun.",
+        icon: "success",
+        confirmButtonColor: "#4f46e5",
+      }).then(() => {
+        navigate("/"); // 🔙 Kembali ke Landing Page
+      });
+    }
   };
 
   // ✅ Tutup dropdown jika klik di luar
@@ -116,7 +146,7 @@ export default function NavbarUser({ darkMode, toggleTheme }) {
                 className={`${styles.settingBtn} ${
                   darkMode ? styles.settingBtnDark : ""
                 }`}
-                onClick={() => console.log("Logout clicked")}
+                onClick={handleLogout}
               >
                 <FaSignOutAlt className={styles.settingIcon} /> Logout
               </button>

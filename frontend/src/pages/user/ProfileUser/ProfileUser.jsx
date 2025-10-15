@@ -1,16 +1,19 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { FaUserCircle } from "react-icons/fa";
 import styles from "./ProfileUser.module.css";
-import Swal from "sweetalert2"; 
+import Swal from "sweetalert2";
+import { AuthContext } from "../../../context/AuthContext"; // pastikan path-nya sesuai
 
 export default function ProfileUser({ darkMode }) {
-  // ===================== STATE =====================
+  const { user } = useContext(AuthContext); // ambil user dari context
+
   const [photo, setPhoto] = useState(null);
   const [photoPreview, setPhotoPreview] = useState(null);
   const [kecamatanList, setKecamatanList] = useState([]);
   const [desaList, setDesaList] = useState([]);
   const [selectedKecamatan, setSelectedKecamatan] = useState("");
   const [selectedDesa, setSelectedDesa] = useState("");
+
   const [formData, setFormData] = useState({
     nama: "",
     username: "",
@@ -18,105 +21,82 @@ export default function ProfileUser({ darkMode }) {
     noHp: "",
     alamat: "",
     biodata: "",
+    kecamatan: "",
+    desa: "",
   });
 
-// ===================== FETCH DATA USER =====================
-useEffect(() => {
-  fetch("http://localhost:3004/users/1") // ambil user id 1
-    .then((res) => res.json())
-    .then((data) => {
-      setFormData({
-        nama: data.nama || "",
-        username: data.username || "",
-        email: data.email || "",
-        noHp: data.no_hp || "",
-        alamat: data.alamat || "",
-        biodata: data.biodata || "",
-        kecamatan: data.kecamatan || "",
-        desa: data.desa || "",
+  // ===================== CEK USER LOGIN =====================
+  useEffect(() => {
+    if (!user || !user.id) {
+      Swal.fire({
+        icon: "warning",
+        title: "Belum Login",
+        text: "Silakan login terlebih dahulu untuk mengakses profil.",
       });
-
-      // simpan nama kecamatan dan desa sementara
-      setSelectedKecamatan(data.kecamatan || "");
-      setSelectedDesa(data.desa || "");
-    })
-    .catch((err) => console.error("Gagal memuat data user:", err));
-}, []);
-
-// ===================== FETCH DATA USER =====================
-useEffect(() => {
-  fetch("http://localhost:3004/users/1")
-    .then((res) => res.json())
-    .then((data) => {
+    } else {
+      // isi otomatis dengan data user context
       setFormData({
-        nama: data.nama || "",
-        username: data.username || "",
-        email: data.email || "",
-        noHp: data.no_hp || "",
-        alamat: data.alamat || "",
-        biodata: data.biodata || "",
-        kecamatan: data.kecamatan || "",
-        desa: data.desa || "",
+        nama: user.nama || "",
+        username: user.username || "",
+        email: user.email || "",
+        noHp: user.no_hp || user.noHp || "",
+        alamat: user.alamat || "",
+        biodata: user.biodata || "",
+        kecamatan: user.kecamatan || "",
+        desa: user.desa || "",
       });
-    })
-    .catch((err) => console.error("Gagal memuat data user:", err));
-}, []);
-
-// ===================== FETCH DATA KECAMATAN =====================
-useEffect(() => {
-  fetch("https://www.emsifa.com/api-wilayah-indonesia/api/districts/3205.json")
-    .then((res) => res.json())
-    .then((data) => {
-      const sorted = data.sort((a, b) =>
-        a.name.trim().toLowerCase().localeCompare(b.name.trim().toLowerCase())
-      );
-      setKecamatanList(sorted);
-    })
-    .catch((err) => console.error("Gagal mengambil data kecamatan:", err));
-}, []);
-
-// ===================== AUTO SET KECAMATAN BERDASARKAN NAMA =====================
-useEffect(() => {
-  if (kecamatanList.length > 0 && formData.kecamatan) {
-    const matchKec = kecamatanList.find(
-      (k) => k.name.toLowerCase() === formData.kecamatan.toLowerCase()
-    );
-    if (matchKec) {
-      setSelectedKecamatan(matchKec.id);
     }
-  }
-}, [kecamatanList, formData.kecamatan]);
+  }, [user]);
 
-// ===================== FETCH DESA BERDASARKAN KECAMATAN =====================
-useEffect(() => {
-  if (selectedKecamatan) {
-    fetch(`https://www.emsifa.com/api-wilayah-indonesia/api/villages/${selectedKecamatan}.json`)
+  // ===================== FETCH DATA KECAMATAN =====================
+  useEffect(() => {
+    fetch("https://www.emsifa.com/api-wilayah-indonesia/api/districts/3205.json")
       .then((res) => res.json())
       .then((data) => {
         const sorted = data.sort((a, b) =>
           a.name.trim().toLowerCase().localeCompare(b.name.trim().toLowerCase())
         );
-        setDesaList(sorted);
+        setKecamatanList(sorted);
       })
-      .catch((err) => console.error("Gagal mengambil data desa:", err));
-  } else {
-    setDesaList([]);
-  }
-}, [selectedKecamatan]);
+      .catch((err) => console.error("Gagal mengambil data kecamatan:", err));
+  }, []);
 
-// ===================== AUTO SELECT DESA BERDASARKAN NAMA =====================
-useEffect(() => {
-  if (desaList.length > 0 && formData.desa) {
-    const matchDesa = desaList.find(
-      (d) => d.name.toLowerCase() === formData.desa.toLowerCase()
-    );
-    if (matchDesa) {
-      setSelectedDesa(matchDesa.id);
+  // ===================== AUTO SET KECAMATAN =====================
+  useEffect(() => {
+    if (kecamatanList.length > 0 && formData.kecamatan) {
+      const matchKec = kecamatanList.find(
+        (k) => k.name.toLowerCase() === formData.kecamatan.toLowerCase()
+      );
+      if (matchKec) setSelectedKecamatan(matchKec.id);
     }
-  }
-}, [desaList, formData.desa]);
+  }, [kecamatanList, formData.kecamatan]);
 
+  // ===================== FETCH DESA =====================
+  useEffect(() => {
+    if (selectedKecamatan) {
+      fetch(`https://www.emsifa.com/api-wilayah-indonesia/api/villages/${selectedKecamatan}.json`)
+        .then((res) => res.json())
+        .then((data) => {
+          const sorted = data.sort((a, b) =>
+            a.name.trim().toLowerCase().localeCompare(b.name.trim().toLowerCase())
+          );
+          setDesaList(sorted);
+        })
+        .catch((err) => console.error("Gagal mengambil data desa:", err));
+    } else {
+      setDesaList([]);
+    }
+  }, [selectedKecamatan]);
 
+  // ===================== AUTO SELECT DESA =====================
+  useEffect(() => {
+    if (desaList.length > 0 && formData.desa) {
+      const matchDesa = desaList.find(
+        (d) => d.name.toLowerCase() === formData.desa.toLowerCase()
+      );
+      if (matchDesa) setSelectedDesa(matchDesa.id);
+    }
+  }, [desaList, formData.desa]);
 
   // ===================== HANDLE FOTO PROFIL =====================
   const handlePhotoChange = (e) => {
@@ -127,83 +107,127 @@ useEffect(() => {
     }
   };
 
-  // ===================== HANDLE INPUT UMUM =====================
+  // ===================== HANDLE INPUT =====================
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
   };
 
-  // ===================== HANDLE SUBMIT =====================
-const handleSubmit = async (e) => {
-  e.preventDefault();
+  // ===================== HANDLE SUBMIT PROFIL =====================
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-  const updatedUser = {
-    ...formData,
-    kecamatan: kecamatanList.find((k) => k.id === selectedKecamatan)?.name || "",
-    desa: desaList.find((d) => d.id === selectedDesa)?.name || "",
-    no_hp: formData.noHp,
+    if (!user || !user.id) {
+      Swal.fire("Oops!", "User belum login.", "warning");
+      return;
+    }
+
+    const updatedUser = {
+      ...formData,
+      kecamatan: kecamatanList.find((k) => k.id === selectedKecamatan)?.name || "",
+      desa: desaList.find((d) => d.id === selectedDesa)?.name || "",
+      no_hp: formData.noHp,
+    };
+
+    const confirmResult = await Swal.fire({
+      title: "Simpan perubahan?",
+      text: "Data profil kamu akan diperbarui.",
+      icon: "question",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Ya, simpan!",
+      cancelButtonText: "Batal",
+    });
+
+    if (!confirmResult.isConfirmed) return;
+
+    try {
+      Swal.fire({
+        title: "Menyimpan data...",
+        text: "Mohon tunggu sebentar.",
+        allowOutsideClick: false,
+        didOpen: () => Swal.showLoading(),
+      });
+
+      const res = await fetch(`http://localhost:3004/users/${user.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(updatedUser),
+      });
+
+      if (!res.ok) throw new Error("Gagal menyimpan data user");
+      Swal.fire("Berhasil!", "Data profil kamu sudah diperbarui.", "success");
+    } catch (err) {
+      console.error("Error saat update data:", err);
+      Swal.fire("Gagal!", "Terjadi kesalahan saat menyimpan data.", "error");
+    }
   };
 
-  // 🟡 Step 1: Konfirmasi sebelum menyimpan
-  const confirmResult = await Swal.fire({
-    title: "Simpan perubahan?",
-    text: "Data profil kamu akan diperbarui.",
-    icon: "question",
-    showCancelButton: true,
-    confirmButtonColor: "#3085d6",
-    cancelButtonColor: "#d33",
-    confirmButtonText: "Ya, simpan!",
-    cancelButtonText: "Batal",
-  });
+  // ===================== HANDLE UBAH PASSWORD =====================
+  const handlePasswordChange = async (e) => {
+    e.preventDefault();
 
-  if (!confirmResult.isConfirmed) return;
+    if (!user || !user.id) {
+      Swal.fire("Oops!", "User belum login.", "warning");
+      return;
+    }
 
-  try {
-    // 🟢 Step 2: Tampilkan spinner loading
-    Swal.fire({
-      title: "Menyimpan data...",
-      text: "Mohon tunggu sebentar.",
-      allowOutsideClick: false,
-      didOpen: () => Swal.showLoading(),
+    const newPass = e.target.password.value.trim();
+    const confirmPass = e.target.confirmPassword.value.trim();
+
+    if (!newPass || !confirmPass) {
+      Swal.fire("Oops!", "Semua kolom wajib diisi!", "warning");
+      return;
+    }
+    if (newPass !== confirmPass) {
+      Swal.fire("Gagal!", "Password konfirmasi tidak cocok!", "error");
+      return;
+    }
+
+    const confirm = await Swal.fire({
+      title: "Ubah password?",
+      text: "Password baru akan disimpan.",
+      icon: "question",
+      showCancelButton: true,
+      confirmButtonText: "Ya, ubah!",
+      cancelButtonText: "Batal",
     });
 
-    // 🟣 Step 3: Kirim request PUT
-    const res = await fetch("http://localhost:3004/users/1", {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(updatedUser),
-    });
+    if (!confirm.isConfirmed) return;
 
-    if (!res.ok) throw new Error("Gagal menyimpan data user");
+    try {
+      Swal.fire({
+        title: "Menyimpan...",
+        text: "Mohon tunggu sebentar.",
+        allowOutsideClick: false,
+        didOpen: () => Swal.showLoading(),
+      });
 
-    const data = await res.json();
+      const resGet = await fetch(`http://localhost:3004/users/${user.id}`);
+      const userData = await resGet.json();
 
-    // 🟢 Step 4: Tutup loading, tampilkan pesan sukses
-    Swal.fire({
-      title: "Berhasil!",
-      text: "Data profil kamu sudah diperbarui.",
-      icon: "success",
-      confirmButtonColor: "#3085d6",
-    });
+      const updatedUser = { ...userData, password: newPass };
 
-    console.log("User updated:", data);
-  } catch (err) {
-    console.error("Error saat update data:", err);
+      const res = await fetch(`http://localhost:3004/users/${user.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(updatedUser),
+      });
 
-    // 🔴 Step 5: Tutup loading, tampilkan pesan gagal
-    Swal.fire({
-      title: "Gagal!",
-      text: "Terjadi kesalahan saat menyimpan data.",
-      icon: "error",
-      confirmButtonColor: "#d33",
-    });
-  }
-};
+      if (!res.ok) throw new Error("Gagal update password");
+
+      Swal.fire("Berhasil!", "Password kamu sudah diperbarui.", "success");
+      e.target.reset();
+    } catch (err) {
+      console.error("Error saat ubah password:", err);
+      Swal.fire("Error!", "Terjadi kesalahan saat mengubah password.", "error");
+    }
+  };
 
   // ===================== RENDER =====================
   return (
     <div className={`${styles.profilePage} ${darkMode ? styles.dark : ""}`}>
-      {/* ========== HEADER ========== */}
       <div className={styles.header}>
         <div className={styles.headerTitle}>
           <FaUserCircle className={styles.iconUser} />
@@ -211,33 +235,21 @@ const handleSubmit = async (e) => {
         </div>
       </div>
 
-      {/* ========== ISI KONTEN ========== */}
       <div className={styles.content}>
         {/* ===== FORM PROFIL ===== */}
         <div className={styles.formSection}>
           <div className={styles.card}>
             <div className={styles.cardBody}>
               <form className={styles.form} onSubmit={handleSubmit}>
-                {/* 🖼️ Foto Profil */}
+                {/* Foto Profil */}
                 <div className={styles.photoRow}>
                   <div className={styles.col}>
-                    <label>
-                      Foto Profil <span className={styles.required}>*</span>
-                    </label>
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={handlePhotoChange}
-                    />
+                    <label>Foto Profil</label>
+                    <input type="file" accept="image/*" onChange={handlePhotoChange} />
                   </div>
-
                   <div className={styles.previewFrame}>
                     {photoPreview ? (
-                      <img
-                        src={photoPreview}
-                        alt="Foto Profil"
-                        className={styles.previewImg}
-                      />
+                      <img src={photoPreview} alt="Foto Profil" className={styles.previewImg} />
                     ) : (
                       <div className={styles.emptyFrame}>
                         <p>Belum ada foto</p>
@@ -246,13 +258,11 @@ const handleSubmit = async (e) => {
                   </div>
                 </div>
 
-                {/* 🧍 Nama & Username */}
+
+                {/* Nama & Username */}
                 <div className={styles.row}>
                   <div className={styles.col6}>
-                    
-                    <label>
-                      Nama <span className={styles.required}>*</span>
-                    </label>
+                    <label>Nama</label>
                     <input
                       type="text"
                       name="nama"
@@ -262,9 +272,7 @@ const handleSubmit = async (e) => {
                     />
                   </div>
                   <div className={styles.col6}>
-                    <label>
-                      Username <span className={styles.required}>*</span>
-                    </label>
+                    <label>Username</label>
                     <input
                       type="text"
                       name="username"
@@ -275,12 +283,10 @@ const handleSubmit = async (e) => {
                   </div>
                 </div>
 
-                {/* 📧 Email & No HP */}
+                {/* Email & No HP */}
                 <div className={styles.row}>
                   <div className={styles.col6}>
-                    <label>
-                      Email <span className={styles.required}>*</span>
-                    </label>
+                    <label>Email</label>
                     <input
                       type="email"
                       name="email"
@@ -301,12 +307,10 @@ const handleSubmit = async (e) => {
                   </div>
                 </div>
 
-                {/* 🏙️ Kecamatan & Desa */}
+                {/* Kecamatan & Desa */}
                 <div className={styles.addressRow}>
                   <div className={styles.col4}>
-                    <label>
-                      Kecamatan <span className={styles.required}>*</span>
-                    </label>
+                    <label>Kecamatan</label>
                     <select
                       value={selectedKecamatan}
                       onChange={(e) => setSelectedKecamatan(e.target.value)}
@@ -319,20 +323,15 @@ const handleSubmit = async (e) => {
                       ))}
                     </select>
                   </div>
-
                   <div className={styles.col4}>
-                    <label>
-                      Kelurahan/Desa <span className={styles.required}>*</span>
-                    </label>
+                    <label>Kelurahan/Desa</label>
                     <select
                       value={selectedDesa}
                       onChange={(e) => setSelectedDesa(e.target.value)}
                       disabled={!selectedKecamatan}
                     >
                       <option value="">
-                        {selectedKecamatan
-                          ? "Pilih Desa/Kelurahan"
-                          : "Pilih Kecamatan dulu"}
+                        {selectedKecamatan ? "Pilih Desa" : "Pilih Kecamatan dulu"}
                       </option>
                       {desaList.map((desa) => (
                         <option key={desa.id} value={desa.id}>
@@ -343,12 +342,10 @@ const handleSubmit = async (e) => {
                   </div>
                 </div>
 
-                {/* 🏠 Alamat & Biodata */}
+                {/* Alamat & Biodata */}
                 <div className={styles.row}>
                   <div className={styles.col6}>
-                    <label>
-                      Alamat <span className={styles.required}>*</span>
-                    </label>
+                    <label>Alamat</label>
                     <textarea
                       name="alamat"
                       rows="3"
@@ -358,9 +355,7 @@ const handleSubmit = async (e) => {
                     ></textarea>
                   </div>
                   <div className={styles.col6}>
-                    <label>
-                      Biodata <span className={styles.required}>*</span>
-                    </label>
+                    <label>Biodata</label>
                     <textarea
                       name="biodata"
                       rows="3"
@@ -371,7 +366,6 @@ const handleSubmit = async (e) => {
                   </div>
                 </div>
 
-                {/* 💾 Tombol Simpan */}
                 <div className={styles.col12} style={{ textAlign: "right" }}>
                   <button type="submit" className={styles.saveBtn}>
                     Simpan Perubahan
@@ -389,12 +383,11 @@ const handleSubmit = async (e) => {
               <h5>Ubah Password</h5>
             </div>
             <div className={styles.cardBody}>
-              <form>
+              <form onSubmit={handlePasswordChange}>
                 <label>Password Baru</label>
-                <input type="password" placeholder="Password Baru" />
-                <p></p>
+                <input type="password" name="password" placeholder="Password Baru" />
                 <label>Konfirmasi Password</label>
-                <input type="password" placeholder="Konfirmasi Password Baru" />
+                <input type="password" name="confirmPassword" placeholder="Konfirmasi Password Baru" />
                 <button type="submit" className={styles.saveBtn}>
                   Ubah Password
                 </button>

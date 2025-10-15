@@ -4,20 +4,31 @@ import {
   FaMoneyBillWave,
   FaEdit,
   FaTrash,
+  FaRulerCombined,
+  FaBath,
+  FaBed,
 } from "react-icons/fa";
 import Swal from "sweetalert2";
+import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import styles from "./CardProperty.module.css";
 
 export default function CardProperty({
-  image,
-  type,
-  title,
-  location,
-  price,
-  desc,
+  id,
+  namaProperti,
+  tipeProperti,
+  jenisProperti, // jual | sewa
+  periodeSewa,
+  harga,
+  luasTanah,
+  luasBangunan,
+  kamarTidur,
+  kamarMandi,
+  lokasi,
+  deskripsi,
+  media,
+  status, // pending | aktif | ditolak
   darkMode,
-  status, // "pending" | "aktif" | "ditolak"
   onDelete,
 }) {
   const [isHovered, setIsHovered] = useState(false);
@@ -25,6 +36,9 @@ export default function CardProperty({
 
   const fallbackImage =
     "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=600&q=60";
+
+  // Pilih gambar utama dari array media
+  const image = Array.isArray(media) && media.length > 0 ? media[0] : fallbackImage;
 
   // 🎨 Warna badge berdasarkan status
   const getStatusBadgeStyle = () => {
@@ -51,11 +65,11 @@ export default function CardProperty({
 
   const badgeStyle = getStatusBadgeStyle();
 
-  // ⚠️ Hapus Properti (SweetAlert2)
+  // ⚠️ Hapus Properti
   const handleDelete = async () => {
     const result = await Swal.fire({
       title: "Yakin hapus properti ini?",
-      text: `Properti "${title}" akan dihapus permanen.`,
+      text: `Properti "${namaProperti}" akan dihapus permanen.`,
       icon: "warning",
       showCancelButton: true,
       confirmButtonColor: "#e02424",
@@ -67,23 +81,35 @@ export default function CardProperty({
     });
 
     if (result.isConfirmed) {
-      Swal.fire({
-        title: "Terhapus!",
-        text: "Properti berhasil dihapus.",
-        icon: "success",
-        timer: 1500,
-        showConfirmButton: false,
-        background: darkMode ? "#1f2937" : "#fff",
-        color: darkMode ? "#fff" : "#000",
-      });
+      try {
+        await axios.delete(`http://localhost:3004/properties/${id}`);
+        Swal.fire({
+          title: "Terhapus!",
+          text: "Properti berhasil dihapus.",
+          icon: "success",
+          timer: 1500,
+          showConfirmButton: false,
+          background: darkMode ? "#1f2937" : "#fff",
+          color: darkMode ? "#fff" : "#000",
+        });
 
-      if (onDelete) onDelete();
+        if (onDelete) onDelete(id);
+      } catch (error) {
+        Swal.fire({
+          title: "Gagal!",
+          text: "Terjadi kesalahan saat menghapus properti.",
+          icon: "error",
+          background: darkMode ? "#1f2937" : "#fff",
+          color: darkMode ? "#fff" : "#000",
+        });
+        console.error("Gagal hapus properti:", error);
+      }
     }
   };
 
-  // ✏️ Navigasi ke halaman EditProperty (tanpa id)
+  // ✏️ Navigasi ke halaman EditProperty
   const handleEdit = () => {
-    navigate("/user/edit-property");
+    navigate(`/user/edit-property/${id}`);
   };
 
   return (
@@ -104,8 +130,8 @@ export default function CardProperty({
       {/* Gambar */}
       <div className={styles.imageWrapper}>
         <img
-          src={image || fallbackImage}
-          alt={title || "Gambar Properti"}
+          src={image}
+          alt={namaProperti || "Gambar Properti"}
           loading="lazy"
           onError={(e) => (e.target.src = fallbackImage)}
           className={styles.image}
@@ -133,47 +159,89 @@ export default function CardProperty({
 
       {/* Body Card */}
       <div className={styles.cardBody}>
-        {type && (
-          <span
-            className={`${styles.badge} ${darkMode ? styles.badgeDark : ""}`}
-          >
-            {type}
-          </span>
-        )}
+        {/* Badge Tipe & Jenis Properti */}
+        <div className={styles.badgeGroup}>
+          {tipeProperti && (
+            <span
+              className={`${styles.badge} ${darkMode ? styles.badgeDark : ""}`}
+            >
+              {tipeProperti}
+            </span>
+          )}
+          {jenisProperti && (
+            <span
+              className={`${styles.badgeSecondary} ${
+                darkMode ? styles.badgeDark : ""
+              }`}
+            >
+              {jenisProperti === "sewa" ? "Untuk Disewa" : "Dijual"}
+            </span>
+          )}
+        </div>
 
-        <h3 className={styles.cardTitle}>{title}</h3>
+        <h3 className={styles.cardTitle}>{namaProperti}</h3>
 
-        {location && (
+        {lokasi && (
           <p className={styles.cardLocation}>
-            <FaMapMarkerAlt className={styles.icon} /> {location}
+            <FaMapMarkerAlt className={styles.icon} /> {lokasi}
           </p>
         )}
 
-        {price && (
+        {harga && (
           <p className={styles.cardPrice}>
-            <FaMoneyBillWave className={styles.icon} /> {price}
+            <FaMoneyBillWave className={styles.icon} />{" "}
+            Rp{harga.toLocaleString("id-ID")}{" "}
+            {jenisProperti === "sewa" && periodeSewa && (
+              <span className={styles.periode}>{periodeSewa}</span>
+            )}
           </p>
         )}
 
-        {desc && <p className={styles.cardDesc}>{desc}</p>}
+        {/* Detail Properti */}
+        <div className={styles.propertyDetails}>
+          {luasTanah && (
+            <span>
+              <FaRulerCombined className={styles.iconSmall} /> {luasTanah} m²
+            </span>
+          )}
+          {kamarTidur && (
+            <span>
+              <FaBed className={styles.iconSmall} /> {kamarTidur}
+            </span>
+          )}
+          {kamarMandi && (
+            <span>
+              <FaBath className={styles.iconSmall} /> {kamarMandi}
+            </span>
+          )}
+        </div>
+
+        {deskripsi && (
+          <p className={styles.cardDesc}>
+            {deskripsi.length > 100
+              ? deskripsi.slice(0, 100) + "..."
+              : deskripsi}
+          </p>
+        )}
 
         {/* Tombol Edit & Delete */}
         <div className={styles.actionButtons}>
-  <button
-    className={`${styles.editBtn} ${darkMode ? styles.editBtnDark : ""}`}
-    onClick={handleEdit}
-  >
-    <FaEdit />
-  </button>
+          <button
+            className={`${styles.editBtn} ${darkMode ? styles.editBtnDark : ""}`}
+            onClick={handleEdit}
+          >
+            <FaEdit />
+          </button>
 
-  <button
-    className={`${styles.deleteBtn} ${darkMode ? styles.deleteBtnDark : ""}`}
-    onClick={handleDelete}
-  >
-    <FaTrash />
-  </button>
-</div>
-
+          <button
+            className={`${styles.deleteBtn} ${
+              darkMode ? styles.deleteBtnDark : ""
+            }`}
+            onClick={handleDelete}
+          >
+            <FaTrash />
+          </button>
+        </div>
       </div>
     </div>
   );
