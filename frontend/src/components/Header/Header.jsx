@@ -1,7 +1,7 @@
 // src/components/Header/Header.jsx
 import React, { useContext } from "react";
 import styles from "./Header.module.css";
-import { FaUserCircle } from "react-icons/fa";
+import { FaUserCircle, FaSignOutAlt } from "react-icons/fa";
 import { NavLink, useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 import { AuthContext } from "../../context/AuthContext";
@@ -36,7 +36,6 @@ const Header = () => {
   return (
     <header className={styles.header}>
       <div className={styles.container}>
-        {/* ✅ Hapus nested <a>, cukup satu */}
         <a
           href="https://infogarut.id"
           target="_blank"
@@ -74,6 +73,7 @@ const Header = () => {
             </a>
           </nav>
 
+          {/* Tombol user/login */}
           <button
             onClick={handleUserClick}
             className={styles.userIcon}
@@ -82,9 +82,14 @@ const Header = () => {
             <FaUserCircle size={28} />
           </button>
 
+          {/* Tombol logout */}
           {user && (
-            <button onClick={handleLogout} className={styles.logoutBtn}>
-              Keluar
+            <button
+              onClick={handleLogout}
+              className={styles.logoutBtn}
+              title="Keluar"
+            >
+              <FaSignOutAlt size={24} />
             </button>
           )}
         </div>
