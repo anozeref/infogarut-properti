@@ -2,10 +2,9 @@
 import React, { useContext } from "react";
 import styles from "./Header.module.css";
 import { FaUserCircle } from "react-icons/fa";
-import { Link, NavLink, useNavigate } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 import { AuthContext } from "../../context/AuthContext";
-import { NavLink, useNavigate } from "react-router-dom";
 import logoImage from "../../assets/logo.png";
 
 const Header = () => {
@@ -13,13 +12,6 @@ const Header = () => {
   const navigate = useNavigate();
 
   const handleUserClick = () => {
-    if (!user) {
-      navigate("/login");
-    } else if (user.role === "admin") {
-      navigate("/admin");
-    } else {
-      navigate("/user");
-    }
     if (!user) navigate("/login");
     else if (user.role === "admin") navigate("/admin");
     else if (user.role === "user") navigate("/user");
@@ -35,7 +27,7 @@ const Header = () => {
     }).then((res) => {
       if (res.isConfirmed) {
         logout();
-        navigate("/"); // redirect ke home
+        navigate("/");
         Swal.fire("Keluar!", "Anda berhasil keluar.", "success");
       }
     });
@@ -44,12 +36,7 @@ const Header = () => {
   return (
     <header className={styles.header}>
       <div className={styles.container}>
-        <a
-          href="https://infogarut.id"
-          target="_blank"
-          rel="noopener noreferrer"
-          className={styles.logo}
-        >
+        {/* ✅ Hapus nested <a>, cukup satu */}
         <a
           href="https://infogarut.id"
           target="_blank"
@@ -57,7 +44,6 @@ const Header = () => {
           className={styles.logo}
         >
           <img src={logoImage} alt="Logo Propertease Infogarut.id" />
-        </a>
         </a>
 
         <div className={styles.rightSection}>
@@ -78,8 +64,6 @@ const Header = () => {
             >
               Properti
             </NavLink>
-            
-            {/* TAUTAN BLOG BARU DITAMBAHKAN DI SINI */}
             <a
               href="https://infogarut.id"
               target="_blank"
@@ -88,7 +72,6 @@ const Header = () => {
             >
               Blog
             </a>
-            
           </nav>
 
           <button

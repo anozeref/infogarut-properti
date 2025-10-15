@@ -1,295 +1,227 @@
-/* Container */
+/* ===============================
+   🌙 FINAL HYBRID TANPA AUTO DARKMODE
+   =============================== */
+
+/* ===== LAYOUT ===== */
 .container {
-  padding: 20px;
-  font-family: 'Inter', sans-serif;
-  color: #333;
-  background-color: #f9f9f9;
-  transition: all 0.3s ease;
-}
-.dark {
-  background-color: #1f1f1f;
-  color: #f1f1f1;
+  background: #f9fafb;
+  padding: 25px;
+  border-radius: 14px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
+  transition: background 0.3s ease, color 0.3s ease;
+  position: relative;
+  color: #222;
 }
 
-/* Header */
-.header h2 {
-  font-weight: 700;
-  margin-bottom: 16px;
-  border-bottom: 1px solid #e5e7eb;
-  padding-bottom: 8px;
-  transition: border-color 0.3s ease, color 0.3s ease;
-}
-.dark .header h2 {
-  border-color: #444;
-  color: #f1f1f1;
-}
-
-/* Controls */
-.controls {
+/* ====== HEADER ====== */
+.header {
   display: flex;
-  justify-content: space-between;
+  flex-direction: column;
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.topRow {
+  display: flex;
   align-items: center;
-  margin-bottom: 15px;
+  justify-content: space-between;
   flex-wrap: wrap;
 }
-.searchWrapper {
-  position: relative;
+
+/* Search box (versi lama yang disukai) */
+.searchBox {
   display: flex;
   align-items: center;
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  padding: 6px 12px;
+  width: 280px;
+  transition: all 0.25s ease;
 }
-.searchInput {
-  padding: 6px 12px 6px 30px;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  width: 220px;
-  background-color: #fff;
-  color: #333;
-  transition: all 0.3s ease;
+.searchBox input {
+  border: none;
+  outline: none;
+  width: 100%;
+  background: transparent;
+  font-size: 14px;
 }
-.dark .searchInput {
-  background-color: #333;
-  color: #f1f1f1;
-  border: 1px solid #555;
-}
-.searchIcon {
-  position: absolute;
-  left: 8px;
-  color: #888;
-}
-.toggleContainer {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-.toggleContainer label {
-  position: relative;
-  display: inline-block;
-  width: 50px;
-  height: 24px;
-}
-.toggleContainer input {
-  opacity: 0;
-  width: 0;
-  height: 0;
-}
-.slider {
-  position: absolute;
-  cursor: pointer;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: #ccc;
-  border-radius: 24px;
-  transition: 0.3s;
-}
-.sliderBall {
-  position: absolute;
-  height: 18px;
-  width: 18px;
-  left: 3px;
-  top: 3px;
-  background-color: #fff;
-  border-radius: 50%;
-  transition: 0.3s;
-}
-input:checked + .slider .sliderBall {
-  transform: translateX(26px);
-}
-input:checked + .slider {
-  background-color: #28a745;
+.searchBox:hover {
+  border-color: #999;
 }
 
-/* Table */
-.tableWrapper {
-  overflow-x: auto;
+/* Filter toggle */
+.filterToggle {
+  display: flex;
+  gap: 8px;
 }
+.filterToggle button {
+  background: #fff;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 6px 14px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+.filterToggle button.active {
+  background: #007bff;
+  color: #fff;
+  border-color: #007bff;
+}
+.filterToggle button:hover {
+  background: #f2f2f2;
+}
+
+/* ====== TABLE ====== */
+.tableWrapper {
+  border-radius: 10px;
+  overflow: hidden;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+}
+
+.tableContainer {
+  max-height: 500px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #bbb #f9fafb;
+}
+.tableContainer::-webkit-scrollbar {
+  width: 6px;
+}
+.tableContainer::-webkit-scrollbar-thumb {
+  background-color: #bbb;
+  border-radius: 6px;
+}
+
 .table {
   width: 100%;
   border-collapse: collapse;
-  margin-bottom: 10px;
-  background-color: #fff;
-  border-radius: 8px;
-  transition: all 0.3s ease;
-}
-.dark .table {
-  background-color: #2c2c2c;
-  color: #f1f1f1;
-}
-.table th,
-.table td {
-  border: 1px solid #e0e0e0;
-  padding: 8px 12px;
   font-size: 14px;
-  text-align: left;
-}
-.dark .table th,
-.dark .table td {
-  border-color: #555;
-}
-.table th {
-  background-color: #f5f5f5;
-  font-weight: 600;
-}
-.dark .table th {
-  background-color: #3a3a3a;
-}
-.statusCell {
-  text-align: center;
-}
-.statusIcon {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 24px;
-  height: 24px;
-  border-radius: 50%;
-}
-.approved {
-  color: #28a745;
-}
-.pending {
-  color: #ffc107;
 }
 
-/* Actions */
-.actions {
+.table thead {
+  position: sticky;
+  top: 0;
+  background: #f3f4f6;
+  z-index: 2;
+}
+
+.table th, .table td {
+  padding: 12px 16px;
+  text-align: left;
+  border-bottom: 1px solid #eee;
+}
+
+.table tbody tr:hover {
+  background: #f9fafb;
+}
+
+/* Status badge */
+.status {
+  padding: 5px 10px;
+  border-radius: 6px;
+  font-weight: 500;
+  text-transform: capitalize;
+  font-size: 13px;
+}
+.status.verified {
+  background: rgba(0, 200, 83, 0.1);
+  color: #0f9d58;
+}
+.status.unverified {
+  background: rgba(255, 193, 7, 0.15);
+  color: #b28704;
+}
+.status.banned {
+  background: rgba(244, 67, 54, 0.1);
+  color: #d32f2f;
+}
+
+/* ===== ACTION BUTTONS ===== */
+.actionButtons {
   display: flex;
   gap: 6px;
-  justify-content: center;
 }
-.iconBtn {
-  border: none;
-  background: none;
-  cursor: pointer;
-  padding: 4px;
-  font-size: 16px;
+
+.actionBtn {
   display: flex;
   align-items: center;
   justify-content: center;
-}
-.iconBtn:hover {
-  opacity: 0.8;
-}
-.verifyBtn {
-  color: #28a745;
-}
-.suspendBtn {
-  color: #ffc107;
-}
-.unsuspendBtn {
-  color: #0d6efd;
-}
-.bannedBtn {
-  color: #dc3545;
-}
-.detailBtn {
-  color: #0d6efd;
-}
-
-/* Pagination */
-.pagination {
-  display: flex;
-  gap: 4px;
-  justify-content: center;
-  margin: 8px 0 20px;
-}
-.pageBtn {
-  padding: 4px 10px;
-  border: 1px solid #ccc;
-  background-color: #fff;
+  padding: 6px 10px;
+  border-radius: 8px;
+  font-size: 13px;
   cursor: pointer;
-  border-radius: 4px;
-}
-.dark .pageBtn {
-  background-color: #333;
-  color: #f1f1f1;
-  border: 1px solid #555;
-}
-.pageBtn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-.activePage {
-  background-color: #0d6efd;
-  color: white;
-  border-color: #0d6efd;
-}
-
-/* Modal */
-.modalBackdrop {
-  position: fixed;
-  inset: 0;
-  background-color: rgba(0,0,0,0.5);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
-}
-.modalContent {
-  background-color: #fff;
-  width: 80%;
-  max-width: 900px;
-  display: flex;
-  border-radius: 10px;
-  overflow: hidden;
-  position: relative;
-  transition: all 0.3s ease;
-}
-.dark .modalContent {
-  background-color: #2c2c2c;
-  color: #f1f1f1;
-}
-.modalLeft,
-.modalRight {
-  padding: 20px;
-  overflow-y: auto;
-  max-height: 80vh;
-}
-.modalLeft {
-  width: 35%;
-  box-shadow: 1px 0 5px rgba(0,0,0,0.2);
-}
-.modalRight {
-  width: 65%;
-}
-.modalLeft h3,
-.modalRight h3 {
-  margin-top: 0;
-  margin-bottom: 12px;
-}
-.modalClose {
-  position: absolute;
-  top: 8px;
-  right: 12px;
-  font-size: 24px;
   border: none;
-  background: none;
-  cursor: pointer;
-  color: #333;
-  transition: color 0.2s;
-}
-.dark .modalClose {
-  color: #f1f1f1;
-}
-.modalClose:hover {
-  color: #0d6efd;
+  transition: all 0.2s ease;
 }
 
-/* Responsive */
+.actionBtn.verify {
+  background: rgba(0, 200, 83, 0.15);
+  color: #0f9d58;
+}
+.actionBtn.suspend {
+  background: rgba(255, 193, 7, 0.15);
+  color: #b28704;
+}
+.actionBtn.banned {
+  background: rgba(244, 67, 54, 0.15);
+  color: #d32f2f;
+}
+.actionBtn:hover {
+  transform: scale(1.05);
+  filter: brightness(1.05);
+}
+
+/* ===== MANUAL DARK MODE ===== */
+.darkMode {
+  background: #1f1f1f;
+  color: #f5f5f5;
+}
+
+.darkMode .searchBox {
+  background: #2c2c2c;
+  border-color: #444;
+  color: #ddd;
+}
+.darkMode .searchBox input {
+  color: #ddd;
+}
+.darkMode .filterToggle button {
+  background: #2c2c2c;
+  color: #ccc;
+  border-color: #444;
+}
+.darkMode .filterToggle button.active {
+  background: #007bff;
+  color: #fff;
+}
+.darkMode .tableWrapper {
+  background: #2a2a2a;
+  border-color: #444;
+}
+.darkMode .table th, 
+.darkMode .table td {
+  border-bottom: 1px solid #333;
+}
+.darkMode .table thead {
+  background: #222;
+}
+
+/* ===== RESPONSIVE ===== */
 @media (max-width: 768px) {
-  .modalContent {
+  .topRow {
     flex-direction: column;
-    width: 90%;
+    align-items: stretch;
   }
-  .modalLeft,
-  .modalRight {
+  .searchBox {
     width: 100%;
-    box-shadow: none;
-    padding: 16px;
   }
-  .controls {
-    flex-direction: column;
-    gap: 10px;
+  .filterToggle {
+    justify-content: space-around;
+  }
+  .table th, .table td {
+    padding: 10px 12px;
   }
 }

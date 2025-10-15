@@ -11,7 +11,7 @@ import DashboardAdmin from './pages/admin/DashboardAdmin.jsx';
 import DashboardUser from './pages/user/DashboardUser.jsx';
 import LoginPage from './pages/auth/LoginPage.jsx';
 import RegisterPage from './pages/auth/RegisterPage.jsx';
-import { AuthProvider } from './context/AuthContext.jsx'; // ✅ import AuthProvider
+import { AuthProvider } from './context/AuthContext.jsx';
 
 import "sweetalert2/dist/sweetalert2.min.css";
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -26,7 +26,7 @@ const router = createBrowserRouter([
       { path: "properti", element: <Properti /> },
       { path: "properti/:id", element: <PropertiDetail /> },
       { path: "login", element: <LoginPage /> },
-      { path: "register", element: <RegisterPage /> }, // ✅ tambahkan register
+      { path: "register", element: <RegisterPage /> },
     ],
   },
   { path: "/admin/*", element: <DashboardAdmin /> },
