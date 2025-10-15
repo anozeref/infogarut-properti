@@ -72,6 +72,8 @@ export default function PropertiPending() {
               desc={prop.desc}
               darkMode={darkMode}
               status="pending"
+              onEdit={() => alert(`Edit Properti: ${prop.title}`)}
+              onDelete={() => alert(`Hapus Properti: ${prop.title}`)}
             />
           </div>
         ))}

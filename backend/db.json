@@ -1,17 +1,16 @@
 {
   "users": [
     {
-      "id": "1",
       "nama": "Ahmad Fauzi",
       "username": "ahmadfz",
       "email": "ahmadfz@gmail.com",
-      "password": "pass1234",
-      "no_hp": "081234567890",
-      "role": "user",
-      "kecamatan": "Tarogong Kidul",
-      "desa": "Sukajaya",
+      "noHp": "081234567890",
       "alamat": "Jl. Cimanuk No.45, Tarogong Kidul, Garut",
-      "joinedAt": "14/02/2025 09:32:41"
+      "biodata": "",
+      "kecamatan": "CISEWU",
+      "desa": "",
+      "no_hp": "081234567890",
+      "id": "1"
     },
     {
       "id": "2",

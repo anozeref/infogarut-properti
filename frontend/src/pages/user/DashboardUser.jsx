@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import {AuthContext} from "../../context/AuthContext"
 import { Outlet, useNavigate, useLocation, Routes, Route } from "react-router-dom";
 import NavbarUser from "./components/NavbarUser";
 import SidebarUser from "./components/Sidebar";
@@ -11,9 +12,12 @@ import PropertiPending from "./PropertiPending";
 import PropertiAktif from "./PropertiAktif";
 import PropertiDitolak from "./PropertiDitolak";
 import ProfileUser from "./ProfileUser/ProfileUser";
+import EditProperty from "./EditProperty"
 import TambahProperty from "./TambahProperty";
+import { useContext } from "react";
 
 export default function DashboardUser() {
+  const {user} = useContext(AuthContext);
   const navigate = useNavigate();
   const location = useLocation();
   const [darkMode, setDarkMode] = useState(false);
@@ -172,10 +176,11 @@ export default function DashboardUser() {
             >
               <Route index element={<PropertiDitolak />} />
             </Route>
+            <Route path="edit-property" element={<EditProperty />} />
             <Route
-  path="tambahproperty"
-  element={<TambahProperty darkMode={darkMode} />}
-/>
+            path="tambahproperty"
+            element={<TambahProperty darkMode={darkMode} />}
+          />
 
 <Route
   path="profileuser"

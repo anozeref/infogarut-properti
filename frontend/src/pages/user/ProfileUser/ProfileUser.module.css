@@ -230,8 +230,63 @@ textarea:focus {
 }
 
 /* =========================
+   👥 Role (Pribadi / Sewa)
+   ========================= */
+.roleRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+}
+
+.roleRow .col4 {
+  flex: 1 1 0;
+  min-width: 194px;
+  display: flex;
+  flex-direction: column;
+}
+
+.roleRow label {
+  font-weight: 500;
+  margin-bottom: 6px;
+}
+
+.roleRow select {
+  width: 100%;
+  padding: 10px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  background: #fff;
+  color: #333;
+  font-size: 14px;
+  box-sizing: border-box;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.profilePage.dark .roleRow select {
+  background: #2a2a2a;
+  color: #f1f1f1;
+  border: 1px solid #444;
+}
+
+.roleRow select:focus {
+  border-color: #6366f1;
+  box-shadow: 0 0 4px rgba(99, 102, 241, 0.4);
+  outline: none;
+}
+
+
+/* =========================
    🖼️ Frame Preview Foto
    ========================= */
+.photoRow {
+  display: flex;
+  align-items: center;
+  gap: 20px; /* jarak antara input dan preview */
+}
+
 .previewFrame {
   width: 130px;
   height: 130px;
@@ -242,8 +297,9 @@ textarea:focus {
   justify-content: center;
   overflow: hidden;
   background: #f9f9f9;
-  margin-left: 3rem; /* 🔹 geser sedikit ke kanan */
+  margin-left: 0; /* ❌ hilangkan jarak manual */
 }
+
 
 .previewImg {
   width: 100%;
