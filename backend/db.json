@@ -225,6 +225,62 @@
       "statusPostingan": "approved",
       "ownerId": "5",
       "postedAt": "15/10/2025 00:09:41"
+    },
+    {
+      "id": "b1df",
+      "namaProperti": "jows house",
+      "jenisProperti": "Sewa",
+      "tipeProperti": "Villa",
+      "harga": 120000,
+      "luasTanah": 1200,
+      "luasBangunan": 1000,
+      "kamarTidur": 2,
+      "kamarMandi": 0,
+      "lokasi": "margawati city",
+      "kecamatan": "GARUT KOTA",
+      "desa": "desi",
+      "deskripsi": "Villa murah",
+      "statusPostingan": "approved",
+      "ownerId": "5",
+      "postedAt": "15/10/2025 20:27:20",
+      "koordinat": {
+        "lat": 0,
+        "lng": 0
+      },
+      "media": [
+        "1760534839995-614422439.jpg",
+        "1760534839999-129335404.jpeg",
+        "1760534840000-192795938.jpg"
+      ],
+      "periodeSewa": "/3 bulan"
+    },
+    {
+      "id": "ee50",
+      "namaProperti": "Rumah Impian",
+      "jenisProperti": "Jual",
+      "tipeProperti": "Rumah",
+      "harga": 1200000,
+      "luasTanah": 1222,
+      "luasBangunan": 998,
+      "kamarTidur": 4,
+      "kamarMandi": 2,
+      "lokasi": "margawati city",
+      "kecamatan": "GARUT KOTA",
+      "desa": "lebak",
+      "deskripsi": "hade weh",
+      "statusPostingan": "approved",
+      "ownerId": "5",
+      "postedAt": "15/10/2025 20:53:27",
+      "koordinat": {
+        "lat": 0,
+        "lng": 0
+      },
+      "media": [
+        "1760536407187-203472160.jpg",
+        "1760536407190-663924707.jpg",
+        "1760536407191-720085996.jpg"
+      ],
+      "periodeSewa": ""
     }
   ]
 }

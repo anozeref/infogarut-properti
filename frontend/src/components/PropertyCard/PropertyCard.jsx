@@ -13,8 +13,10 @@ const PropertyCard = ({ property }) => {
     return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(numericPrice);
   };
 
-  // Mengambil gambar pertama dari array 'media' sebagai gambar utama kartu
-  const mainImage = property.media && property.media.length > 0 ? `/images/${property.media[0]}` : 'https://via.placeholder.com/400x300.png?text=No+Image';
+  // PERUBAHAN UTAMA: Gunakan URL lengkap ke server backend (port 3005) dan folder 'media'
+  const mainImage = property.media && property.media.length > 0 
+    ? `http://localhost:3005/media/${property.media[0]}` 
+    : 'https://via.placeholder.com/400x300.png?text=No+Image';
 
   return (
     <Link to={`/properti/${property.id}`} className={styles.cardLink}>

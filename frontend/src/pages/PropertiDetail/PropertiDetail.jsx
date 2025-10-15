@@ -14,20 +14,23 @@ const PropertiDetail = () => {
 
     useEffect(() => {
         setLoading(true);
+        // Mengambil data properti dari json-server (port 3004)
         fetch(`http://localhost:3004/properties/${id}`)
             .then(res => res.json())
             .then(data => {
                 setProperty(data);
                 if (data && data.media && data.media.length > 0) {
-                    setActiveImage(`/images/${data.media[0]}`);
+                    // PERBAIKAN: Gunakan URL lengkap ke server backend (port 3005) dan folder 'media'
+                    setActiveImage(`http://localhost:3005/media/${data.media[0]}`);
                 }
             })
             .catch(error => console.error("Gagal mengambil detail properti:", error))
             .finally(() => setLoading(false));
     }, [id]);
 
-    const handleThumbnailClick = (imageUrl) => {
-        setActiveImage(`/images/${imageUrl}`);
+    const handleThumbnailClick = (imageName) => {
+        // PERBAIKAN: Gunakan URL lengkap ke server backend (port 3005)
+        setActiveImage(`http://localhost:3005/media/${imageName}`);
     };
 
     const formatPrice = (price) => {
@@ -58,13 +61,15 @@ const PropertiDetail = () => {
                     <img src={activeImage} alt="Tampilan utama" />
                 </div>
                 <div className={styles.thumbnailImages}>
-                    {property.media && property.media.map((img, index) => (
+                    {property.media && property.media.map((imgName, index) => (
                         <img 
                             key={index} 
-                            src={`/images/${img}`} 
+                            // PERBAIKAN: Gunakan URL lengkap di sini juga
+                            src={`http://localhost:3005/media/${imgName}`} 
                             alt={`Thumbnail ${index + 1}`}
-                            onClick={() => handleThumbnailClick(img)}
-                            className={activeImage === `/images/${img}` ? styles.activeThumbnail : ''}
+                            onClick={() => handleThumbnailClick(imgName)}
+                            // PERBAIKAN: Sesuaikan perbandingan className
+                            className={activeImage === `http://localhost:3005/media/${imgName}` ? styles.activeThumbnail : ''}
                         />
                     ))}
                 </div>
@@ -94,7 +99,6 @@ const PropertiDetail = () => {
                 </div>
                 <div className={styles.agentCard}>
                     <div className={styles.agentContact}>
-                        {/* Di masa depan, info agen bisa diambil dari users berdasarkan property.ownerId */}
                         <p>Kontak Pemasang Iklan:</p>
                         <p><strong>Hubungi untuk info lebih lanjut</strong></p>
                     </div>
