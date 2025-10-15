@@ -11,7 +11,7 @@
   flex-wrap: wrap;
   margin-bottom: 16px;
   padding-bottom: 12px;
-  border-bottom: 1px solid #e5e7eb; /* sekat tipis */
+  border-bottom: 1px solid #e5e7eb;
   transition: color 0.3s ease;
 }
 
@@ -23,7 +23,7 @@
 
 .header p {
   margin: 0;
-  color: #6b7280; /* text-muted */
+  color: #6b7280;
   font-size: 0.95rem;
 }
 
@@ -58,7 +58,7 @@
   margin: 4px 0 0 0;
 }
 
-/* ===== Notifications ===== */
+/* ===== Notifications Container ===== */
 .notifications {
   background-color: #ffffff;
   border-radius: 12px;
@@ -68,24 +68,44 @@
 
 .notifications h5 {
   font-weight: 600;
+  margin-bottom: 12px;
 }
 
-.notifications ul {
-  list-style: none;
-  padding: 0;
-  margin: 8px 0 0 0;
+/* ===== Notifications Table Estetik ===== */
+.notifTable {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
 }
 
-.notifications li {
-  background-color: #f3f4f6;
-  margin-bottom: 6px;
+.notifRow {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
   padding: 8px 12px;
+  border-bottom: 1px solid #e5e7eb;
   border-radius: 8px;
-  transition: background-color 0.2s ease, color 0.3s ease;
+  transition: background-color 0.2s ease;
+  cursor: pointer;
+  word-break: break-word;
 }
 
-.notifications li:hover {
-  background-color: #e0e7ff;
+.notifRow:hover {
+  background-color: rgba(0, 123, 255, 0.05);
+}
+
+.notifTimestamp {
+  min-width: 140px;
+  font-size: 0.85rem;
+  color: #6b7280;
+  flex-shrink: 0;
+}
+
+.notifContent {
+  flex: 1;
+  font-size: 0.95rem;
+  color: #111827;
+  line-height: 1.4;
 }
 
 /* ===== Dark Mode ===== */
@@ -95,7 +115,7 @@
 }
 
 :global(.dark) .header p {
-  color: #d1d5db; /* text-muted light */
+  color: #d1d5db;
 }
 
 :global(.dark) .card {
@@ -108,11 +128,18 @@
   color: #f1f1f1;
 }
 
-:global(.dark) .notifications li {
-  background-color: #2a2a2a;
-  color: #f1f1f1;
+:global(.dark) .notifRow {
+  border-bottom: 1px solid #2a2a2a;
 }
 
-:global(.dark) .notifications li:hover {
-  background-color: #3a3a3a;
+:global(.dark) .notifRow:hover {
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+:global(.dark) .notifTimestamp {
+  color: #9ca3af;
+}
+
+:global(.dark) .notifContent {
+  color: #f1f1f1;
 }

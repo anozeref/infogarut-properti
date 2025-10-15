@@ -2,24 +2,30 @@
 import React, { useState, useEffect } from 'react';
 import styles from './Properti.module.css';
 import PropertyCard from '../../components/PropertyCard/PropertyCard.jsx';
-import { useSearchParams, Link } from 'react-router-dom';
-import { IoArrowBack } from "react-icons/io5"; // Pastikan ikon ini di-import
-
-// Data properti Anda (tidak ada perubahan)
-const propertiesData = [
-    { id: 1, image: "https://images.unsplash.com/photo-1580587771525-78b9dba3b914?q=80&w=2000", location: "Malibu, California", title: "Vila Tepi Laut Modern", type: "Villa", jenis: "Kredit", beds: 5, baths: 5, area: "4.500 kaki²", price: 50000000000 },
-    { id: 2, image: "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?q=80&w=2000", location: "New York, New York", title: "Apartemen Nyaman di Pusat Kota", type: "Apartemen", jenis: "Cash", beds: 2, baths: 2, area: "1.200 kaki²", price: 12500000000 },
-    { id: 3, image: "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?q=80&w=2000", location: "Austin, Texas", title: "Rumah Keluarga yang Luas", type: "Rumah", jenis: "Kredit", beds: 4, baths: 3, area: "2.800 kaki²", price: 9000000000 },
-    { id: 4, image: "https://images.unsplash.com/photo-1480074568708-e7b720bb3f09?q=80&w=2000", location: "Chicago, Illinois", title: "Suite Penthouse Mewah", type: "Apartemen", jenis: "Over Kredit", beds: 3, baths: 4, area: "3.500 kaki²", price: 30000000000 },
-    { id: 5, image: "https://images.unsplash.com/photo-1558036117-15d82a90b9b1?q=80&w=2000", location: "Arlington, Virginia", title: "Rumah Bandar Pinggiran Kota", type: "Rumah", jenis: "Over Kredit", beds: 3, baths: 3, area: "2.100 kaki²", price: 11500000000 },
-    { id: 6, image: "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?q=80&w=2000", location: "Asheville, North Carolina", title: "Perumahan Asri Pedesaan", type: "Perumahan", jenis: "Kredit", beds: 3, baths: 2, area: "2.400 kaki²", price: 8000000000 },
-];
+import { useSearchParams } from 'react-router-dom';
 
 const Properti = () => {
+    const [properties, setProperties] = useState([]);
+    const [loading, setLoading] = useState(true);
     const [searchParams, setSearchParams] = useSearchParams();
     
+    const [locationSearch, setLocationSearch] = useState('');
     const [tipeFilter, setTipeFilter] = useState('Semua Tipe');
     const [jenisFilter, setJenisFilter] = useState('Semua Jenis');
+
+    useEffect(() => {
+        setLoading(true);
+        // Mengambil data dari endpoint 'properti' di db.json
+        fetch('http://localhost:3004/properties')
+            .then(res => res.json())
+            .then(data => {
+                setProperties(data);
+            })
+            .catch(error => console.error("Gagal mengambil data properti:", error))
+            .finally(() => {
+                setLoading(false);
+            });
+    }, []);
 
     useEffect(() => {
         const tipeDariUrl = searchParams.get('tipe');
@@ -30,41 +36,49 @@ const Properti = () => {
         }
     }, [searchParams]);
     
-    const filteredProperties = propertiesData.filter(property => {
-        const tipeMatch = tipeFilter === 'Semua Tipe' || property.type.toLowerCase() === tipeFilter.toLowerCase();
-        const jenisMatch = jenisFilter === 'Semua Jenis' || property.jenis.toLowerCase() === jenisFilter.toLowerCase();
-        return tipeMatch && jenisMatch;
+    const filteredProperties = properties.filter(property => {
+        // FILTER BARU: Hanya tampilkan properti yang sudah disetujui
+        const statusMatch = property.statusPostingan === 'approved';
+
+        const tipeMatch = tipeFilter === 'Semua Tipe' || property.tipeProperti.toLowerCase() === tipeFilter.toLowerCase();
+        const jenisMatch = jenisFilter === 'Semua Jenis' || property.jenisProperti.toLowerCase() === jenisFilter.toLowerCase();
+        const locationMatch = property.lokasi.toLowerCase().includes(locationSearch.toLowerCase());
+
+        return statusMatch && tipeMatch && jenisMatch && locationMatch;
     });
 
     const handleResetFilters = () => {
+        setLocationSearch('');
         setTipeFilter('Semua Tipe');
         setJenisFilter('Semua Jenis');
         setSearchParams({});
     };
 
+    if (loading) {
+        return <div className={styles.loading}>Memuat properti...</div>;
+    }
+
     return (
         <div className={styles.pageContainer}>
-
-            {/* FITUR BARU DITAMBAHKAN DI SINI */}
-            <Link to="/" className={styles.backLink}>
-                <IoArrowBack /> Kembali ke Beranda
-            </Link>
-
             <div className={styles.filterSection}>
                 <h2 className={styles.title}>Temukan Properti Sempurna Anda</h2>
                 <div className={styles.filters}>
                     <div className={styles.filterGroup}>
                         <label>Cari Lokasi</label>
-                        <input type="text" placeholder="mis. Malibu" />
+                        <input 
+                            type="text" 
+                            placeholder="Cari kota, daerah, atau alamat..." 
+                            value={locationSearch}
+                            onChange={(e) => setLocationSearch(e.target.value)}
+                        />
                     </div>
                     <div className={styles.filterGroup}>
                         <label>Tipe Properti</label>
                         <select value={tipeFilter} onChange={(e) => setTipeFilter(e.target.value)}>
                             <option value="Semua Tipe">Semua Tipe</option>
                             <option value="Rumah">Rumah</option>
-                            <option value="Apartemen">Apartemen</option>
-                            <option value="Villa">Villa</option>
-                            <option value="Perumahan">Perumahan</option>
+                            <option value="Kos">Kos</option>
+                            <option value="Ruko">Ruko</option>
                             <option value="Tanah">Tanah</option>
                         </select>
                     </div>
@@ -72,9 +86,9 @@ const Properti = () => {
                         <label>Jenis Properti</label>
                         <select value={jenisFilter} onChange={(e) => setJenisFilter(e.target.value)}>
                             <option value="Semua Jenis">Semua Jenis</option>
-                            <option value="Kredit">Kredit</option>
-                            <option value="Over Kredit">Over Kredit</option>
-                            <option value="Cash">Cash</option>
+                            <option value="Jual">Jual</option>
+                            <option value="Sewa">Sewa</option>
+                            <option value="Cicilan">Cicilan</option>
                         </select>
                     </div>
                     <button className={styles.filterButton} onClick={handleResetFilters}>

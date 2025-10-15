@@ -1,131 +1,252 @@
 {
   "users": [
-    { "id": 1, "username": "admin", "password": "admin123", "role": "admin", "name": "Admin Utama" },
-    { "id": 2, "username": "andi", "password": "andi123", "role": "user", "name": "Andi Setiawan" },
-    { "id": 3, "username": "budi", "password": "budi123", "role": "user", "name": "Budi Santoso" },
-    { "id": 4, "username": "citra", "password": "citra123", "role": "user", "name": "Citra Rahma" },
-    { "id": 5, "username": "dina", "password": "dina123", "role": "user", "name": "Dina Lestari" }
+    {
+      "nama": "Ahmad Fauzi",
+      "username": "ahmadfz",
+      "email": "ahmadfz@gmail.com",
+      "noHp": "081234567890",
+      "alamat": "Jl. Cimanuk No.45, Tarogong Kidul, Garut",
+      "biodata": "",
+      "kecamatan": "CISEWU",
+      "desa": "",
+      "no_hp": "081234567890",
+      "id": "1"
+    },
+    {
+      "id": "2",
+      "nama": "Rina Marlina",
+      "username": "rinamln",
+      "email": "rina.marlina@gmail.com",
+      "password": "rina2025",
+      "no_hp": "082234567891",
+      "role": "user",
+      "kecamatan": "Banyuresmi",
+      "desa": "Bagendit",
+      "alamat": "Jl. Raya Bagendit No.12, Banyuresmi, Garut",
+      "joinedAt": "05/05/2025 15:08:12"
+    },
+    {
+      "id": "3",
+      "nama": "Dedi Permana",
+      "username": "dediprm",
+      "email": "dedi.permana@gmail.com",
+      "password": "dedi5678",
+      "no_hp": "083134567892",
+      "role": "user",
+      "kecamatan": "Cisurupan",
+      "desa": "Sukalaksana",
+      "alamat": "Kp. Cikajang No.8, Cisurupan, Garut",
+      "joinedAt": "27/07/2025 10:55:37"
+    },
+    {
+      "id": "4",
+      "nama": "Siti Nurhaliza",
+      "username": "sitinur",
+      "email": "sitinurhaliza@gmail.com",
+      "password": "siti2025",
+      "no_hp": "085234567893",
+      "role": "user",
+      "kecamatan": "Leles",
+      "desa": "Wanaraja",
+      "alamat": "Jl. Raya Leles No.23, Leles, Garut",
+      "joinedAt": "09/09/2025 19:20:44"
+    },
+    {
+      "id": "5",
+      "nama": "Admin GarutProperti",
+      "username": "admin_gp",
+      "email": "admin@garutproperti.id",
+      "password": "admin123",
+      "no_hp": "081122334455",
+      "role": "admin",
+      "kecamatan": "Garut Kota",
+      "desa": "Regol",
+      "alamat": "Jl. Patriot No.1, Regol, Garut Kota",
+      "joinedAt": "03/03/2025 08:00:00"
+    },
+    {
+      "id": "9c47",
+      "nama": "Fikry Arief",
+      "username": "anozeref",
+      "email": "kantorposfikry@gmail.com",
+      "password": "testingdb",
+      "no_hp": "082318141476",
+      "kecamatan": "Tarogong Kidul",
+      "desa": "Jayaraga",
+      "alamat": "RT 04 / RW 02",
+      "role": "user",
+      "joinedAt": "14/10/2025 11:21:00"
+    }
   ],
   "properties": [
     {
-      "id": 1,
-      "title": "Rumah Minimalis Modern Tarogong",
-      "location": "Tarogong, Garut",
-      "price": "350.000.000",
-      "description": "Rumah minimalis modern, luas tanah 72 m², luas bangunan 60 m², 2 kamar tidur, 1 kamar mandi, carport, halaman. Dekat sekolah & pasar.",
-      "images": ["https://via.placeholder.com/400x300?text=Rumah+1-1", "https://via.placeholder.com/400x300?text=Rumah+1-2"],
-      "status": "pending",
-      "ownerId": 2
+      "id": "1",
+      "ownerId": 1,
+      "namaProperti": "Rumah Asri Sukajaya",
+      "tipeProperti": "Rumah",
+      "jenisProperti": "sewa",
+      "periodeSewa": "/1 tahun",
+      "harga": 25000000,
+      "luasTanah": 120,
+      "luasBangunan": 90,
+      "kamarTidur": 3,
+      "kamarMandi": 2,
+      "lokasi": "Jl. Cimanuk No.45, Tarogong Kidul, Garut",
+      "kecamatan": "Tarogong Kidul",
+      "desa": "Sukajaya",
+      "deskripsi": "Rumah asri siap huni dekat pusat kota Garut. Lingkungan tenang dan akses mudah.",
+      "media": [
+        "rumah1a.jpg",
+        "rumah1b.jpg"
+      ],
+      "statusPostingan": "approved",
+      "postedAt": "10/03/2025 14:12:33",
+      "koordinat": {
+        "lat": -7.2204,
+        "lng": 107.9031
+      }
     },
     {
-      "id": 2,
-      "title": "Kost Mahasiswa Dekat UNIGA",
-      "location": "Cibatu, Garut",
-      "price": "1.200.000/bulan",
-      "description": "Kost full furnished, kamar mandi dalam, AC, WiFi, parkiran luas. Lokasi strategis dekat UNIGA.",
-      "images": ["https://via.placeholder.com/400x300?text=Kost+2-1", "https://via.placeholder.com/400x300?text=Kost+2-2"],
-      "status": "approved",
-      "ownerId": 3
+      "id": "2",
+      "ownerId": "2",
+      "namaProperti": "Kost Bagendit Indah",
+      "tipeProperti": "Kos",
+      "jenisProperti": "sewa",
+      "periodeSewa": "/1 bulan",
+      "harga": 750000,
+      "luasTanah": 200,
+      "luasBangunan": 150,
+      "kamarTidur": 10,
+      "kamarMandi": 5,
+      "lokasi": "Jl. Raya Bagendit No.12, Banyuresmi, Garut",
+      "kecamatan": "Banyuresmi",
+      "desa": "Bagendit",
+      "deskripsi": "Kost putri nyaman, dekat Universitas Garut dan minimarket. Akses 24 jam.",
+      "media": [
+        "kost1a.jpg",
+        "kost1b.jpg"
+      ],
+      "statusPostingan": "pending",
+      "postedAt": "21/07/2025 09:45:22",
+      "koordinat": {
+        "lat": -7.1903,
+        "lng": 107.9337
+      }
     },
     {
-      "id": 3,
-      "title": "Tanah Luas Cocok Villa",
-      "location": "Cisurupan, Garut",
-      "price": "750.000.000",
-      "description": "Tanah 500 m², kontur datar, pemandangan Gunung Cikuray, dekat wisata Papandayan, Sertifikat SHM.",
-      "images": ["https://via.placeholder.com/400x300?text=Tanah+3-1", "https://via.placeholder.com/400x300?text=Tanah+3-2"],
-      "status": "approved",
-      "ownerId": 4
+      "id": "3",
+      "ownerId": "3",
+      "namaProperti": "Ruko Strategis Cisurupan",
+      "tipeProperti": "Ruko",
+      "jenisProperti": "cicilan",
+      "periodeSewa": null,
+      "harga": 650000000,
+      "luasTanah": 100,
+      "luasBangunan": 120,
+      "kamarTidur": 0,
+      "kamarMandi": 1,
+      "lokasi": "Kp. Cikajang No.8, Cisurupan, Garut",
+      "kecamatan": "Cisurupan",
+      "desa": "Sukalaksana",
+      "deskripsi": "Ruko dua lantai di pinggir jalan utama. Cocok untuk usaha atau investasi jangka panjang.",
+      "media": [
+        "ruko1a.jpg",
+        "ruko1b.jpg"
+      ],
+      "statusPostingan": "approved",
+      "postedAt": "02/09/2025 16:20:41",
+      "koordinat": {
+        "lat": -7.3064,
+        "lng": 107.8753
+      }
     },
     {
-      "id": 4,
-      "title": "Rumah 3 Kamar di Garut Kota",
-      "location": "Garut Kota",
-      "price": "500.000.000",
-      "description": "Rumah nyaman 3 kamar tidur, 2 kamar mandi, ruang tamu & dapur, carport, halaman. Dekat pusat kota.",
-      "images": ["https://via.placeholder.com/400x300?text=Rumah+4-1", "https://via.placeholder.com/400x300?text=Rumah+4-2"],
-      "status": "pending",
-      "ownerId": 5
+      "id": "4",
+      "ownerId": "4",
+      "namaProperti": "Tanah Strategis Leles",
+      "tipeProperti": "Tanah",
+      "jenisProperti": "jual",
+      "periodeSewa": null,
+      "harga": 375000000,
+      "luasTanah": 450,
+      "luasBangunan": 0,
+      "kamarTidur": 0,
+      "kamarMandi": 0,
+      "lokasi": "Jl. Raya Leles No.23, Leles, Garut",
+      "kecamatan": "Leles",
+      "desa": "Wanaraja",
+      "deskripsi": "Tanah strategis dekat pasar dan jalan provinsi. Legalitas lengkap, cocok untuk perumahan.",
+      "media": [
+        "tanah1a.jpg",
+        "tanah1b.jpg"
+      ],
+      "statusPostingan": "approved",
+      "postedAt": "28/01/2025 11:55:10",
+      "koordinat": {
+        "lat": -7.1568,
+        "lng": 107.9002
+      }
     },
     {
-      "id": 5,
-      "title": "Ruko Strategis Dekat Pasar",
-      "location": "Tarogong, Garut",
-      "price": "850.000.000",
-      "description": "Ruko 2 lantai, luas 90 m², cocok untuk usaha atau kantor. Lokasi ramai, akses mudah.",
-      "images": ["https://via.placeholder.com/400x300?text=Ruko+5-1", "https://via.placeholder.com/400x300?text=Ruko+5-2"],
-      "status": "approved",
-      "ownerId": 2
+      "id": "e749",
+      "namaProperti": "Loli",
+      "jenisProperti": "Sewa",
+      "tipeProperti": "Rumah",
+      "lokasi": "Nusa Indah, Garut",
+      "kecamatan": "Tarogong Kidul",
+      "desa": "Jayaraga",
+      "harga": "249999",
+      "luasTanah": "155",
+      "luasBangunan": "48",
+      "kamarTidur": "1",
+      "kamarMandi": "2",
+      "periodeAngka": "13",
+      "periodeSatuan": "tahun",
+      "periodeSewa": "/13 tahun",
+      "deskripsi": "Testing DB+Koneksi+Input",
+      "media": [
+        "1760432044008-88928871.png",
+        "1760432044036-976278464.png",
+        "1760432044056-647509559.png",
+        "1760432044070-189406882.png"
+      ],
+      "ownerId": "5",
+      "statusPostingan": "approved",
+      "postedAt": "14/10/2025 15:54:04",
+      "koordinat": {
+        "lat": null,
+        "lng": null
+      }
     },
     {
-      "id": 6,
-      "title": "Vila Eksklusif Dekat Alam",
-      "location": "Cikajang, Garut",
-      "price": "1.500.000.000",
-      "description": "Vila dengan 4 kamar tidur, 3 kamar mandi, kolam renang, taman luas. Suasana tenang & udara sejuk.",
-      "images": ["https://via.placeholder.com/400x300?text=Vila+6-1", "https://via.placeholder.com/400x300?text=Vila+6-2"],
-      "status": "approved",
-      "ownerId": 3
-    },
-    {
-      "id": 7,
-      "title": "Rumah Tipe 36 di Garut Selatan",
-      "location": "Garut Selatan",
-      "price": "300.000.000",
-      "description": "Rumah sederhana, 2 kamar tidur, 1 kamar mandi, carport. Cocok untuk keluarga kecil.",
-      "images": ["https://via.placeholder.com/400x300?text=Rumah+7-1"],
-      "status": "pending",
-      "ownerId": 4
-    },
-    {
-      "id": 8,
-      "title": "Tanah Kavling Murah",
-      "location": "Garut Timur",
-      "price": "250.000.000",
-      "description": "Tanah 200 m², akses jalan 3 m, lingkungan tenang, cocok untuk rumah atau villa.",
-      "images": ["https://via.placeholder.com/400x300?text=Tanah+8-1", "https://via.placeholder.com/400x300?text=Tanah+8-2"],
-      "status": "approved",
-      "ownerId": 5
-    },
-    {
-      "id": 9,
-      "title": "Apartemen Studio Dekat Kota",
-      "location": "Garut Kota",
-      "price": "650.000.000",
-      "description": "Apartemen 1 kamar tidur, 1 kamar mandi, ruang tamu, dapur kecil, cocok untuk pekerja muda.",
-      "images": ["https://via.placeholder.com/400x300?text=Apt+9-1", "https://via.placeholder.com/400x300?text=Apt+9-2"],
-      "status": "approved",
-      "ownerId": 2
-    },
-    {
-      "id": 10,
-      "title": "Rumah Kayu di Pinggir Sungai",
-      "location": "Garut Barat",
-      "price": "400.000.000",
-      "description": "Rumah kayu 2 kamar tidur, 1 kamar mandi, halaman luas, pemandangan sungai.",
-      "images": ["https://via.placeholder.com/400x300?text=Rumah+10-1", "https://via.placeholder.com/400x300?text=Rumah+10-2"],
-      "status": "pending",
-      "ownerId": 3
-    },
-    {
-      "id": 11,
-      "title": "Kost Modern Dekat Sekolah",
-      "location": "Garut Tengah",
-      "price": "1.000.000/bulan",
-      "description": "Kost 3 kamar fully furnished, kamar mandi dalam, WiFi, parkiran motor, dekat sekolah dan minimarket.",
-      "images": ["https://via.placeholder.com/400x300?text=Kost+11-1", "https://via.placeholder.com/400x300?text=Kost+11-2"],
-      "status": "approved",
-      "ownerId": 4
-    },
-    {
-      "id": 12,
-      "title": "Tanah Luas di Puncak Garut",
-      "location": "Garut Utara",
-      "price": "950.000.000",
-      "description": "Tanah 600 m², kontur datar, udara sejuk, dekat wisata alam, cocok untuk villa atau homestay.",
-      "images": ["https://via.placeholder.com/400x300?text=Tanah+12-1", "https://via.placeholder.com/400x300?text=Tanah+12-2"],
-      "status": "pending",
-      "ownerId": 5
+      "id": "0f28",
+      "namaProperti": "Loli 2",
+      "jenisProperti": "Jual",
+      "tipeProperti": "Rumah",
+      "lokasi": "Nusa Indah, Garut",
+      "kecamatan": "Tarogong Kidul",
+      "desa": "Jayaraga",
+      "harga": "124000000",
+      "luasTanah": "165",
+      "luasBangunan": "55",
+      "kamarTidur": "2",
+      "kamarMandi": "1",
+      "periodeAngka": "",
+      "periodeSatuan": "bulan",
+      "periodeSewa": "",
+      "deskripsi": "Test Ulang",
+      "media": [
+        "1760432639518-782539961.png",
+        "1760432639547-788193666.png",
+        "1760432639569-319147138.png"
+      ],
+      "ownerId": "5",
+      "statusPostingan": "approved",
+      "postedAt": "14/10/2025 16:03:59",
+      "koordinat": {
+        "lat": null,
+        "lng": null
+      }
     }
   ]
 }
