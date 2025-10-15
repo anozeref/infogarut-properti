@@ -1,63 +1,89 @@
-import React, { useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
+import axios from "axios";
 import CardProperty from "./components/CardProperty";
-import { useOutletContext } from "react-router-dom";
+import styles from "./components/CardProperty.module.css";
+import { AuthContext } from "../../context/AuthContext";
+import Swal from "sweetalert2";
 
 export default function PropertiSaya() {
-  const {darkMode} = useOutletContext();
+  const [properties, setProperties] = useState([]);
+  const [darkMode, setDarkMode] = useState(false);
+  const { user } = useContext(AuthContext);
 
-  const myProperties = [
-    {
-      id: 1,
-      image: "https://images.unsplash.com/photo-1572120360610-d971b9b78825?w=800&q=70",
-      type: "Rumah",
-      title: "Rumah Nyaman di Cipanas",
-      location: "Garut, Jawa Barat",
-      price: "Rp 850.000.000",
-      desc: "Rumah asri dengan halaman luas dan udara sejuk.",
-    },
-    {
-      id: 2,
-      image: "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=800&q=70",
-      type: "Apartemen",
-      title: "Apartemen Modern Bandung",
-      location: "Bandung, Jawa Barat",
-      price: "Rp 1.200.000.000",
-      desc: "Apartemen baru di pusat kota dengan fasilitas lengkap.",
-    },
-    {
-      id: 3,
-      image: "https://images.unsplash.com/photo-1507089947368-19c1da9775ae?w=800&q=70",
-      type: "Villa",
-      title: "Villa View Gunung",
-      location: "Lembang, Bandung",
-      price: "Rp 2.500.000.000",
-      desc: "Villa luas dengan pemandangan gunung dan udara sejuk.",
-    },
-  ];
+  useEffect(() => {
+    if (!user) {
+      Swal.fire({
+        icon: "warning",
+        title: "Belum Login",
+        text: "Silakan login terlebih dahulu untuk melihat properti Anda.",
+      });
+      return;
+    }
+
+    const fetchMyProperties = async () => {
+      try {
+        const res = await axios.get("http://localhost:3004/properties");
+        // 🔍 Filter hanya properti milik user yang sedang login
+        const userProperties = res.data.filter(
+          (prop) => prop.ownerId === user.id
+        );
+        setProperties(userProperties);
+      } catch (err) {
+        console.error("Gagal memuat properti:", err);
+        Swal.fire({
+          icon: "error",
+          title: "Gagal Memuat Data",
+          text: "Terjadi kesalahan saat memuat data properti Anda.",
+        });
+      }
+    };
+
+    fetchMyProperties();
+  }, [user]);
+
+  const handleDelete = (id) => {
+    setProperties((prev) => prev.filter((p) => p.id !== id));
+  };
+
+  if (!user) {
+    return (
+      <div className={`${styles.cardContainer} ${darkMode ? styles.dark : ""}`}>
+        <p>Silakan login untuk melihat daftar properti Anda.</p>
+      </div>
+    );
+  }
 
   return (
-    <div style={{ padding: "20px" }}>
-      <h2 style={{ marginBottom: "15px" }}>Properti Saya</h2>
-      <div
-        style={{
-          display: "flex",
-          flexWrap: "wrap",
-          gap: "20px",
-        }}
-      >
-        {myProperties.map((prop) => (
-          <CardProperty
-            key={prop.id}
-            image={prop.image}
-            type={prop.type}
-            title={prop.title}
-            location={prop.location}
-            price={prop.price}
-            desc={prop.desc}
-            darkMode={darkMode}
-          />
-        ))}
-      </div>
+    <div className={`${styles.cardContainer} ${darkMode ? styles.dark : ""}`}>
+      <h2 className={styles.pageTitle}>Properti Saya</h2>
+
+      {properties.length === 0 ? (
+        <p>Belum ada properti yang kamu tambahkan.</p>
+      ) : (
+        <div className={styles.gridContainer}>
+          {properties.map((item) => (
+            <CardProperty
+              key={item.id}
+              id={item.id}
+              namaProperti={item.namaProperti}
+              tipeProperti={item.tipeProperti}
+              jenisProperti={item.jenisProperti}
+              periodeSewa={item.periodeSewa}
+              harga={item.harga}
+              luasTanah={item.luasTanah}
+              luasBangunan={item.luasBangunan}
+              kamarTidur={item.kamarTidur}
+              kamarMandi={item.kamarMandi}
+              lokasi={item.lokasi}
+              deskripsi={item.deskripsi}
+              media={item.media}
+              status={item.status}
+              darkMode={darkMode}
+              onDelete={handleDelete}
+            />
+          ))}
+        </div>
+      )}
     </div>
   );
 }
