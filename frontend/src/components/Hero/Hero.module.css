@@ -17,14 +17,14 @@
 }
 
 .title {
-  font-size: 3.5rem;
+  font-size: 3.2rem;
   font-weight: 700;
   margin: 0 0 1rem 0;
 }
 
 .subtitle {
   font-size: 1.2rem;
-  font-weight: 400;
+  font-weight: 30;
   margin-bottom: 2rem;
 }
 
@@ -38,6 +38,7 @@
   font-weight: 600;
   cursor: pointer;
   transition: background-color 0.3s ease;
+  text-decoration: none;
 }
 
 .ctaButton:hover {

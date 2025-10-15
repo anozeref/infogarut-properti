@@ -8,33 +8,39 @@ import { RxRulerSquare } from "react-icons/rx";
 
 const PropertyCard = ({ property }) => {
   const formatPrice = (price) => {
-    return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(price);
+    // Mengubah string menjadi angka sebelum format
+    const numericPrice = typeof price === 'string' ? parseFloat(price) : price;
+    return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(numericPrice);
   };
+
+  // Mengambil gambar pertama dari array 'media' sebagai gambar utama kartu
+  const mainImage = property.media && property.media.length > 0 ? `/images/${property.media[0]}` : 'https://via.placeholder.com/400x300.png?text=No+Image';
 
   return (
     <Link to={`/properti/${property.id}`} className={styles.cardLink}>
       <div className={styles.card}>
-        <img src={property.image} alt={property.title} className={styles.image} />
+        <img src={mainImage} alt={property.namaProperti} className={styles.image} />
         <div className={styles.content}>
           <div className={styles.location}>
             <IoLocationOutline />
-            <span>{property.location}</span>
+            <span>{property.lokasi}</span>
           </div>
-          <h3 className={styles.title}>{property.title}</h3>
+          <h3 className={styles.title}>{property.namaProperti}</h3>
 
-          {/* Bagian yang diubah ada di sini */}
           <div className={styles.tags}>
-            <span className={styles.tag}>{property.type}</span>
-            {/* TAMBAHKAN BARIS DI BAWAH INI */}
-            <span className={styles.tagJenis}>{property.jenis}</span>
+            <span className={styles.tag}>{property.tipeProperti}</span>
+            <span className={styles.tagJenis}>{property.jenisProperti}</span>
           </div>
           
           <div className={styles.details}>
-            <div className={styles.detailItem}><LuBedDouble /> {property.beds}</div>
-            <div className={styles.detailItem}><LuBath /> {property.baths}</div>
-            <div className={styles.detailItem}><RxRulerSquare /> {property.area}</div>
+            <div className={styles.detailItem}><LuBedDouble /> {property.kamarTidur}</div>
+            <div className={styles.detailItem}><LuBath /> {property.kamarMandi}</div>
+            <div className={styles.detailItem}><RxRulerSquare /> {property.luasBangunan} m²</div>
           </div>
-          <div className={styles.price}>{formatPrice(property.price)}</div>
+          <div className={styles.price}>
+            {formatPrice(property.harga)}
+            {property.periodeSewa && <span className={styles.periodeSewa}>{property.periodeSewa}</span>}
+          </div>
         </div>
       </div>
     </Link>

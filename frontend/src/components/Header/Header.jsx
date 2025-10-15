@@ -5,6 +5,7 @@ import { FaUserCircle } from "react-icons/fa";
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 import { AuthContext } from "../../context/AuthContext";
+import { NavLink, useNavigate } from "react-router-dom";
 import logoImage from "../../assets/logo.png";
 
 const Header = () => {
@@ -19,6 +20,9 @@ const Header = () => {
     } else {
       navigate("/user");
     }
+    if (!user) navigate("/login");
+    else if (user.role === "admin") navigate("/admin");
+    else if (user.role === "user") navigate("/user");
   };
 
   const handleLogout = () => {
@@ -40,9 +44,21 @@ const Header = () => {
   return (
     <header className={styles.header}>
       <div className={styles.container}>
-        <Link to="/" className={styles.logo}>
+        <a
+          href="https://infogarut.id"
+          target="_blank"
+          rel="noopener noreferrer"
+          className={styles.logo}
+        >
+        <a
+          href="https://infogarut.id"
+          target="_blank"
+          rel="noopener noreferrer"
+          className={styles.logo}
+        >
           <img src={logoImage} alt="Logo Propertease Infogarut.id" />
-        </Link>
+        </a>
+        </a>
 
         <div className={styles.rightSection}>
           <nav className={styles.nav}>
@@ -62,6 +78,17 @@ const Header = () => {
             >
               Properti
             </NavLink>
+            
+            {/* TAUTAN BLOG BARU DITAMBAHKAN DI SINI */}
+            <a
+              href="https://infogarut.id"
+              target="_blank"
+              rel="noopener noreferrer"
+              className={styles.navLink}
+            >
+              Blog
+            </a>
+            
           </nav>
 
           <button

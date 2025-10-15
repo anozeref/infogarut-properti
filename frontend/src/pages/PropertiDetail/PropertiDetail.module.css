@@ -143,38 +143,21 @@
     color: #6c757d;
 }
 
-/* Kartu Agen */
+/* Kartu Agen yang Diperbarui */
 .agentCard {
     background-color: #f8f9fa;
     border: 1px solid #e9ecef;
     border-radius: 12px;
-    padding: 2rem;
+    padding: 1.5rem; /* Diperkecil */
     text-align: center;
     position: sticky;
     top: 100px;
 }
-.agentAvatar {
-    width: 120px;
-    height: 120px;
-    border-radius: 50%;
-    object-fit: cover;
-    margin-bottom: 1rem;
-    border: 4px solid #fff;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-}
-.agentCard h3 {
-    margin: 0 0 0.25rem 0;
-    font-size: 1.5rem;
-}
-.agentTitle {
-    color: #6c757d;
-    margin: 0 0 1.5rem 0;
-}
 .agentContact {
     text-align: left;
     margin-bottom: 1.5rem;
-    border-top: 1px solid #e0e0e0;
-    padding-top: 1.5rem;
+    border-top: none; /* Garis dihapus */
+    padding-top: 0;   /* Jarak atas dihapus */
 }
 .agentContact p {
     margin: 0.5rem 0;
