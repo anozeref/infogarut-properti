@@ -1,27 +1,26 @@
 import React, { useState, useEffect, useContext } from "react";
-import { FaCheck, FaClock, FaBan, FaInfoCircle } from "react-icons/fa";
-import { motion, AnimatePresence } from "framer-motion";
 import Swal from "sweetalert2";
-import axios from "axios";
-import { useNavigate } from "react-router-dom";
-import styles from "./KelolaUserContent.module.css";
 import { ThemeContext } from "../DashboardAdmin";
+import axios from "axios";
+import { FaCheck, FaClock, FaUndo, FaBan, FaInfoCircle } from "react-icons/fa";
+import TabelUserAktif from "./tables/TabelUserAktif";
+import TabelUserSuspend from "./tables/TabelUserSuspend";
+import TabelUserBanned from "./tables/TabelUserBanned";
+import ModalUser from "./ModalUser";
+import styles from "./KelolaUserContent.module.css";
 
 const ITEMS_PER_PAGE = 5;
 
 const KelolaUserContent = () => {
   const { theme } = useContext(ThemeContext);
-  const navigate = useNavigate();
 
   const [users, setUsers] = useState([]);
   const [properties, setProperties] = useState([]);
-  const [currentPage, setCurrentPage] = useState(1);
   const [viewVerified, setViewVerified] = useState("user");
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedUser, setSelectedUser] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
 
-  // ---------- Fetch data awal ----------
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -29,246 +28,131 @@ const KelolaUserContent = () => {
           axios.get("http://localhost:3004/users"),
           axios.get("http://localhost:3004/properties"),
         ]);
-        const normalizedUsers = userRes.data.map(u => ({
-          ...u,
-          verified: u.verified === true,
-        }));
-        setUsers(normalizedUsers);
+        setUsers(userRes.data.map(u => ({ ...u, verified: u.verified === true })));
         setProperties(propRes.data);
       } catch (err) {
-        console.error("Gagal fetch data:", err);
+        console.error(err);
       }
     };
     fetchData();
   }, []);
 
-  // ---------- Filtering ----------
+  const today = new Date();
   const filteredUsers = users
     .filter(u => u.role !== "admin")
-    .filter(u => viewVerified === "verified" ? u.verified : !u.verified)
+    .filter(u => (viewVerified === "verified" ? u.verified : !u.verified))
     .filter(u =>
       u.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
       u.nama?.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
-  // ---------- Pagination ----------
-  const paginate = (list, page) => {
-    const start = (page - 1) * ITEMS_PER_PAGE;
-    return list.slice(start, start + ITEMS_PER_PAGE);
-  };
+  const activeUsers = filteredUsers.filter(u => !u.banned && (!u.suspend || new Date(u.suspend) < today));
+  const suspendUsers = filteredUsers.filter(u => u.suspend && new Date(u.suspend) >= today && !u.banned);
+  const bannedUsers = filteredUsers.filter(u => u.banned);
 
-  const renderPagination = (totalItems, currentPage, setPage) => {
-    const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE);
-    if (totalPages <= 1) return null;
-    const pages = Array.from({ length: totalPages }, (_, i) => i + 1);
-    return (
-      <div className={styles.pagination}>
-        <button onClick={() => setPage(Math.max(1, currentPage - 1))} disabled={currentPage === 1} className={styles.pageBtn}>‹</button>
-        {pages.map(p => (
-          <button key={p} disabled={p === currentPage} className={`${styles.pageBtn} ${p === currentPage ? styles.activePage : ""}`} onClick={() => setPage(p)}>
-            {p}
-          </button>
-        ))}
-        <button onClick={() => setPage(Math.min(totalPages, currentPage + 1))} disabled={currentPage === totalPages} className={styles.pageBtn}>›</button>
-      </div>
-    );
-  };
-
-  // ---------- Actions ----------
-  const handleVerify = async id => {
+  // ----- ACTIONS -----
+  const updateUser = async (id, updatedFields, successMsg) => {
     const target = users.find(u => u.id === id);
     if (!target) return;
-    const confirm = await Swal.fire({
+    try {
+      const updatedUser = { ...target, ...updatedFields };
+      await axios.put(`http://localhost:3004/users/${id}`, updatedUser);
+      setUsers(prev => prev.map(u => u.id === id ? updatedUser : u));
+      Swal.fire("Berhasil!", successMsg, "success");
+    } catch (err) {
+      Swal.fire("Error!", "Gagal update user.", "error");
+    }
+  };
+
+  const handleVerify = id => {
+    const target = users.find(u => u.id === id);
+    Swal.fire({
       title: `Verifikasi "${target.username}"?`,
       icon: "question",
       showCancelButton: true,
       confirmButtonText: "Ya, verifikasi",
       cancelButtonText: "Batal",
       confirmButtonColor: "#28a745",
-    });
-    if (confirm.isConfirmed) {
-      try {
-        const updatedUser = { ...target, verified: true };
-        await axios.put(`http://localhost:3004/users/${id}`, updatedUser);
-        setUsers(prev => prev.map(u => u.id === id ? updatedUser : u));
-        Swal.fire("Berhasil!", "User telah diverifikasi.", "success");
-      } catch (err) {
-        Swal.fire("Error!", "Gagal verifikasi user.", "error");
-      }
-    }
+    }).then(res => res.isConfirmed && updateUser(id, { verified: true }, "User telah diverifikasi."));
   };
 
-  const handleSuspend = async id => {
+  const handleSuspend = id => {
     const target = users.find(u => u.id === id);
-    if (!target) return;
-    const confirm = await Swal.fire({
-      title: `Suspend "${target.username}"?`,
-      icon: "warning",
+    Swal.fire({
+      title: `Suspend "${target.username}" berapa lama?`,
+      input: "text",
+      inputPlaceholder: "YYYY-MM-DD",
       showCancelButton: true,
-      confirmButtonText: "Ya, suspend",
+      confirmButtonText: "Suspend",
       cancelButtonText: "Batal",
       confirmButtonColor: "#ffc107",
+    }).then(res => {
+      if (res.isConfirmed && res.value) updateUser(id, { suspend: res.value }, `User disuspend hingga ${res.value}`);
     });
-    if (confirm.isConfirmed) {
-      try {
-        const updatedUser = { ...target, suspended: true };
-        await axios.put(`http://localhost:3004/users/${id}`, updatedUser);
-        setUsers(prev => prev.map(u => u.id === id ? updatedUser : u));
-        Swal.fire("Berhasil!", "User telah disuspend.", "success");
-      } catch (err) {
-        Swal.fire("Error!", "Gagal suspend user.", "error");
-      }
-    }
   };
 
-  const handleBanned = async id => {
+  const handleUnSuspend = id => updateUser(id, { suspend: null }, "User unsuspend.");
+
+  const handleBanned = id => {
     const target = users.find(u => u.id === id);
-    if (!target) return;
-    const confirm = await Swal.fire({
+    Swal.fire({
       title: `Banned "${target.username}"?`,
       icon: "error",
       showCancelButton: true,
       confirmButtonText: "Ya, banned",
       cancelButtonText: "Batal",
       confirmButtonColor: "#dc3545",
-    });
-    if (confirm.isConfirmed) {
-      try {
-        const updatedUser = { ...target, banned: true };
-        await axios.put(`http://localhost:3004/users/${id}`, updatedUser);
-        setUsers(prev => prev.map(u => u.id === id ? updatedUser : u));
-        Swal.fire("Berhasil!", "User telah dibanned.", "success");
-      } catch (err) {
-        Swal.fire("Error!", "Gagal banned user.", "error");
-      }
-    }
+    }).then(res => res.isConfirmed && updateUser(id, { banned: true }, "User telah dibanned."));
   };
 
-  const handleDetail = async (user) => {
-    try {
-      const userRes = await axios.get(`http://localhost:3004/users/${user.id}`);
-      const propRes = await axios.get(`http://localhost:3004/properties?ownerId=${user.id}`);
-      setSelectedUser(userRes.data);
-      setProperties(prev => {
-        const others = prev.filter(p => p.ownerId !== user.id);
-        return [...others, ...propRes.data];
-      });
-      setModalOpen(true);
-    } catch (err) {
-      Swal.fire("Error!", "Gagal mengambil detail user.", "error");
-    }
+  const handleDetail = user => {
+    const userProps = properties.filter(p => p.ownerId === user.id);
+    setSelectedUser({ ...user });
+    setModalOpen(true);
   };
 
-  // ---------- Render Table ----------
-  const renderTable = list => (
-    <div className={styles.tableWrapper}>
-      <table className={styles.table}>
-        <thead>
-          <tr>
-            <th>No</th><th>Username</th><th>Nama</th><th>Email</th><th>HP</th><th>Properti Post</th><th>Status</th><th>Tgl Bergabung</th><th>Aksi</th>
-          </tr>
-        </thead>
-        <tbody>
-          <AnimatePresence>
-            {list.map((user, idx) => {
-              const userProperties = properties.filter(p => p.ownerId === user.id);
-              return (
-                <motion.tr key={user.id} initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.2 }}>
-                  <td>{idx + 1 + (currentPage - 1) * ITEMS_PER_PAGE}</td>
-                  <td>{user.username}</td>
-                  <td>{user.nama}</td>
-                  <td>{user.email}</td>
-                  <td>{user.no_hp}</td>
-                  <td>{userProperties.length}</td>
-                  <td className={styles.statusCell}>
-                    {user.verified ? <span className={`${styles.statusIcon} ${styles.approved}`} title="Terverifikasi"><FaCheck /></span>
-                    : <span className={`${styles.statusIcon} ${styles.pending}`} title="Belum Diverifikasi"><FaClock /></span>}
-                  </td>
-                  <td>{user.joinedAt}</td>
-                  <td className={styles.actions}>
-                    {!user.verified && <motion.button whileHover={{ scale: 1.1 }} onClick={() => handleVerify(user.id)} className={`${styles.iconBtn} ${styles.verifyBtn}`} title="Verify"><FaCheck /></motion.button>}
-                    <motion.button whileHover={{ scale: 1.1 }} onClick={() => handleSuspend(user.id)} className={`${styles.iconBtn} ${styles.suspendBtn}`} title="Suspend"><FaClock /></motion.button>
-                    <motion.button whileHover={{ scale: 1.1 }} onClick={() => handleBanned(user.id)} className={`${styles.iconBtn} ${styles.bannedBtn}`} title="Banned"><FaBan /></motion.button>
-                    <motion.button whileHover={{ scale: 1.1 }} onClick={() => handleDetail(user)} className={`${styles.iconBtn} ${styles.detailBtn}`} title="Detail"><FaInfoCircle /></motion.button>
-                  </td>
-                </motion.tr>
-              );
-            })}
-          </AnimatePresence>
-        </tbody>
-      </table>
-      {list.length === 0 && <p style={{ padding: "10px" }}>Tidak ada user ditemukan.</p>}
-    </div>
+  // ----- ACTION ICONS -----
+  const actionsForActive = user => (
+    <>
+      {!user.verified && <button className={styles.verifyBtn} onClick={() => handleVerify(user.id)}><FaCheck /></button>}
+      <button className={styles.suspendBtn} onClick={() => handleSuspend(user.id)}><FaClock /></button>
+      <button className={styles.bannedBtn} onClick={() => handleBanned(user.id)}><FaBan /></button>
+      <button className={styles.detailBtn} onClick={() => handleDetail(user)}><FaInfoCircle /></button>
+    </>
   );
 
-  // ---------- Render ----------
+  const actionsForSuspend = user => (
+    <>
+      <button className={styles.unsuspendBtn} onClick={() => handleUnSuspend(user.id)}><FaUndo /></button>
+      <button className={styles.bannedBtn} onClick={() => handleBanned(user.id)}><FaBan /></button>
+      <button className={styles.detailBtn} onClick={() => handleDetail(user)}><FaInfoCircle /></button>
+    </>
+  );
+
+  const actionsForBanned = user => (
+    <button className={styles.detailBtn} onClick={() => handleDetail(user)}><FaInfoCircle /></button>
+  );
+
   return (
-    <div className={`${styles.container} ${theme === "dark" ? styles.dark : ""}`}>
+    <div className={`${styles.container} ${theme==="dark"?styles.dark:""}`}>
       <div className={styles.header}><h2>Kelola User</h2></div>
       <div className={styles.controls}>
-        <input type="text" placeholder="Cari user..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} className={styles.searchInput} />
+        <input type="text" placeholder="Cari user..." value={searchTerm} onChange={e=>setSearchTerm(e.target.value)} className={styles.searchInput}/>
         <div className={styles.toggleContainer}>
-          <span>Belum Diverifikasi</span>
+          <span><b>Unverified</b></span>
           <label>
-            <input type="checkbox" checked={viewVerified === "verified"} onChange={() => setViewVerified(viewVerified === "verified" ? "user" : "verified")} />
+            <input type="checkbox" checked={viewVerified==="verified"} onChange={()=>setViewVerified(viewVerified==="verified"?"user":"verified")}/>
             <div className={styles.slider}><div className={styles.sliderBall}></div></div>
           </label>
-          <span>Terverifikasi</span>
+          <span><b>Verified</b></span>
         </div>
       </div>
 
-      {renderTable(paginate(filteredUsers, currentPage))}
-      {renderPagination(filteredUsers.length, currentPage, setCurrentPage)}
+      <TabelUserAktif users={activeUsers} properties={properties} actions={actionsForActive} theme={theme} />
+      <TabelUserSuspend users={suspendUsers} properties={properties} actions={actionsForSuspend} theme={theme} />
+      <TabelUserBanned users={bannedUsers} properties={properties} actions={actionsForBanned} theme={theme} />
 
-      <AnimatePresence>
-        {modalOpen && selectedUser && (
-          <motion.div className={styles.modalBackdrop} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-            <motion.div className={styles.modalContent} initial={{ y: -50 }} animate={{ y: 0 }} exit={{ y: -50 }}>
-              <div className={styles.modalLeft}>
-                <h3>Profil User</h3>
-                <p><b>Username:</b> {selectedUser.username}</p>
-                <p><b>Nama:</b> {selectedUser.nama}</p>
-                <p><b>Email:</b> {selectedUser.email}</p>
-                <p><b>HP:</b> {selectedUser.no_hp}</p>
-                <p><b>Status:</b> {selectedUser.verified ? "Terverifikasi" : "Belum Diverifikasi"}</p>
-                <p><b>Tanggal Bergabung:</b> {selectedUser.joinedAt}</p>
-              </div>
-              <div className={styles.modalRight}>
-                <h3>Properti</h3>
-                <table className={styles.table}>
-                  <thead>
-                    <tr>
-                      <th>No</th>
-                      <th>Nama Properti</th>
-                      <th>Tipe</th>
-                      <th>Status</th>
-                      <th>Harga</th>
-                      <th>Periode</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {properties.filter(p => p.ownerId === selectedUser.id).map((p, i) => (
-                      <tr
-                        key={p.id}
-                        style={{ cursor: "pointer" }}
-                        onClick={() => navigate("/admin/properti", { state: { propertyId: p.id } })}
-                      >
-                        <td>{i + 1}</td>
-                        <td>{p.namaProperti}</td>
-                        <td>{p.tipeProperti}</td>
-                        <td>{p.statusPostingan}</td>
-                        <td>{p.harga?.toLocaleString()}</td>
-                        <td>{p.periodeSewa || "-"}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-              <button className={styles.modalClose} onClick={() => setModalOpen(false)}>×</button>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {modalOpen && <ModalUser open={modalOpen} onClose={()=>setModalOpen(false)} user={selectedUser} properties={properties.filter(p => p.ownerId === selectedUser.id)} theme={theme} />}
     </div>
   );
 };

@@ -10,10 +10,13 @@
       "biodata": "",
       "kecamatan": "CISEWU",
       "joinedAt": "14/02/2025 09:32:41",
-      "role":"user",
+      "role": "user",
       "desa": "",
       "no_hp": "081234567890",
-      "id": "1"
+      "id": "1",
+      "verified": false,
+      "suspendedUntil": "2025-10-16T04:55:45.236Z",
+      "suspend": null
     },
     {
       "id": "2",
@@ -26,7 +29,9 @@
       "kecamatan": "Banyuresmi",
       "desa": "Bagendit",
       "alamat": "Jl. Raya Bagendit No.12, Banyuresmi, Garut",
-      "joinedAt": "05/05/2025 15:08:12"
+      "joinedAt": "05/05/2025 15:08:12",
+      "verified": false,
+      "banned": true
     },
     {
       "id": "3",
@@ -39,7 +44,9 @@
       "kecamatan": "Cisurupan",
       "desa": "Sukalaksana",
       "alamat": "Kp. Cikajang No.8, Cisurupan, Garut",
-      "joinedAt": "27/07/2025 10:55:37"
+      "joinedAt": "27/07/2025 10:55:37",
+      "verified": true,
+      "suspend": null
     },
     {
       "id": "4",
@@ -80,6 +87,21 @@
       "role": "user",
       "joinedAt": "14/10/2025 11:21:00",
       "verified": true
+    },
+    {
+      "id": "93ce",
+      "nama": "Ahmad Dahlan",
+      "username": "ahdahla",
+      "email": "ahdahla@gmail.com",
+      "password": "coba1234",
+      "no_hp": "082318141477",
+      "kecamatan": "Tar Dulu",
+      "desa": "Jayawaras",
+      "alamat": "Jl. Harapan yang tak kunjung Nyata",
+      "role": "user",
+      "joinedAt": "15/10/2025 11:45:36",
+      "verified": false,
+      "banned": true
     }
   ],
   "properties": [
