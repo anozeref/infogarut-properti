@@ -9,7 +9,14 @@
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
 }
 
-.dark {
+/* ✅ Tambahan: dark mode khusus untuk kartu */
+.card.dark {
+  background-color: #1f2937;
+  color: #f9fafb;
+}
+
+/* 🌙 Warna umum untuk elemen dalam dark mode */
+.dark .card {
   background-color: #1f2937;
   color: #f9fafb;
 }
@@ -68,7 +75,7 @@
   font-weight: 500;
 }
 
-.badgeDark {
+.badge.Dark {
   background-color: #374151 !important;
 }
 
@@ -198,30 +205,56 @@
   background-color: #991b1b;
 }
 
-
 /* === PropertiSaya layout (pakai style yang sama) === */
 .cardContainer {
   padding: 20px;
   min-height: 100vh;
   background-color: #f9fafb;
+  color: #111827;
+  transition: background-color 0.3s ease, color 0.3s ease;
+  display: flex;
+  flex-direction: column;
 }
 
-.dark.cardContainer {
+/* ✅ Fix selector dark mode */
+.cardContainer.dark {
   background-color: #111827;
   color: #f9fafb;
 }
 
+/* Judul Halaman */
 .pageTitle {
   font-size: 1.5rem;
   font-weight: 700;
   margin-bottom: 20px;
+  text-align: left;
 }
 
+/* ✅ Grid CardProperty: maksimal 3 kolom, responsif */
 .gridContainer {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  grid-template-columns: repeat(3, 1fr);
   gap: 2rem;
-  max-width: 400px;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto; /* tengahin */
+  justify-items: center;
+  align-items: stretch;
 }
 
+/* Responsif untuk ukuran menengah (tablet) */
+@media (max-width: 1024px) {
+  .gridContainer {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+  }
+}
+
+/* Responsif untuk ukuran kecil (HP) */
+@media (max-width: 640px) {
+  .gridContainer {
+    grid-template-columns: 1fr;
+    gap: 1.2rem;
+  }
+}
 
