@@ -1,4 +1,3 @@
-// src/pages/admin/DashboardAdmin.jsx
 import React, { useState, createContext, useContext } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 import SidebarAdmin from "./components/SidebarAdmin";
@@ -9,16 +8,15 @@ import KelolaUserContent from "./content/KelolaUserContent";
 import TambahPropertiContent from "./content/TambahPropertiContent";
 import { motion } from "framer-motion";
 import styles from "./DashboardAdmin.module.css";
-import { AuthContext } from "../../context/AuthContext"; // pastikan path benar
+import { AuthContext } from "../../context/AuthContext";
 
 export const ThemeContext = createContext();
 
 const DashboardAdmin = () => {
-  const { user } = useContext(AuthContext); // ambil data user
+  const { user } = useContext(AuthContext);
   const [isHovered, setIsHovered] = useState(false);
-  const [theme, setTheme] = useState("light"); // light | dark
+  const [theme, setTheme] = useState("light");
 
-  // Jika bukan admin, redirect ke login
   if (!user || user.role !== "admin") {
     return <Navigate to="/login" replace />;
   }
@@ -28,23 +26,23 @@ const DashboardAdmin = () => {
   return (
     <ThemeContext.Provider value={{ theme, toggleTheme }}>
       <div className={`${styles.dashboardContainer}`} data-theme={theme}>
-        <div className={styles.dashboardWrapper}>
+        <motion.div
+          className={styles.dashboardWrapper}
+          animate={{ "--sidebar-width": isHovered ? "220px" : "72px" }}
+          transition={{ type: "spring", stiffness: 200, damping: 25 }}
+        >
           <SidebarAdmin isHovered={isHovered} setIsHovered={setIsHovered} />
 
-          <motion.main
-            className={styles.mainContent}
-            animate={{ marginLeft: isHovered ? 220 : 72 }}
-            transition={{ type: "spring", stiffness: 200, damping: 25 }}
-          >
+          <main className={styles.mainContent}>
             <Routes>
-              <Route index element={<HomeContent />} /> {/* path="/" */}
+              <Route index element={<HomeContent />} />
               <Route path="properti" element={<KelolaPropertiContent />} />
               <Route path="user" element={<KelolaUserContent />} />
               <Route path="tambah" element={<TambahPropertiContent />} />
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
-          </motion.main>
-        </div>
+          </main>
+        </motion.div>
 
         <FooterAdmin />
       </div>

@@ -10,54 +10,37 @@
   transition: background-color 0.3s, color 0.3s;
 }
 
+/* Wrapper ini sekarang menggunakan flexbox untuk menampung sidebar dan konten */
 .dashboardWrapper {
   display: flex;
-  flex: 1;
-  min-height: 0;
+  flex: 1; /* Membuat wrapper ini mengisi semua ruang yang tersedia */
+  min-height: 0; /* Mencegah item flex meluap pada beberapa browser */
 }
 
 /* Konten utama */
 .mainContent {
-  flex: 1;
+  flex: 1; /* Membuat konten utama mengisi sisa ruang di samping sidebar */
   padding: 24px;
   overflow-y: auto;
-  /* Kita sengaja KOSONGKAN background di sini.
-     Area ini akan menjadi "kanvas" transparan di atas .dashboardContainer.
-     Nanti, card di dalamnya yang akan memiliki warna putih. */
+  /* Background sengaja transparan agar warna dari .dashboardContainer terlihat.
+     Nantinya, komponen seperti card di dalamnya yang akan memiliki background sendiri. */
 }
-
-/* Anda mungkin perlu menambahkan className={styles.footer} di komponen FooterAdmin Anda */
-.footer {
-  height: 60px;
-  background-color: var(--footer-bg-color);
-  border-top: 1px solid var(--border-color);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 -2px 6px rgba(0, 0, 0, 0.05);
-  transition: background-color 0.3s, border-color 0.3s;
-  color: var(--text-color-secondary);
-  font-size: 0.875rem;
-}
-
 
 /* =================================
    Light / Dark Theme Variables
    ================================= */
-[data-theme="light"] {
-  --bg-color: #f8fafc;                 /* Latar utama abu-abu netral */
-  --main-bg-color: #ffffff;           /* Latar untuk komponen seperti card */
-  --text-color: #1f2937;              /* Warna teks utama yang kontras */
-  --text-color-secondary: #6b7280;     /* Warna teks sekunder (abu-abu) */
-  --footer-bg-color: #ffffff;
+:global([data-theme="light"]) {
+  --bg-color: #f8fafc;              /* Latar utama abu-abu netral */
+  --main-bg-color: #ffffff;         /* Latar untuk komponen seperti card & sidebar */
+  --text-color: #1f2937;            /* Warna teks utama yang kontras */
+  --text-color-secondary: #6b7280;  /* Warna teks sekunder (abu-abu) */
   --border-color: #e5e7eb;
 }
 
-[data-theme="dark"] {
+:global([data-theme="dark"]) {
   --bg-color: #111827;
   --main-bg-color: #1f2937;
   --text-color: #d1d5db;
   --text-color-secondary: #9ca3af;
-  --footer-bg-color: #1f2937;
   --border-color: #374151;
 }
