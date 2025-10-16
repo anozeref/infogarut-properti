@@ -1,7 +1,7 @@
 // src/pages/admin/content/components/StatCard.jsx
 import React from 'react';
 import { motion } from 'framer-motion';
-import styles from '../HomeContent.module.css';
+import styles from '../../HomeContent.module.css';
 
 const StatCard = ({ icon, title, value, colorClass }) => {
   return (

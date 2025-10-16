@@ -2,7 +2,7 @@
 import React, { useContext } from "react";
 import styles from "./Header.module.css";
 import { FaUserCircle, FaSignOutAlt } from "react-icons/fa";
-import { NavLink, useNavigate } from "react-router-dom";
+import { NavLink, useNavigate, useLocation } from "react-router-dom";
 import Swal from "sweetalert2";
 import { AuthContext } from "../../context/AuthContext";
 import logoImage from "../../assets/logo.png";
@@ -10,6 +10,12 @@ import logoImage from "../../assets/logo.png";
 const Header = () => {
   const { user, logout } = useContext(AuthContext);
   const navigate = useNavigate();
+  const location = useLocation();
+
+  const hideHeaderRoutes = ["/login", "/register"];
+  if (hideHeaderRoutes.includes(location.pathname)) {
+    return null;
+  }
 
   const handleUserClick = () => {
     if (!user) navigate("/login");

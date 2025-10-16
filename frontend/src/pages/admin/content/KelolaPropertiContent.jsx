@@ -1,18 +1,23 @@
 import React, { useState, useEffect } from "react";
-import { FaCheck, FaTimes, FaTrash, FaEdit, FaInfoCircle } from "react-icons/fa";
-import { motion, AnimatePresence } from "framer-motion";
 import Swal from "sweetalert2";
-import styles from "./KelolaPropertiContent.module.css";
-import EditPropertyModal from "./EditPropertyModal";
-import DetailPropertyModal from "./DetailPropertyModal";
 import axios from "axios";
 import { io } from "socket.io-client";
+import { FaCheck, FaTimes, FaTrash, FaEdit, FaInfoCircle } from "react-icons/fa";
+import { motion } from "framer-motion"; // <-- Import yang hilang sudah ditambahkan
+import styles from "./KelolaPropertiContent.module.css";
+
+// Import komponen-komponen
+import Pagination from "./components/Pagination";
+import ApprovedPropertyHeader from "./components/ApprovedPropertyHeader";
+import EditPropertyModal from "./components/EditPropertyModal";
+import DetailPropertyModal from "./components/DetailPropertyModal";
 
 const socket = io("http://localhost:3005");
 const ITEMS_PER_PAGE = 5;
 const adminId = "5";
 
 export default function KelolaPropertiContent() {
+  // SECTION: State Management
   const [properties, setProperties] = useState([]);
   const [users, setUsers] = useState([]);
   const [currentPagePending, setCurrentPagePending] = useState(1);
@@ -21,7 +26,7 @@ export default function KelolaPropertiContent() {
   const [editData, setEditData] = useState(null);
   const [detailData, setDetailData] = useState(null);
 
-  // ---------- Helpers ----------
+  // SECTION: Helper Functions
   const normalizeDate = (dateStr) => {
     if (!dateStr) return null;
     const parts = dateStr.split(/[/ :]/);
@@ -37,11 +42,11 @@ export default function KelolaPropertiContent() {
   };
 
   const getOwnerName = (ownerId) => {
-    const u = users.find(u => String(u.id) === String(ownerId));
-    return u ? u.username : `User ID: ${ownerId || "-"}`;
+    const user = users.find(u => String(u.id) === String(ownerId));
+    return user ? user.username : `User ID: ${ownerId || "?"}`;
   };
 
-  // ---------- Fetch data ----------
+  // SECTION: Data Fetching & Real-time Updates
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -49,10 +54,7 @@ export default function KelolaPropertiContent() {
           axios.get("http://localhost:3004/properties"),
           axios.get("http://localhost:3004/users"),
         ]);
-        const normalizedProps = propRes.data.map(p => ({
-          ...p,
-          postedAt: p.postedAt ? p.postedAt : new Date().toISOString()
-        }));
+        const normalizedProps = propRes.data.map(p => ({ ...p, postedAt: p.postedAt || new Date().toISOString() }));
         setProperties(normalizedProps);
         setUsers(userRes.data);
       } catch (err) {
@@ -62,7 +64,7 @@ export default function KelolaPropertiContent() {
     fetchData();
 
     socket.on("new_property", (newProp) => {
-      const p = { ...newProp, postedAt: newProp.postedAt ? newProp.postedAt : new Date().toISOString() };
+      const p = { ...newProp, postedAt: newProp.postedAt || new Date().toISOString() };
       setProperties((prev) => [...prev, p]);
     });
 
@@ -70,7 +72,7 @@ export default function KelolaPropertiContent() {
       if (updatedProp.deleted) {
         setProperties((prev) => prev.filter((p) => p.id !== updatedProp.id));
       } else {
-        const p = { ...updatedProp, postedAt: updatedProp.postedAt ? updatedProp.postedAt : new Date().toISOString() };
+        const p = { ...updatedProp, postedAt: updatedProp.postedAt || new Date().toISOString() };
         setProperties((prev) => prev.map((prop) => (prop.id === p.id ? p : prop)));
       }
     });
@@ -81,14 +83,13 @@ export default function KelolaPropertiContent() {
     };
   }, []);
 
-  // ---------- Actions ----------
+  // SECTION: Action Handlers
   const handleApprove = async (id) => {
     const prop = properties.find((p) => p.id === id);
     if (!prop) return;
     const updated = { ...prop, statusPostingan: "approved" };
     try {
       await axios.put(`http://localhost:3004/properties/${id}`, updated);
-      setProperties((prev) => prev.map((p) => (p.id === id ? updated : p)));
       socket.emit("update_property", updated);
       Swal.fire("Disetujui!", "Properti berhasil disetujui.", "success");
     } catch (err) {
@@ -96,56 +97,42 @@ export default function KelolaPropertiContent() {
     }
   };
 
-  const handleReject = async (id) => {
-    Swal.fire({
-      title: "Tolak Properti?",
-      text: "Properti ini akan dihapus dari daftar.",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonText: "Ya, Tolak",
-      cancelButtonText: "Batal"
-    }).then(async (res) => {
-      if (res.isConfirmed) {
-        try {
-          await axios.delete(`http://localhost:3005/properties/${id}`);
-          setProperties((prev) => prev.filter((p) => p.id !== id));
-          socket.emit("update_property", { id, deleted: true });
-          Swal.fire("Ditolak!", "Properti telah dihapus.", "success");
-        } catch (err) {
-          Swal.fire("Error!", "Gagal menolak properti.", "error");
+  const handleReject = (id) => {
+    Swal.fire({ title: "Tolak Properti?", text: "Properti ini akan dihapus.", icon: "warning", showCancelButton: true, confirmButtonText: "Ya, Tolak", cancelButtonText: "Batal" })
+      .then(async (res) => {
+        if (res.isConfirmed) {
+          try {
+            await axios.delete(`http://localhost:3005/properties/${id}`);
+            socket.emit("update_property", { id, deleted: true });
+            Swal.fire("Ditolak!", "Properti telah dihapus.", "success");
+          } catch (err) {
+            Swal.fire("Error!", "Gagal menolak properti.", "error");
+          }
         }
-      }
-    });
+      });
   };
 
-  const handleDelete = async (id) => {
-    Swal.fire({
-      title: "Hapus Properti?",
-      text: "Data tidak dapat dikembalikan.",
-      icon: "error",
-      showCancelButton: true,
-      confirmButtonText: "Hapus",
-      cancelButtonText: "Batal"
-    }).then(async (res) => {
-      if (res.isConfirmed) {
-        try {
-          await axios.delete(`http://localhost:3005/properties/${id}`);
-          setProperties((prev) => prev.filter((p) => p.id !== id));
-          socket.emit("update_property", { id, deleted: true });
-          Swal.fire("Dihapus!", "Properti berhasil dihapus.", "success");
-        } catch (err) {
-          Swal.fire("Error!", "Gagal menghapus properti.", "error");
+  const handleDelete = (id) => {
+    Swal.fire({ title: "Hapus Properti?", text: "Data tidak dapat dikembalikan.", icon: "error", showCancelButton: true, confirmButtonText: "Hapus", cancelButtonText: "Batal" })
+      .then(async (res) => {
+        if (res.isConfirmed) {
+          try {
+            await axios.delete(`http://localhost:3005/properties/${id}`);
+            socket.emit("update_property", { id, deleted: true });
+            Swal.fire("Dihapus!", "Properti berhasil dihapus.", "success");
+          } catch (err) {
+            Swal.fire("Error!", "Gagal menghapus properti.", "error");
+          }
         }
-      }
-    });
+      });
   };
 
   const handleEdit = (prop) => setEditData(prop);
+  const handleDetail = (prop) => setDetailData(prop);
 
   const handleSaveEdit = async (updated) => {
     try {
       await axios.put(`http://localhost:3004/properties/${updated.id}`, updated);
-      setProperties((prev) => prev.map((p) => (p.id === updated.id ? updated : p)));
       socket.emit("update_property", updated);
       setEditData(null);
       Swal.fire("Berhasil!", "Data properti berhasil diperbarui.", "success");
@@ -153,165 +140,131 @@ export default function KelolaPropertiContent() {
       Swal.fire("Error!", "Gagal memperbarui properti.", "error");
     }
   };
-
-  const handleDetail = (prop) => {
-    setDetailData(prop);
-  };
-
+  
+  // SECTION: Data Preparation for Render
   const paginate = (list, page) => {
     const start = (page - 1) * ITEMS_PER_PAGE;
     return list.slice(start, start + ITEMS_PER_PAGE);
   };
-
-  const renderPagination = (totalItems, currentPage, setPage) => {
-    const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE);
-    if (totalPages <= 1) return null;
-    return (
-      <div className={styles.pagination}>
-        {Array.from({ length: totalPages }).map((_, i) => (
-          <button
-            key={i}
-            className={`${styles.pageBtn} ${currentPage === i + 1 ? styles.activePage : ""}`}
-            onClick={() => setPage(i + 1)}
-          >
-            {i + 1}
-          </button>
-        ))}
-      </div>
-    );
-  };
-
+  
   const pendingProperties = properties.filter((p) => p.statusPostingan === "pending");
   const approvedProperties = properties.filter((p) => p.statusPostingan === "approved");
-
-  const renderTable = (list, isPending = false, currentPage = 1) => (
-    <div className={styles.tableWrapper}>
-      <table className={styles.table}>
-        <thead>
-          <tr>
-            <th>No</th>
-            <th>Judul</th>
-            <th>Jenis</th>
-            <th>Tipe</th>
-            <th>Lokasi</th>
-            <th>Harga</th>
-            <th>Periode</th>
-            <th>Owner</th>
-            <th>Status</th>
-            <th>Aksi</th>
-          </tr>
-        </thead>
-        <tbody>
-          <AnimatePresence>
-            {list.map((prop, idx) => (
-              <motion.tr
-                key={prop.id}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                layout
-              >
-                <td>{(currentPage-1)*ITEMS_PER_PAGE + idx + 1}</td>
-                <td>{prop.namaProperti}</td>
-                <td>{prop.jenisProperti}</td>
-                <td>{prop.tipeProperti}</td>
-                <td>{prop.lokasi}</td>
-                <td>{prop.harga ? Number(prop.harga).toLocaleString('id-ID') : "-"}</td>
-                <td>{prop.periodeSewa || "-"}</td>
-                <td>{getOwnerName(prop.ownerId)}</td>
-                <td className={styles.statusCell}>
-                  {prop.statusPostingan === "approved" ? (
-                    <FaCheck className={styles.approved} />
-                  ) : (
-                    <FaTimes className={styles.pending} />
-                  )}
-                </td>
-                <td className={styles.actions}>
-                  <button className={styles.iconBtn} onClick={() => handleDetail(prop)}>
-                    <FaInfoCircle style={{ color: "#17a2b8" }} />
-                  </button>
-                  {isPending ? (
-                    <>
-                      <button className={styles.iconBtn} onClick={() => handleApprove(prop.id)}>
-                        <FaCheck style={{ color: "#28a745" }} />
-                      </button>
-                      <button className={styles.iconBtn} onClick={() => handleReject(prop.id)}>
-                        <FaTimes style={{ color: "#ffc107" }} />
-                      </button>
-                    </>
-                  ) : (
-                    <>
-                      <button className={styles.iconBtn} onClick={() => handleEdit(prop)}>
-                        <FaEdit style={{ color: "#0d6efd" }} />
-                      </button>
-                      <button className={styles.iconBtn} onClick={() => handleDelete(prop.id)}>
-                        <FaTrash style={{ color: "#dc3545" }} />
-                      </button>
-                    </>
-                  )}
-                </td>
-              </motion.tr>
-            ))}
-          </AnimatePresence>
-        </tbody>
-      </table>
-    </div>
-  );
-
   const filteredApproved = approvedProperties.filter(
     (p) => (approvedView === "admin" ? String(p.ownerId) === String(adminId) : String(p.ownerId) !== String(adminId))
   );
 
   return (
     <div className={styles.container}>
-      <h2 className={styles.header}>Kelola Properti</h2>
-      <div className={styles.section}>
-        <p className={styles.subHeader}>
-          Properti Menunggu Persetujuan ({pendingProperties.length})
-        </p>
-        {renderTable(paginate(pendingProperties, currentPagePending), true, currentPagePending)}
-        {renderPagination(pendingProperties.length, currentPagePending, setCurrentPagePending)}
+      {/* Page Header */}
+      <div className={styles.header}>
+        <h2>Kelola Properti</h2>
+        <p>Setujui, tolak, atau kelola semua properti yang ada di sistem.</p>
       </div>
 
-      <div className={styles.section}>
-        <div className={styles.header}>
-          <p className={styles.subHeader}>
-            Properti Disetujui ({filteredApproved.length})
-          </p>
-          <div className={styles.toggleContainer}>
-            <span>User</span>
-            <label className={styles.switch}>
-              <input
-                type="checkbox"
-                checked={approvedView === "admin"}
-                onChange={() =>
-                  setApprovedView(approvedView === "user" ? "admin" : "user")
-                }
-              />
-              <span className={styles.slider}></span>
-            </label>
-            <span>Admin</span>
-          </div>
+      {/* Main Content Card with Unified Scroll */}
+      <div className={styles.mainCard}>
+        <div className={styles.tableWrapper}>
+          <table className={styles.table}>
+            {/* Table Header */}
+            <thead>
+              <tr>
+                <th>No</th>
+                <th>Judul</th>
+                <th>Jenis</th>
+                <th>Tipe</th>
+                <th>Lokasi</th>
+                <th>Harga</th>
+                <th>Periode</th>
+                <th>Owner</th>
+                <th>Status</th>
+                <th>Aksi</th>
+              </tr>
+            </thead>
+
+            {/* Body for Pending Properties */}
+            <tbody>
+              <tr className={styles.subheadingRow}>
+                <td colSpan="10">
+                  Properti Menunggu Persetujuan ({pendingProperties.length})
+                </td>
+              </tr>
+              {paginate(pendingProperties, currentPagePending).map((prop, idx) => (
+                <motion.tr key={prop.id} layout>
+                  <td>{(currentPagePending - 1) * ITEMS_PER_PAGE + idx + 1}</td>
+                  <td>{prop.namaProperti}</td>
+                  <td>{prop.jenisProperti}</td>
+                  <td>{prop.tipeProperti}</td>
+                  <td>{prop.lokasi}</td>
+                  <td>{prop.harga ? Number(prop.harga).toLocaleString('id-ID') : "-"}</td>
+                  <td>{prop.periodeSewa || "-"}</td>
+                  <td>{getOwnerName(prop.ownerId)}</td>
+                  <td className={styles.statusCell}><FaTimes className={styles.pending} /></td>
+                  <td className={styles.actions}>
+                    <button className={styles.iconBtn} onClick={() => handleDetail(prop)}><FaInfoCircle style={{ color: "#17a2b8" }} /></button>
+                    <button className={styles.iconBtn} onClick={() => handleApprove(prop.id)}><FaCheck style={{ color: "#28a745" }} /></button>
+                    <button className={styles.iconBtn} onClick={() => handleReject(prop.id)}><FaTimes style={{ color: "#ffc107" }} /></button>
+                  </td>
+                </motion.tr>
+              ))}
+            </tbody>
+
+            {/* Body for Approved Properties */}
+            <tbody>
+              <tr className={styles.subheadingRow}>
+                <td colSpan="10">
+                  <ApprovedPropertyHeader
+                    count={filteredApproved.length}
+                    view={approvedView}
+                    onViewChange={setApprovedView}
+                  />
+                </td>
+              </tr>
+              {paginate(filteredApproved, currentPageApproved).map((prop, idx) => (
+                <motion.tr key={prop.id} layout>
+                  <td>{(currentPageApproved - 1) * ITEMS_PER_PAGE + idx + 1}</td>
+                  <td>{prop.namaProperti}</td>
+                  <td>{prop.jenisProperti}</td>
+                  <td>{prop.tipeProperti}</td>
+                  <td>{prop.lokasi}</td>
+                  <td>{prop.harga ? Number(prop.harga).toLocaleString('id-ID') : "-"}</td>
+                  <td>{prop.periodeSewa || "-"}</td>
+                  <td>{getOwnerName(prop.ownerId)}</td>
+                  <td className={styles.statusCell}><FaCheck className={styles.approved} /></td>
+                  <td className={styles.actions}>
+                    <button className={styles.iconBtn} onClick={() => handleDetail(prop)}><FaInfoCircle style={{ color: "#17a2b8" }} /></button>
+                    <button className={styles.iconBtn} onClick={() => handleEdit(prop)}><FaEdit style={{ color: "#0d6efd" }} /></button>
+                    <button className={styles.iconBtn} onClick={() => handleDelete(prop.id)}><FaTrash style={{ color: "#dc3545" }} /></button>
+                  </td>
+                </motion.tr>
+              ))}
+            </tbody>
+          </table>
         </div>
-        {renderTable(paginate(filteredApproved, currentPageApproved), false, currentPageApproved)}
-        {renderPagination(filteredApproved.length, currentPageApproved, setCurrentPageApproved)}
+        
+        {/* Pagination Container */}
+        <div className={styles.paginationContainer}>
+          <Pagination
+              totalItems={pendingProperties.length}
+              itemsPerPage={ITEMS_PER_PAGE}
+              currentPage={currentPagePending}
+              onPageChange={setCurrentPagePending}
+            />
+          <Pagination
+              totalItems={filteredApproved.length}
+              itemsPerPage={ITEMS_PER_PAGE}
+              currentPage={currentPageApproved}
+              onPageChange={setCurrentPageApproved}
+            />
+        </div>
       </div>
 
+      {/* Modals */}
       {editData && (
-        <EditPropertyModal
-          data={editData}
-          onClose={() => setEditData(null)}
-          onSave={handleSaveEdit}
-        />
+        <EditPropertyModal data={editData} onClose={() => setEditData(null)} onSave={handleSaveEdit} />
       )}
       
       {detailData && (
-        <DetailPropertyModal
-          data={detailData}
-          onClose={() => setDetailData(null)}
-          ownerName={getOwnerName(detailData.ownerId)}
-          postedAt={getTimestamp(detailData.postedAt)}
-        />
+        <DetailPropertyModal data={detailData} onClose={() => setDetailData(null)} ownerName={getOwnerName(detailData.ownerId)} postedAt={getTimestamp(detailData.postedAt)} />
       )}
     </div>
   );

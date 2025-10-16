@@ -7,7 +7,7 @@ import { io } from "socket.io-client";
 import styles from "./HomeContent.module.css";
 import { ThemeContext } from "../DashboardAdmin";
 import { API_URL } from "../../../utils/constant";
-import StatCard from "./components/StatCard";
+import StatCard from "./components/HomeContent/StatCard";
 
 const parseCustomDate = (str) => {
   if (!str) return null;
