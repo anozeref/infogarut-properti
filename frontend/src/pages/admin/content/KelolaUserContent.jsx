@@ -1,58 +1,67 @@
-import React, { useState, useEffect, useContext } from "react";
+// src/pages/admin/content/KelolaUserContent.jsx
+import React, { useState, useEffect, useCallback, useContext } from "react";
 import Swal from "sweetalert2";
-import { ThemeContext } from "../DashboardAdmin";
 import axios from "axios";
-import { FaCheck, FaClock, FaUndo, FaBan, FaInfoCircle } from "react-icons/fa";
+import { io } from "socket.io-client";
+import { FaCheck, FaClock, FaUndo, FaBan, FaInfoCircle, FaUsers, FaUserClock, FaUserSlash, FaSearch } from "react-icons/fa";
 import { motion } from "framer-motion";
-
-// Impor komponen tabel yang baru dan hapus yang lama
+import { ThemeContext } from "../DashboardAdmin";
+import styles from "./KelolaUserContent.module.css";
+import { API_URL } from "../../../utils/constant";
 import TabelUser from "./tables/TabelUser";
 import ModalUser from "./ModalUser";
-import styles from "./KelolaUserContent.module.css";
+
+const socket = io("http://localhost:3005");
+
+const parseAndFormatDate = (dateStr) => {
+  if (!dateStr) return "-";
+  const parts = dateStr.split(/[\s/:]+/);
+  if (parts.length < 6) return "Format tanggal salah";
+  const dateObj = new Date(parts[2], parts[1] - 1, parts[0], parts[3], parts[4], parts[5]);
+  if (isNaN(dateObj.getTime())) return "Invalid Date";
+  return dateObj.toLocaleString("id-ID", { day: '2-digit', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+};
 
 const KelolaUserContent = () => {
   const { theme } = useContext(ThemeContext);
-
   const [users, setUsers] = useState([]);
   const [properties, setProperties] = useState([]);
-  const [isLoading, setIsLoading] = useState(true); // State untuk loading
+  const [isLoading, setIsLoading] = useState(true);
   const [viewVerified, setViewVerified] = useState("user");
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedUser, setSelectedUser] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      setIsLoading(true);
-      try {
-        const [userRes, propRes] = await Promise.all([
-          axios.get("http://localhost:3004/users"),
-          axios.get("http://localhost:3004/properties"),
-        ]);
-        setUsers(
-          userRes.data.map((u) => ({ ...u, verified: u.verified === true }))
-        );
-        setProperties(propRes.data);
-      } catch (err) {
-        console.error(err);
-        Swal.fire("Error!", "Gagal memuat data dari server.", "error");
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    fetchData();
+  const fetchData = useCallback(async () => {
+    try {
+      const [userRes, propRes] = await Promise.all([ axios.get(`${API_URL}users`), axios.get(`${API_URL}properties`) ]);
+      setUsers(userRes.data.map((u) => ({ ...u, verified: u.verified === true })));
+      setProperties(propRes.data);
+    } catch (err) {
+      console.error(err);
+      Swal.fire("Error!", "Gagal memuat data dari server.", "error");
+    } finally {
+      setIsLoading(false);
+    }
   }, []);
 
-  // --- Semua fungsi aksi (handleVerify, dll.) tetap sama ---
+  useEffect(() => {
+    fetchData();
+    socket.on("userUpdate", fetchData);
+    socket.on("propertyUpdate", fetchData);
+    return () => {
+      socket.off("userUpdate");
+      socket.off("propertyUpdate");
+    };
+  }, [fetchData]);
+
   const updateUser = async (id, updatedFields, successMsg) => {
     const target = users.find((u) => u.id === id);
     if (!target) return;
     try {
       const updatedUser = { ...target, ...updatedFields };
-      await axios.put(`http://localhost:3004/users/${id}`, updatedUser);
-      setUsers((prev) =>
-        prev.map((u) => (u.id === id ? updatedUser : u))
-      );
+      await axios.put(`${API_URL}users/${id}`, updatedUser);
+      setUsers((prev) => prev.map((u) => (u.id === id ? updatedUser : u)));
       Swal.fire("Berhasil!", successMsg, "success");
     } catch (err) {
       Swal.fire("Error!", "Gagal update user.", "error");
@@ -77,7 +86,7 @@ const KelolaUserContent = () => {
     });
   };
 
-  const handleUnSuspend = id => updateUser(id, { suspendedUntil: null }, "Suspend untuk user telah dicabut.");
+  const handleUnSuspend = (id) => updateUser(id, { suspendedUntil: null }, "Suspend untuk user telah dicabut.");
 
   const handleBanned = (id) => {
     const target = users.find(u => u.id === id);
@@ -92,91 +101,83 @@ const KelolaUserContent = () => {
     setModalOpen(true);
   };
 
-
-  // --- Fungsi untuk merender tombol aksi dengan animasi ---
   const renderActionsForActive = (user) => (
     <>
-      {!user.verified && (
-        <motion.button whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }} className={styles.verifyBtn} onClick={() => handleVerify(user.id)}><FaCheck /></motion.button>
-      )}
-      <motion.button whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }} className={styles.suspendBtn} onClick={() => handleSuspend(user.id)}><FaClock /></motion.button>
-      <motion.button whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }} className={styles.bannedBtn} onClick={() => handleBanned(user.id)}><FaBan /></motion.button>
-      <motion.button whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }} className={styles.detailBtn} onClick={() => handleDetail(user)}><FaInfoCircle /></motion.button>
+      {!user.verified && (<motion.button whileHover={{ y: -2 }} className={styles.iconBtn} onClick={() => handleVerify(user.id)} title="Verifikasi User"><FaCheck className={styles.approveIcon} /></motion.button>)}
+      <motion.button whileHover={{ y: -2 }} className={styles.iconBtn} onClick={() => handleSuspend(user.id)} title="Suspend User"><FaClock className={styles.suspendIcon} /></motion.button>
+      <motion.button whileHover={{ y: -2 }} className={styles.iconBtn} onClick={() => handleBanned(user.id)} title="Banned User"><FaBan className={styles.deleteIcon} /></motion.button>
+      <motion.button whileHover={{ y: -2 }} className={styles.iconBtn} onClick={() => handleDetail(user)} title="Lihat Detail"><FaInfoCircle className={styles.infoIcon} /></motion.button>
     </>
   );
-
   const renderActionsForSuspend = (user) => (
     <>
-      <motion.button whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }} className={styles.unsuspendBtn} onClick={() => handleUnSuspend(user.id)}><FaUndo /></motion.button>
-      <motion.button whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }} className={styles.bannedBtn} onClick={() => handleBanned(user.id)}><FaBan /></motion.button>
-      <motion.button whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }} className={styles.detailBtn} onClick={() => handleDetail(user)}><FaInfoCircle /></motion.button>
+      <motion.button whileHover={{ y: -2 }} className={styles.iconBtn} onClick={() => handleUnSuspend(user.id)} title="Cabut Suspend"><FaUndo className={styles.unsuspendIcon} /></motion.button>
+      <motion.button whileHover={{ y: -2 }} className={styles.iconBtn} onClick={() => handleBanned(user.id)} title="Banned User"><FaBan className={styles.deleteIcon} /></motion.button>
+      <motion.button whileHover={{ y: -2 }} className={styles.iconBtn} onClick={() => handleDetail(user)} title="Lihat Detail"><FaInfoCircle className={styles.infoIcon} /></motion.button>
     </>
   );
-
   const renderActionsForBanned = (user) => (
-    <motion.button whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }} className={styles.detailBtn} onClick={() => handleDetail(user)}><FaInfoCircle /></motion.button>
+    <motion.button whileHover={{ y: -2 }} className={styles.iconBtn} onClick={() => handleDetail(user)} title="Lihat Detail"><FaInfoCircle className={styles.infoIcon} /></motion.button>
   );
 
-  // --- Fungsi untuk merender badge status yang sesuai ---
   const renderStatus = {
-    active: (user) => user.verified ? <span className={styles.approved}>✔ Terverifikasi</span> : <span className={styles.pending}>⌛ Belum</span>,
-    suspend: () => <span className={styles.suspended}>⏱ Suspend</span>,
-    banned: () => <span className={styles.banned}>❌ Banned</span>,
+    active: (user) => user.verified ? <span className={`${styles.badge} ${styles.approved}`}>Terverifikasi</span> : <span className={`${styles.badge} ${styles.pending}`}>Belum</span>,
+    suspend: () => <span className={`${styles.badge} ${styles.suspended}`}>Suspend</span>,
+    banned: () => <span className={`${styles.badge} ${styles.banned}`}>Banned</span>,
   };
 
-  // --- Logika filter, diurutkan agar data terbaru di atas ---
   const today = new Date();
   const sortedUsers = [...users].sort((a, b) => new Date(b.joinedAt) - new Date(a.joinedAt));
-  
+  const searchLower = searchTerm.toLowerCase();
   const filteredUsers = sortedUsers
     .filter((u) => u.role !== "admin")
     .filter((u) => (viewVerified === "verified" ? u.verified : !u.verified))
-    .filter((u) => u.username.toLowerCase().includes(searchTerm.toLowerCase()) || u.nama?.toLowerCase().includes(searchTerm.toLowerCase()));
+    .filter((u) => u.username.toLowerCase().includes(searchLower) || u.nama?.toLowerCase().includes(searchLower));
 
   const activeUsers = filteredUsers.filter((u) => !u.banned && (!u.suspendedUntil || new Date(u.suspendedUntil) < today));
   const suspendUsers = filteredUsers.filter((u) => u.suspendedUntil && new Date(u.suspendedUntil) >= today && !u.banned);
   const bannedUsers = filteredUsers.filter((u) => u.banned);
 
-  // Tampilkan spinner jika masih loading
   if (isLoading) {
-    return (
-      <div className={styles.spinnerContainer}>
-        <div className={styles.spinner}></div>
-      </div>
-    );
+    return ( <div className={styles.spinnerContainer}><div className={styles.spinner}></div></div> );
   }
 
   return (
     <div className={styles.container} data-theme={theme}>
       <div className={styles.header}>
-        <h2>Kelola User</h2>
-      </div>
-
-      <div className={styles.controls}>
-        <div className={styles.searchBox}>
-            <input type="text" placeholder="Cari user..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
+        <div>
+          <h2>Kelola User</h2>
+          <p>Tinjau dan kelola semua pengguna terdaftar.</p>
         </div>
-        <div className={styles.toggleContainer}>
-            <span><b>Unverified</b></span>
-            <label>
-                <input type="checkbox" checked={viewVerified === "verified"} onChange={() => setViewVerified(viewVerified === "verified" ? "user" : "verified")} />
-                <div className={styles.slider}><div className={styles.sliderBall}></div></div>
-            </label>
-            <span><b>Verified</b></span>
+        <div className={styles.controls}>
+            <div className={styles.searchContainer}>
+                <FaSearch className={styles.searchIcon} />
+                <input type="text" placeholder="Cari username atau nama..." className={styles.searchInput} value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
+            </div>
+            <div className={styles.toggleContainer}>
+                <span>Unverified</span>
+                <label>
+                    <input type="checkbox" checked={viewVerified === "verified"} onChange={() => setViewVerified(viewVerified === "verified" ? "user" : "verified")} />
+                    <div className={styles.slider}><div className={styles.sliderBall}></div></div>
+                </label>
+                <span>Verified</span>
+            </div>
         </div>
       </div>
 
       <TabelUser
+        icon={<FaUsers />}
         title={`User Aktif (${activeUsers.length})`}
         users={activeUsers}
         properties={properties}
         renderActions={renderActionsForActive}
         renderStatus={renderStatus.active}
-        emptyMessage="Tidak ada user aktif yang cocok dengan filter."
+        emptyMessage={searchTerm ? "Tidak ada user aktif yang cocok." : "Tidak ada user aktif."}
         dateColumnHeader="Tgl Bergabung"
         renderDateColumn={(user) => new Date(user.joinedAt).toLocaleDateString("id-ID", { year: 'numeric', month: 'short', day: 'numeric' })}
       />
       <TabelUser
+        icon={<FaUserClock />}
         title={`User Suspend (${suspendUsers.length})`}
         users={suspendUsers}
         properties={properties}
@@ -187,6 +188,7 @@ const KelolaUserContent = () => {
         renderDateColumn={(user) => new Date(user.suspendedUntil).toLocaleDateString("id-ID", { year: 'numeric', month: 'short', day: 'numeric' })}
       />
       <TabelUser
+        icon={<FaUserSlash />}
         title={`User Banned (${bannedUsers.length})`}
         users={bannedUsers}
         properties={properties}
@@ -196,16 +198,15 @@ const KelolaUserContent = () => {
         dateColumnHeader="Tanggal Dibanned"
         renderDateColumn={(user) => user.bannedAt ? new Date(user.bannedAt).toLocaleDateString("id-ID", { year: 'numeric', month: 'short', day: 'numeric' }) : "-"}
       />
-
+      
       {modalOpen && (
         <ModalUser
           open={modalOpen}
           onClose={() => setModalOpen(false)}
           user={selectedUser}
-          properties={properties.filter(
-            (p) => p.ownerId === selectedUser.id
-          )}
+          properties={properties.filter(p => String(p.ownerId) === String(selectedUser.id))}
           theme={theme}
+          joinedDate={parseAndFormatDate(selectedUser.joinedAt)}
         />
       )}
     </div>
