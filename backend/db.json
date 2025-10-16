@@ -101,33 +101,6 @@
   ],
   "properties": [
     {
-      "id": "1",
-      "ownerId": "1",
-      "namaProperti": "Rumah Asri Sukajaya",
-      "tipeProperti": "Rumah",
-      "jenisProperti": "sewa",
-      "periodeSewa": "/1 tahun",
-      "harga": 25000000,
-      "luasTanah": 120,
-      "luasBangunan": 90,
-      "kamarTidur": 3,
-      "kamarMandi": 2,
-      "lokasi": "Jl. Cimanuk No.45, Tarogong Kidul, Garut",
-      "kecamatan": "Tarogong Kidul",
-      "desa": "Sukajaya",
-      "deskripsi": "Rumah asri siap huni dekat pusat kota Garut. Lingkungan tenang dan akses mudah.",
-      "media": [
-        "rumah1a.jpg",
-        "rumah1b.jpg"
-      ],
-      "statusPostingan": "approved",
-      "postedAt": "10/03/2025 14:12:33",
-      "koordinat": {
-        "lat": -7.2204,
-        "lng": 107.9031
-      }
-    },
-    {
       "id": "2",
       "ownerId": "2",
       "namaProperti": "Kost Bagendit Indah",
@@ -275,36 +248,6 @@
         "1760536407190-663924707.jpg",
         "1760536407191-720085996.jpg"
       ],
-      "periodeSewa": ""
-    },
-    {
-      "id": "226c",
-      "namaProperti": "Rumah Rumahan",
-      "jenisProperti": "Jual",
-      "tipeProperti": "Rumah",
-      "lokasi": "Palih dinya",
-      "kecamatan": "GARUT KOTA",
-      "desa": "KOTAKULON",
-      "harga": 12000,
-      "luasTanah": 1,
-      "luasBangunan": 1,
-      "kamarTidur": 0,
-      "kamarMandi": 1,
-      "periodeAngka": "",
-      "periodeSatuan": "bulan",
-      "deskripsi": "Manawi",
-      "media": [
-        "1760586925734-136818178.jpg",
-        "1760586925755-233257576.jpg",
-        "1760586925758-816216204.jpg"
-      ],
-      "ownerId": "1",
-      "statusPostingan": "approved",
-      "postedAt": "16/10/2025 10:55:25",
-      "koordinat": {
-        "lat": 0,
-        "lng": 0
-      },
       "periodeSewa": ""
     }
   ]
