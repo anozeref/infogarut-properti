@@ -1,4 +1,3 @@
-/* src/components/Header/Header.module.css */
 .header {
   width: 100%;
   background-color: var(--background-light);
@@ -19,7 +18,7 @@
 }
 
 .logo img {
-  height: 40px; /* Atur tinggi logo sesuai kebutuhan Anda */
+  height: 40px;
   width: auto;
   display: block;
 }
@@ -53,30 +52,37 @@
   border-bottom: 2px solid var(--secondary-blue);
 }
 
+/* Tombol user/login */
 .userIcon {
   background: none;
+  margin-bottom: 5px;
   border: none;
   cursor: pointer;
   padding: 0;
   display: flex;
   align-items: center;
   color: var(--text-dark);
-  transition: color 0.2s ease;
+  transition: color 0.2s ease, transform 0.2s ease;
 }
 
 .userIcon:hover {
-  color: #007bff; /* warna saat hover */
+  color: #007bff;
+  transform: scale(1.1);
 }
+
+/* Tombol logout */
 .logoutBtn {
+  margin-bottom: 5px;
   background: none;
   border: none;
   color: #ff5555;
-  font-weight: 500;
   cursor: pointer;
-  margin-left: 12px;
-  transition: color 0.2s ease;
+  display: flex;
+  align-items: center;
+  transition: color 0.2s ease, transform 0.2s ease;
 }
 
 .logoutBtn:hover {
   color: #d22;
+  transform: scale(1.1);
 }

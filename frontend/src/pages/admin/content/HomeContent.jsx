@@ -1,4 +1,5 @@
-import React, { useContext, useEffect, useState } from "react";
+// src/pages/admin/content/HomeContent.jsx
+import React, { useContext, useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { FaUsers, FaBuilding, FaClock, FaCheckCircle, FaBell } from "react-icons/fa";
@@ -6,113 +7,82 @@ import { io } from "socket.io-client";
 import styles from "./HomeContent.module.css";
 import { ThemeContext } from "../DashboardAdmin";
 import { API_URL } from "../../../utils/constant";
+import StatCard from "./components/HomeContent/StatCard";
 
 const parseCustomDate = (str) => {
   if (!str) return null;
-  const [day, month, yearTime] = str.split("/");
-  const [year, time] = yearTime.split(" ");
-  return new Date(`${year}-${month}-${day}T${time}`);
+  const parts = str.split(/[\s/:]+/);
+  // new Date(year, monthIndex, day, hours, minutes, seconds)
+  return new Date(parts[2], parts[1] - 1, parts[0], parts[3], parts[4], parts[5]);
 };
 
 const HomeContent = () => {
   const { theme } = useContext(ThemeContext);
   const navigate = useNavigate();
+  const [isLoading, setIsLoading] = useState(true);
   const [stats, setStats] = useState({
-    totalUser: 0,
-    totalProperti: 0,
-    propertiPending: 0,
-    propertiApproved: 0,
+    totalUser: 0, totalProperti: 0, propertiPending: 0, propertiApproved: 0,
   });
   const [notifications, setNotifications] = useState([]);
+  const today = new Date().toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" });
 
-  const today = new Date().toLocaleDateString("id-ID", {
-    day: "numeric",
-    month: "long",
-    year: "numeric",
-  });
-
-  // 🔹 Fungsi ambil data (bisa dipanggil ulang tiap ada update)
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     try {
-      const usersRes = await fetch(`${API_URL}users`);
-      if (!usersRes.ok) throw new Error("Failed to fetch users");
+      const [usersRes, propsRes] = await Promise.all([
+        fetch(`${API_URL}users`),
+        fetch(`${API_URL}properties`)
+      ]);
+      if (!usersRes.ok || !propsRes.ok) throw new Error("Gagal mengambil data");
+      
       const users = await usersRes.json();
-
-      const propsRes = await fetch(`${API_URL}properties`);
-      if (!propsRes.ok) throw new Error("Failed to fetch properties");
       const props = await propsRes.json();
 
-      const totalUsers = users.filter(u => u.role === "user").length;
-      const pending = props.filter(p => p.statusPostingan === "pending").length;
-      const approved = props.filter(p => p.statusPostingan === "approved").length;
-
       setStats({
-        totalUser: totalUsers,
+        totalUser: users.filter(u => u.role === "user").length,
         totalProperti: props.length,
-        propertiPending: pending,
-        propertiApproved: approved,
+        propertiPending: props.filter(p => p.statusPostingan === "pending").length,
+        propertiApproved: props.filter(p => p.statusPostingan === "approved").length,
       });
 
-      const notifUsers = users
-        .filter(u => u.role === "user")
-        .map(u => ({
-          id: `u${u.id}`,
-          text: `User ${u.username} telah bergabung`,
-          timestamp: parseCustomDate(u.joinedAt) || new Date(),
-          type: "user",
-          targetId: u.id,
-        }));
-
-      const notifProps = props
-        .filter(p => p.statusPostingan === "pending")
-        .map(p => ({
-          id: `p${p.id}`,
-          text: `User ${
-            users.find(u => u.id === p.ownerId)?.username || "tidak diketahui"
-          } meminta pengajuan penjualan properti "${
-            p.namaProperti || "tidak diketahui"
-          }"`,
-          timestamp: parseCustomDate(p.postedAt) || new Date(),
-          type: "property",
-          targetId: p.id,
-        }));
-
-      const allNotif = [...notifUsers, ...notifProps]
-        .sort((a, b) => b.timestamp - a.timestamp)
-        .slice(0, 5);
-
-      setNotifications(allNotif);
+      const notifUsers = users.filter(u => u.role === "user").map(u => ({
+        id: `u${u.id}`, text: `User ${u.username} telah bergabung`, timestamp: parseCustomDate(u.joinedAt) || new Date(), type: "user",
+      }));
+      const notifProps = props.filter(p => p.statusPostingan === "pending").map(p => ({
+        id: `p${p.id}`, text: `User ${users.find(u => u.id === p.ownerId)?.username || "?"} meminta pengajuan properti "${p.namaProperti || "?"}"`, timestamp: parseCustomDate(p.postedAt) || new Date(), type: "property",
+      }));
+      
+      setNotifications([...notifUsers, ...notifProps].sort((a, b) => b.timestamp - a.timestamp).slice(0, 5));
     } catch (err) {
       console.error("Error fetch HomeContent:", err);
+    } finally {
+      setIsLoading(false);
     }
-  };
+  }, []);
 
-  // 🔹 Jalankan saat pertama kali
   useEffect(() => {
     fetchData();
-
-    // 🔹 Setup socket listener (realtime update)
     const socket = io("http://localhost:3005");
-
-    socket.on("connect", () => console.log("✅ Connected to Socket.IO server"));
-
-    // Update realtime jika ada user baru atau properti baru/pending
-    socket.on("userUpdate", () => fetchData());
-    socket.on("propertyUpdate", () => fetchData());
-
-    // Cleanup
+    socket.on("userUpdate", fetchData);
+    socket.on("propertyUpdate", fetchData);
     return () => socket.disconnect();
-  }, []);
+  }, [fetchData]);
 
   const handleNotifClick = (notif) => {
     if (notif.type === "user") navigate("/admin/user");
     else if (notif.type === "property") navigate("/admin/properti");
   };
 
+  if (isLoading) {
+    return (
+      <div className={styles.spinnerContainer}>
+        <div className={styles.spinner}></div>
+      </div>
+    );
+  }
+
   return (
-    <div className={`${styles.container} container-fluid ${theme === "dark" ? "dark" : ""}`}>
-      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
-        {/* Header */}
+    <div className={styles.container}>
+      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
         <div className={styles.header}>
           <div>
             <h2>Selamat Datang, Admin</h2>
@@ -120,57 +90,30 @@ const HomeContent = () => {
           </div>
         </div>
 
-        {/* Statistik */}
-        <div className="row g-3 mb-4">
-          <div className="col-md-3 col-6">
-            <div className={`${styles.card} shadow-sm`}>
-              <FaUsers className={styles.iconUser} />
-              <h6>Total User</h6>
-              <p className={styles.number}>{stats.totalUser}</p>
-            </div>
-          </div>
-          <div className="col-md-3 col-6">
-            <div className={`${styles.card} shadow-sm`}>
-              <FaBuilding className={styles.iconProperti} />
-              <h6>Total Properti</h6>
-              <p className={styles.number}>{stats.totalProperti}</p>
-            </div>
-          </div>
-          <div className="col-md-3 col-6">
-            <div className={`${styles.card} shadow-sm`}>
-              <FaClock className={styles.iconPending} />
-              <h6>Properti Pending</h6>
-              <p className={styles.number}>{stats.propertiPending}</p>
-            </div>
-          </div>
-          <div className="col-md-3 col-6">
-            <div className={`${styles.card} shadow-sm`}>
-              <FaCheckCircle className={styles.iconApproved} />
-              <h6>Disetujui</h6>
-              <p className={styles.number}>{stats.propertiApproved}</p>
-            </div>
-          </div>
+        <div className={styles.statsGrid}>
+          <StatCard icon={<FaUsers />} title="Total User" value={stats.totalUser} colorClass="user" />
+          <StatCard icon={<FaBuilding />} title="Total Properti" value={stats.totalProperti} colorClass="properti" />
+          <StatCard icon={<FaClock />} title="Properti Pending" value={stats.propertiPending} colorClass="pending" />
+          <StatCard icon={<FaCheckCircle />} title="Disetujui" value={stats.propertiApproved} colorClass="approved" />
         </div>
 
-        {/* Notifikasi */}
-        <div className={`${styles.notifications} shadow-sm`}>
-          <div className="d-flex align-items-center mb-2">
-            <FaBell className="me-2 text-primary" />
-            <h5 className="m-0">Notifikasi Aktivitas</h5>
+        <div className={styles.notificationsCard}>
+          <div className={styles.cardHeader}>
+            <FaBell />
+            <h5>Notifikasi Aktivitas</h5>
           </div>
-
-          <div className={styles.notifTable}>
-            {notifications.length ? (
+          <div className={styles.notifList}>
+            {notifications.length > 0 ? (
               notifications.map((notif) => (
                 <div key={notif.id} className={styles.notifRow} onClick={() => handleNotifClick(notif)}>
-                  <div className={styles.notifTimestamp}>
-                    [{notif.timestamp ? notif.timestamp.toLocaleString() : "tanggal tidak tersedia"}]
-                  </div>
-                  <div className={styles.notifContent}>{notif.text}.</div>
+                  <span className={styles.notifTimestamp}>
+                    {notif.timestamp ? new Date(notif.timestamp).toLocaleString("id-ID", { hour: '2-digit', minute: '2-digit' }) : "-"}
+                  </span>
+                  <p className={styles.notifContent}>{notif.text}</p>
                 </div>
               ))
             ) : (
-              <div>Tidak ada notifikasi terbaru</div>
+              <div className={styles.emptyState}>Tidak ada notifikasi terbaru.</div>
             )}
           </div>
         </div>

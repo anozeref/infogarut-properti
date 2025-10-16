@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import {
   FaTimes,
@@ -35,14 +35,16 @@ const capitalize = (s) => {
 export default function DetailPropertyModal({ data, onClose, ownerName, postedAt }) {
   if (!data) return null;
 
-  // ====================== THIS IS THE CORRECTED LINE ======================
-  // Construct the full URL pointing to your backend server (port 3005)
-  const backendUrl = "http://localhost:3005";
-  const imageUrl = data.media && data.media.length > 0
-    ? `${backendUrl}/media/${data.media[0]}`
-    : null;
-  // ========================================================================
-  
+  const [mainImage, setMainImage] = useState("");
+
+  useEffect(() => {
+    if (data.media && data.media.length > 0) {
+      setMainImage(`http://localhost:3005/media/${data.media[0]}`);
+    } else {
+      setMainImage("");
+    }
+  }, [data]);
+
   const fullLocation = [data.lokasi, data.desa, data.kecamatan, "Garut"]
     .filter(Boolean)
     .join(", ");
@@ -63,9 +65,9 @@ export default function DetailPropertyModal({ data, onClose, ownerName, postedAt
         exit={{ y: 50, opacity: 0 }}
         transition={{ type: "spring", stiffness: 300, damping: 30 }}
       >
-        {imageUrl && (
+        {mainImage && (
           <div className={styles.imageContainer}>
-            <img src={imageUrl} alt={data.namaProperti} className={styles.modalImage} />
+            <img src={mainImage} alt={data.namaProperti} className={styles.modalImage} />
           </div>
         )}
 
@@ -74,10 +76,30 @@ export default function DetailPropertyModal({ data, onClose, ownerName, postedAt
         </button>
 
         <div className={styles.header}>
-          <h3>{data.namaProperti || "Nama Properti"}</h3>
-          <span className={styles.location}>
-            <FaMapMarkerAlt /> {fullLocation}
-          </span>
+          <div className={styles.headerInfo}>
+            <h3>{data.namaProperti || "Nama Properti"}</h3>
+            <span className={styles.location}>
+              <FaMapMarkerAlt /> {fullLocation}
+            </span>
+          </div>
+
+          {/* GALERI THUMBNAIL GAMBAR */}
+          {data.media && data.media.length > 1 && (
+            <div className={styles.thumbnailGallery}>
+              {data.media.map((fileName) => {
+                const imageUrl = `http://localhost:3005/media/${fileName}`;
+                return (
+                  <img
+                    key={fileName}
+                    src={imageUrl}
+                    alt="thumbnail"
+                    className={`${styles.thumbnailItem} ${mainImage === imageUrl ? styles.activeThumbnail : ""}`}
+                    onClick={() => setMainImage(imageUrl)}
+                  />
+                );
+              })}
+            </div>
+          )}
         </div>
 
         <div className={styles.priceSection}>
@@ -94,30 +116,10 @@ export default function DetailPropertyModal({ data, onClose, ownerName, postedAt
             <FaHandshake />
             <span>{capitalize(data.jenisProperti) || "-"}</span>
           </div>
-          {data.kamarTidur > 0 && (
-            <div className={styles.detailItem}>
-              <FaBed />
-              <span>{data.kamarTidur} KT</span>
-            </div>
-          )}
-          {data.kamarMandi > 0 && (
-            <div className={styles.detailItem}>
-              <FaBath />
-              <span>{data.kamarMandi} KM</span>
-            </div>
-          )}
-          {data.luasBangunan > 0 && (
-            <div className={styles.detailItem}>
-              <FaBuilding />
-              <span>{data.luasBangunan} m² (Bangunan)</span>
-            </div>
-          )}
-          {data.luasTanah > 0 && (
-            <div className={styles.detailItem}>
-              <FaVectorSquare />
-              <span>{data.luasTanah} m² (Tanah)</span>
-            </div>
-          )}
+          {data.kamarTidur > 0 && ( <div className={styles.detailItem}><FaBed /><span>{data.kamarTidur} KT</span></div> )}
+          {data.kamarMandi > 0 && ( <div className={styles.detailItem}><FaBath /><span>{data.kamarMandi} KM</span></div> )}
+          {data.luasBangunan > 0 && ( <div className={styles.detailItem}><FaBuilding /><span>{data.luasBangunan} m² (Bangunan)</span></div> )}
+          {data.luasTanah > 0 && ( <div className={styles.detailItem}><FaVectorSquare /><span>{data.luasTanah} m² (Tanah)</span></div> )}
         </div>
         
         <div className={styles.description}>
@@ -126,24 +128,13 @@ export default function DetailPropertyModal({ data, onClose, ownerName, postedAt
         </div>
 
         <div className={styles.adminInfo}>
-          <div className={styles.infoRow}>
-            <FaUser />
-            <span><strong>Pemilik:</strong> {ownerName || "-"}</span>
-          </div>
-          <div className={styles.infoRow}>
-            <FaClock />
-            <span><strong>Waktu Post:</strong> {postedAt || "-"}</span>
-          </div>
-          <div className={styles.infoRow}>
-            <FaInfoCircle />
-            <span><strong>Status:</strong> {data.statusPostingan || "-"}</span>
-          </div>
+          <div className={styles.infoRow}><FaUser /><span><strong>Pemilik:</strong> {ownerName || "-"}</span></div>
+          <div className={styles.infoRow}><FaClock /><span><strong>Waktu Post:</strong> {postedAt || "-"}</span></div>
+          <div className={styles.infoRow}><FaInfoCircle /><span><strong>Status:</strong> {data.statusPostingan || "-"}</span></div>
         </div>
 
         <div className={styles.footer}>
-          <button className={styles.actionButton} onClick={onClose}>
-            Tutup
-          </button>
+          <button className={styles.actionButton} onClick={onClose}>Tutup</button>
         </div>
       </motion.div>
     </motion.div>
