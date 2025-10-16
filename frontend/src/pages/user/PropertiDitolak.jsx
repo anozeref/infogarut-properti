@@ -1,64 +1,143 @@
-import React, { useState } from "react";
+// PropertiDitolak.jsx
+import React, { useEffect, useState, useContext } from "react";
+import axios from "axios";
 import CardProperty from "./components/CardProperty";
+import styles from "./components/CardProperty.module.css";
+import Swal from "sweetalert2";
+import { AuthContext } from "../../context/AuthContext";
 import { useOutletContext } from "react-router-dom";
 
 export default function PropertiDitolak() {
-  const {darkMode} = useOutletContext();
+  const { darkMode } = useOutletContext();
+  const { user } = useContext(AuthContext);
 
-  const myProperties = [
-    {
-      id: 1,
-      image: "https://images.unsplash.com/photo-1572120360610-d971b9b78825?w=800&q=70",
-      type: "Rumah",
-      title: "Rumah Nyaman di Cipanas",
-      location: "Garut, Jawa Barat",
-      price: "Rp 850.000.000",
-      desc: "Rumah asri dengan halaman luas dan udara sejuk.",
-    },
-    {
-      id: 2,
-      image: "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=800&q=70",
-      type: "Apartemen",
-      title: "Apartemen Modern Bandung",
-      location: "Bandung, Jawa Barat",
-      price: "Rp 1.200.000.000",
-      desc: "Apartemen baru di pusat kota dengan fasilitas lengkap.",
-    },
-    {
-      id: 3,
-      image: "https://images.unsplash.com/photo-1507089947368-19c1da9775ae?w=800&q=70",
-      type: "Villa",
-      title: "Villa View Gunung",
-      location: "Lembang, Bandung",
-      price: "Rp 2.500.000.000",
-      desc: "Villa luas dengan pemandangan gunung dan udara sejuk.",
-    },
-  ];
+  const [properties, setProperties] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  // ========================= FETCH DATA =========================
+  useEffect(() => {
+    if (!user) {
+      Swal.fire({
+        icon: "warning",
+        title: "Belum Login",
+        text: "Silakan login terlebih dahulu untuk melihat properti yang ditolak.",
+        background: darkMode ? "#1f2937" : "#fff",
+        color: darkMode ? "#fff" : "#000",
+      });
+      setLoading(false);
+      return;
+    }
+
+    const fetchRejectedProperties = async () => {
+      try {
+        const res = await axios.get("http://localhost:3004/properties");
+
+        // ✅ Hanya tampilkan properti yang statusnya ditolak
+        const filtered = res.data
+          .filter((prop) => {
+            const status = prop.statusPostingan?.toLowerCase();
+            return (
+              (prop.userId === user.id || prop.ownerId === user.id) &&
+              ["ditolak", "rejected", "not-approved", "declined", "failed"].includes(status)
+            );
+          })
+          .sort((a, b) => new Date(b.tanggal) - new Date(a.tanggal));
+
+        setProperties(filtered);
+      } catch (err) {
+        console.error("Gagal memuat properti ditolak:", err);
+        Swal.fire({
+          icon: "error",
+          title: "Gagal Memuat Data",
+          text: "Terjadi kesalahan saat memuat properti ditolak Anda.",
+          background: darkMode ? "#1f2937" : "#fff",
+          color: darkMode ? "#fff" : "#000",
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchRejectedProperties();
+  }, [user, darkMode]);
+
+  // ========================= HANDLE DELETE =========================
+  const handleDelete = async (id) => {
+    const confirm = await Swal.fire({
+      title: "Hapus Properti?",
+      text: "Apakah Anda yakin ingin menghapus properti ini secara permanen?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Ya, Hapus",
+      cancelButtonText: "Batal",
+      background: darkMode ? "#1f2937" : "#fff",
+      color: darkMode ? "#fff" : "#000",
+    });
+
+    if (!confirm.isConfirmed) return;
+
+    try {
+      await axios.delete(`http://localhost:3004/properties/${id}`);
+
+      setProperties((prev) => prev.filter((p) => p.id !== id));
+
+      Swal.fire({
+        icon: "success",
+        title: "Dihapus!",
+        text: "Properti telah berhasil dihapus.",
+        background: darkMode ? "#1f2937" : "#fff",
+        color: darkMode ? "#fff" : "#000",
+        timer: 1500,
+        showConfirmButton: false,
+      });
+    } catch (err) {
+      console.error("Gagal menghapus properti:", err);
+      Swal.fire({
+        icon: "error",
+        title: "Gagal Menghapus",
+        text: "Terjadi kesalahan saat menghapus properti.",
+        background: darkMode ? "#1f2937" : "#fff",
+        color: darkMode ? "#fff" : "#000",
+      });
+    }
+  };
+
+  // ========================= RENDER =========================
+  if (loading) {
+    return (
+      <div className={`${styles.cardContainer} ${darkMode ? styles.dark : ""}`}>
+        <p>Sedang memuat data properti ditolak...</p>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return (
+      <div className={`${styles.cardContainer} ${darkMode ? styles.dark : ""}`}>
+        <p>Silakan login untuk melihat daftar properti yang ditolak.</p>
+      </div>
+    );
+  }
 
   return (
-    <div style={{ padding: "20px" }}>
-      <h2 style={{ marginBottom: "15px" }}>Properti Ditolak</h2>
-      <div
-        style={{
-          display: "flex",
-          flexWrap: "wrap",
-          gap: "20px",
-        }}
-      >
-        {myProperties.map((prop) => (
-          <CardProperty
-            key={prop.id}
-            image={prop.image}
-            type={prop.type}
-            title={prop.title}
-            location={prop.location}
-            price={prop.price}
-            desc={prop.desc}
-            darkMode={darkMode}
-            status="ditolak"
-          />
-        ))}
-      </div>
+    <div className={`${styles.cardContainer} ${darkMode ? styles.dark : ""}`}>
+      <h2 className={styles.pageTitle}>Properti Ditolak</h2>
+
+      {properties.length === 0 ? (
+        <p>Tidak ada properti yang ditolak saat ini.</p>
+      ) : (
+        <div className={styles.gridContainer}>
+          {properties.map((item) => (
+            <CardProperty
+              key={item.id}
+              {...item}
+              darkMode={darkMode}
+              onDelete={() => handleDelete(item.id)}
+              showActions={true} // ✅ Tampilkan tombol Edit & Hapus
+            />
+          ))}
+        </div>
+      )}
     </div>
   );
 }

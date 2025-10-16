@@ -36,6 +36,7 @@
   border-radius: 14px;
   box-shadow: 0 3px 12px rgba(0, 0, 0, 0.05);
   border: 1px solid #f1f5f9;
+  transition: all 0.3s ease;
 }
 
 /* 🏷️ Judul */
@@ -135,23 +136,8 @@
   gap: 10px;
 }
 
-/* 📸 Preview Gambar */
-.previewImage {
-  width: 100%;
-  height: 100px;
-  border-radius: 8px;
-  object-fit: cover;
-  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.1);
-  transition: transform 0.2s ease;
-  border: 1px solid #e2e8f0;
-  cursor: pointer;
-}
-
-.previewImage:hover {
-  transform: scale(1.03);
-}
-
-/* 🎥 Preview Video */
+/* 📸 Preview Gambar & Video */
+.previewImage,
 .previewVideo {
   width: 100%;
   height: 100px;
@@ -163,6 +149,7 @@
   cursor: pointer;
 }
 
+.previewImage:hover,
 .previewVideo:hover {
   transform: scale(1.03);
 }
@@ -220,6 +207,12 @@
   margin-top: 20px;
 }
 
+.submitBtn:hover {
+  background-color: #6366f1;
+  box-shadow: 0 0 10px rgba(79, 70, 229, 0.4);
+}
+
+/* 🪟 Modal Preview */
 .modalOverlay {
   position: fixed;
   inset: 0;
@@ -273,6 +266,88 @@
   color: #fff;
 }
 
+/* 🌙 DARK MODE */
+.dark-mode body,
+.dark-mode .container {
+  background-color: #0f172a !important;
+  color: #f8fafc !important;
+}
+
+.dark-mode .card {
+  background-color: #1e293b !important;
+  border-color: #334155 !important;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3) !important;
+}
+
+.dark-mode .title {
+  color: #e2e8f0 !important;
+  border-color: #334155 !important;
+}
+
+.dark-mode input,
+.dark-mode textarea,
+.dark-mode select {
+  background-color: #1e293b !important;
+  border-color: #334155 !important;
+  color: #f8fafc !important;
+}
+
+.dark-mode input:focus,
+.dark-mode textarea:focus,
+.dark-mode select:focus {
+  background-color: #0f172a !important;
+  border-color: #6366f1 !important;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.25) !important;
+}
+
+.dark-mode .label {
+  color: #cbd5e1 !important;
+}
+
+.dark-mode .fileInput {
+  background-color: #1e293b !important;
+  border-color: #334155 !important;
+  color: #f8fafc !important;
+}
+
+.dark-mode .fileInput:hover {
+  background-color: #2d3648 !important;
+}
+
+/* Preview section */
+.dark-mode .previewTitle {
+  color: #cbd5e1 !important;
+}
+
+.dark-mode .previewImage,
+.dark-mode .previewVideo,
+.dark-mode .previewFile {
+  border-color: #334155 !important;
+  background-color: #1e293b !important;
+  color: #e2e8f0 !important;
+}
+
+/* Tombol */
+.dark-mode .cancelBtn {
+  background-color: #1e293b !important;
+  color: #cbd5e1 !important;
+  border: 1px solid #334155 !important;
+}
+
+.dark-mode .cancelBtn:hover {
+  background-color: #2d3648 !important;
+}
+
+.dark-mode .submitBtn {
+  background-color: #6366f1 !important;
+  color: #fff !important;
+}
+
+.dark-mode .submitBtn:hover {
+  background-color: #7c81ff !important;
+  box-shadow: 0 0 10px rgba(99, 102, 241, 0.5);
+}
+
 /* ✨ Animasi lembut saat muncul */
 @keyframes zoomIn {
   from {
@@ -284,8 +359,6 @@
     transform: scale(1);
   }
 }
-
-
 
 /* 📱 Responsif */
 @media (max-width: 640px) {

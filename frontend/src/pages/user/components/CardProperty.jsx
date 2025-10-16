@@ -37,10 +37,8 @@ export default function CardProperty({
   const fallbackImage =
     "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=600&q=60";
 
-  // Pilih gambar utama dari array media
   const image = Array.isArray(media) && media.length > 0 ? media[0] : fallbackImage;
 
-  // 🎨 Warna badge berdasarkan status
   const getStatusBadgeStyle = () => {
     if (status === "pending") {
       return {
@@ -107,7 +105,7 @@ export default function CardProperty({
     }
   };
 
-  // ✏️ Navigasi ke halaman EditProperty
+  // ✏️ Edit Properti
   const handleEdit = () => {
     navigate(`/user/edit-property/${id}`);
   };
@@ -159,7 +157,6 @@ export default function CardProperty({
 
       {/* Body Card */}
       <div className={styles.cardBody}>
-        {/* Badge Tipe & Jenis Properti */}
         <div className={styles.badgeGroup}>
           {tipeProperti && (
             <span
@@ -189,8 +186,8 @@ export default function CardProperty({
 
         {harga && (
           <p className={styles.cardPrice}>
-            <FaMoneyBillWave className={styles.icon} />{" "}
-            Rp{harga.toLocaleString("id-ID")}{" "}
+            <FaMoneyBillWave className={styles.icon} /> Rp
+            {harga.toLocaleString("id-ID")}{" "}
             {jenisProperti === "sewa" && periodeSewa && (
               <span className={styles.periode}>{periodeSewa}</span>
             )}
@@ -224,24 +221,23 @@ export default function CardProperty({
           </p>
         )}
 
-        {/* Tombol Edit & Delete */}
-        <div className={styles.actionButtons}>
-          <button
-            className={`${styles.editBtn} ${darkMode ? styles.editBtnDark : ""}`}
-            onClick={handleEdit}
-          >
-            <FaEdit />
-          </button>
-
-          <button
-            className={`${styles.deleteBtn} ${
-              darkMode ? styles.deleteBtnDark : ""
-            }`}
-            onClick={handleDelete}
-          >
-            <FaTrash />
-          </button>
-        </div>
+        {/* ✅ Tombol Edit & Delete hanya untuk Pending & Ditolak */}
+        {(status === "pending" || status === "ditolak") && (
+          <div className={styles.actionButtons}>
+            <button
+              className={`${styles.editBtn} ${darkMode ? styles.editBtnDark : ""}`}
+              onClick={handleEdit}
+            >
+              <FaEdit />
+            </button>
+            <button
+              className={`${styles.deleteBtn} ${darkMode ? styles.deleteBtnDark : ""}`}
+              onClick={handleDelete}
+            >
+              <FaTrash />
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );

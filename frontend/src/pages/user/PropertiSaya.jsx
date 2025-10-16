@@ -4,11 +4,14 @@ import CardProperty from "./components/CardProperty";
 import styles from "./components/CardProperty.module.css";
 import { AuthContext } from "../../context/AuthContext";
 import Swal from "sweetalert2";
+import { useOutletContext } from "react-router-dom";
 
 export default function PropertiSaya() {
   const [properties, setProperties] = useState([]);
-  const [darkMode, setDarkMode] = useState(false);
   const { user } = useContext(AuthContext);
+
+  // ✅ Ambil darkMode langsung dari LayoutUser (parent)
+  const { darkMode } = useOutletContext();
 
   useEffect(() => {
     if (!user) {
@@ -16,6 +19,8 @@ export default function PropertiSaya() {
         icon: "warning",
         title: "Belum Login",
         text: "Silakan login terlebih dahulu untuk melihat properti Anda.",
+        background: darkMode ? "#1f2937" : "#fff",
+        color: darkMode ? "#fff" : "#000",
       });
       return;
     }
@@ -23,10 +28,10 @@ export default function PropertiSaya() {
     const fetchMyProperties = async () => {
       try {
         const res = await axios.get("http://localhost:3004/properties");
-        // 🔍 Filter hanya properti milik user yang sedang login
-        const userProperties = res.data.filter(
-          (prop) => prop.ownerId === user.id
-        );
+        const userProperties = res.data
+          .filter((prop) => prop.userId === user.id)
+          .sort((a, b) => new Date(b.tanggal) - new Date(a.tanggal));
+
         setProperties(userProperties);
       } catch (err) {
         console.error("Gagal memuat properti:", err);
@@ -34,12 +39,14 @@ export default function PropertiSaya() {
           icon: "error",
           title: "Gagal Memuat Data",
           text: "Terjadi kesalahan saat memuat data properti Anda.",
+          background: darkMode ? "#1f2937" : "#fff",
+          color: darkMode ? "#fff" : "#000",
         });
       }
     };
 
     fetchMyProperties();
-  }, [user]);
+  }, [user, darkMode]);
 
   const handleDelete = (id) => {
     setProperties((prev) => prev.filter((p) => p.id !== id));
@@ -77,7 +84,7 @@ export default function PropertiSaya() {
               lokasi={item.lokasi}
               deskripsi={item.deskripsi}
               media={item.media}
-              status={item.status}
+              status={item.statusPostingan}
               darkMode={darkMode}
               onDelete={handleDelete}
             />
