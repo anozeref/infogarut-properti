@@ -3,11 +3,11 @@ import { useNavigate, Link } from "react-router-dom";
 import Swal from "sweetalert2";
 import { registerUser } from "../../utils/api";
 import { AuthContext } from "../../context/AuthContext";
-import styles from "./LoginPage.module.css"; // reuse styling login
+import styles from "./LoginPage.module.css";
 import { motion } from "framer-motion";
 import { io } from "socket.io-client";
 
-const socket = io("http://localhost:3005"); // connect ke server Socket.IO
+const socket = io("http://localhost:3005");
 
 const RegisterPage = () => {
   const navigate = useNavigate();
