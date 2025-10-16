@@ -299,6 +299,36 @@
         "lng": 0
       },
       "periodeSewa": ""
+    },
+    {
+      "id": "226c",
+      "namaProperti": "Rumah Rumahan",
+      "jenisProperti": "Jual",
+      "tipeProperti": "Rumah",
+      "lokasi": "Palih dinya",
+      "kecamatan": "GARUT KOTA",
+      "desa": "KOTAKULON",
+      "harga": 12000,
+      "luasTanah": 1,
+      "luasBangunan": 1,
+      "kamarTidur": 0,
+      "kamarMandi": 1,
+      "periodeAngka": "",
+      "periodeSatuan": "bulan",
+      "deskripsi": "Manawi",
+      "media": [
+        "1760586925734-136818178.jpg",
+        "1760586925755-233257576.jpg",
+        "1760586925758-816216204.jpg"
+      ],
+      "ownerId": "1",
+      "statusPostingan": "approved",
+      "postedAt": "16/10/2025 10:55:25",
+      "koordinat": {
+        "lat": 0,
+        "lng": 0
+      },
+      "periodeSewa": ""
     }
   ]
 }
