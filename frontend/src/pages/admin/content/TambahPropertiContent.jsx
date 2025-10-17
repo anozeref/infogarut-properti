@@ -124,7 +124,7 @@ const TambahPropertiContent = () => {
             <div className={styles.formGrid}>
               <div className={styles.formGroup}><label>Nama Properti</label><input type="text" name="namaProperti" value={form.namaProperti} onChange={handleChange} required/></div>
               <div className={styles.formGroup}><label>Jenis Properti</label><select name="jenisProperti" value={form.jenisProperti} onChange={handleChange}><option>Jual</option><option>Sewa</option><option>Cicilan</option></select></div>
-              <div className={styles.formGroup}><label>Tipe Properti</label><select name="tipeProperti" value={form.tipeProperti} onChange={handleChange}><option>Rumah</option><option>Kost</option><option>Ruko</option><option>Villa</option><option>Tanah</option></select></div>
+              <div className={styles.formGroup}><label>Tipe Properti</label><select name="tipeProperti" value={form.tipeProperti} onChange={handleChange}><option>Rumah</option><option>Kost</option><option>Ruko</option><option>Villa</option><option>Perumahan</option><option>Apartemen</option><option>Tanah</option></select></div>
               <div className={styles.formGroup}><label>Harga</label><input type="number" name="harga" value={form.harga} onChange={handleChange} required/></div>
               {form.jenisProperti === "Sewa" && (
                 <div className={styles.periodeSewa}>
