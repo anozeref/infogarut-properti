@@ -6,6 +6,7 @@ import HomeContent from "./content/HomeContent";
 import KelolaPropertiContent from "./content/KelolaPropertiContent";
 import KelolaUserContent from "./content/KelolaUserContent";
 import TambahPropertiContent from "./content/TambahPropertiContent";
+import PengaturanContent from "./content/PengaturanContent"; // 👈 1. TAMBAHKAN IMPORT INI
 import { motion } from "framer-motion";
 import styles from "./DashboardAdmin.module.css";
 import { AuthContext } from "../../context/AuthContext";
@@ -39,6 +40,7 @@ const DashboardAdmin = () => {
               <Route path="properti" element={<KelolaPropertiContent />} />
               <Route path="user" element={<KelolaUserContent />} />
               <Route path="tambah" element={<TambahPropertiContent />} />
+              <Route path="pengaturan" element={<PengaturanContent />} /> {/* 👈 2. TAMBAHKAN ROUTE INI */}
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
           </main>
