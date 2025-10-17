@@ -1,47 +1,56 @@
+// src/pages/admin/components/SidebarAdmin.jsx
 import React, { useContext } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { FaHome, FaBuilding, FaUsers, FaPlus, FaArrowLeft, FaSun, FaMoon } from "react-icons/fa";
+// Perhatikan: FaCog tetap diimpor karena kita akan menggunakannya di bagian bawah
+import { FaHome, FaBuilding, FaUsers, FaPlus, FaCog, FaArrowLeft, FaSun, FaMoon } from "react-icons/fa"; 
 import { motion } from "framer-motion";
 import styles from "./SidebarAdmin.module.css";
-import { ThemeContext } from "../DashboardAdmin"; // pastikan path benar
+import { ThemeContext } from "../DashboardAdmin";
 
 const SidebarAdmin = ({ isHovered, setIsHovered }) => {
   const location = useLocation();
   const { theme, toggleTheme } = useContext(ThemeContext);
 
+  // Daftar menu utama (Hanya Aksi Harian)
   const menuItems = [
     { path: "/admin", label: "Dashboard", icon: <FaHome /> },
     { path: "/admin/properti", label: "Kelola Properti", icon: <FaBuilding /> },
     { path: "/admin/user", label: "Kelola User", icon: <FaUsers /> },
     { path: "/admin/tambah", label: "Tambah Properti", icon: <FaPlus /> },
+    // ❗ MENU PENGATURAN DIHAPUS DARI SINI ❗
   ];
+
+  // Logic untuk menentukan apakah tombol Pengaturan sedang aktif
+  const isPengaturanActive = location.pathname.startsWith("/admin/pengaturan");
 
   const handleBackToLanding = () => (window.location.href = "/");
 
   return (
     <motion.aside
-      initial={{ width: 80 }}
-      animate={{ width: isHovered ? 220 : 80 }}
-      transition={{ type: "spring", stiffness: 200, damping: 20 }}
-      className={`${styles.sidebar} ${theme === "dark" ? styles.dark : ""}`}
+      className={styles.sidebar}
+      initial={{ width: 72 }}
+      animate={{ width: isHovered ? 220 : 72 }}
+      transition={{ type: "spring", stiffness: 200, damping: 25 }}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      {/* Menu Items */}
+      {/* SECTION ATAS: Menu Utama */}
       <div className={styles.menuSection}>
         {menuItems.map((item) => (
           <Link
             key={item.path}
             to={item.path}
-            className={`${styles.menuItem} ${location.pathname === item.path ? styles.active : ""}`}
+            className={`${styles.menuItem} ${
+              location.pathname === item.path ? styles.active : ""
+            }`}
+            title={item.label}
           >
             <span className={styles.icon}>{item.icon}</span>
             <motion.span
               className={styles.label}
-              style={{ whiteSpace: "normal", wordBreak: "break-word" }}
               initial={{ opacity: 0, x: -10 }}
               animate={{ opacity: isHovered ? 1 : 0, x: isHovered ? 0 : -10 }}
-              transition={{ duration: 0.2 }}
+              transition={{ duration: 0.2, delay: 0.1 }}
             >
               {item.label}
             </motion.span>
@@ -49,50 +58,51 @@ const SidebarAdmin = ({ isHovered, setIsHovered }) => {
         ))}
       </div>
 
-      {/* Bottom Section: Theme + Back */}
+      {/* SECTION BAWAH: Pengaturan & Utility */}
       <div className={styles.bottomSection}>
-        {/* Light/Dark Theme */}
-        <button
-          onClick={toggleTheme}
-          className={styles.menuItem}
-          style={{
-            backgroundColor: theme === "dark" ? "#2a2a3a" : "transparent",
-            color: theme === "dark" ? "#f1f1f1" : "inherit",
-          }}
+        
+        {/* 1. TOMBOL PENGATURAN (Dipindahkan ke sini) */}
+        <Link
+          to="/admin/pengaturan"
+          className={`${styles.menuItem} ${isPengaturanActive ? styles.active : ""}`}
+          title="Pengaturan"
         >
+          <span className={styles.icon}><FaCog /></span>
+          <motion.span
+            className={styles.label}
+            initial={{ opacity: 0, x: -10 }}
+            animate={{ opacity: isHovered ? 1 : 0, x: isHovered ? 0 : -10 }}
+            transition={{ duration: 0.2, delay: 0.1 }}
+          >
+            Pengaturan
+          </motion.span>
+        </Link>
+
+        {/* 2. TOMBOL DARK/LIGHT MODE */}
+        <button onClick={toggleTheme} className={styles.menuItem} title={theme === "light" ? "Dark Mode" : "Light Mode"}>
           <span className={styles.icon}>{theme === "light" ? <FaMoon /> : <FaSun />}</span>
           <motion.span
             className={styles.label}
-            style={{ whiteSpace: "normal", wordBreak: "break-word" }}
             initial={{ opacity: 0, x: -10 }}
             animate={{ opacity: isHovered ? 1 : 0, x: isHovered ? 0 : -10 }}
-            transition={{ duration: 0.2 }}
+            transition={{ duration: 0.2, delay: 0.1 }}
           >
             {theme === "light" ? "Dark Mode" : "Light Mode"}
           </motion.span>
         </button>
 
-        {/* Back to Landing */}
-<button
-  onClick={handleBackToLanding}
-  className={styles.menuItem}
-  style={{
-    backgroundColor: theme === "dark" ? "#2a2a3a" : "transparent",
-    color: theme === "dark" ? "#f1f1f1" : "inherit",
-  }}
->
-  <span className={styles.icon}><FaArrowLeft /></span>
-  <motion.span
-    className={styles.label}
-    style={{ whiteSpace: "normal", wordBreak: "break-word" }}
-    initial={{ opacity: 0, x: -10 }}
-    animate={{ opacity: isHovered ? 1 : 0, x: isHovered ? 0 : -10 }}
-    transition={{ duration: 0.2 }}
-  >
-    Kembali ke Landing
-  </motion.span>
-</button>
-
+        {/* 3. TOMBOL KEMBALI */}
+        <button onClick={handleBackToLanding} className={styles.menuItem} title="Kembali ke Landing">
+          <span className={styles.icon}><FaArrowLeft /></span>
+          <motion.span
+            className={styles.label}
+            initial={{ opacity: 0, x: -10 }}
+            animate={{ opacity: isHovered ? 1 : 0, x: isHovered ? 0 : -10 }}
+            transition={{ duration: 0.2, delay: 0.1 }}
+          >
+            Kembali
+          </motion.span>
+        </button>
       </div>
     </motion.aside>
   );

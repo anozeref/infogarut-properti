@@ -1,10 +1,15 @@
-/* FooterAdmin.module.css */
+/* src/pages/admin/components/FooterAdmin.module.css */
 .footer {
   width: 100%;
-  border-top: 1px solid #e6e6e6;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 60px;
-  transition: background-color 0.3s ease, color 0.3s ease;
+  padding: 20px 24px;
+  text-align: center;
+  font-size: 0.875rem; /* 14px */
+  color: var(--text-color-secondary);
+  background-color: var(--main-bg-color);
+  border-top: 1px solid var(--border-color);
+  box-sizing: border-box;
+}
+
+.footer p {
+  margin: 0;
 }

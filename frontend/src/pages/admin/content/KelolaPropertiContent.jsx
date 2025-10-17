@@ -39,7 +39,10 @@ export default function KelolaPropertiContent() {
 
   const fetchData = useCallback(async () => {
     try {
-      const [propRes, userRes] = await Promise.all([ axios.get(`${API_URL}properties`), axios.get(`${API_URL}users`) ]);
+      const [propRes, userRes] = await Promise.all([
+        axios.get(`${API_URL}properties`),
+        axios.get(`${API_URL}users`)
+      ]);
       setProperties(propRes.data.sort((a, b) => new Date(b.postedAt) - new Date(a.postedAt)));
       setUsers(userRes.data);
     } catch (err) {
@@ -55,13 +58,115 @@ export default function KelolaPropertiContent() {
     return () => socket.off("propertyUpdate");
   }, [fetchData]);
 
-  const handleApprove = async (id) => { /* ... (kode tidak berubah) ... */ };
-  const handleReject = (id) => { /* ... (kode tidak berubah) ... */ };
-  const handleDelete = (id) => { /* ... (kode tidak berubah) ... */ };
+  // APPROVE
+  const handleApprove = async (id) => {
+    try {
+      const result = await Swal.fire({
+        title: "Setujui Properti?",
+        text: "Properti ini akan disetujui dan tampil di daftar publik.",
+        icon: "question",
+        showCancelButton: true,
+        confirmButtonText: "Ya, setujui",
+        cancelButtonText: "Batal",
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#d33",
+      });
+
+      if (result.isConfirmed) {
+        await axios.patch(`${API_URL}properties/${id}`, {
+          statusPostingan: "approved",
+        });
+
+        socket.emit("updateProperti");
+        Swal.fire("Berhasil!", "Properti telah disetujui.", "success");
+      }
+    } catch (error) {
+      Swal.fire("Gagal!", "Terjadi kesalahan saat menyetujui properti.", "error");
+    }
+  };
+
+  // REJECT
+  const handleReject = async (id) => {
+    try {
+      const result = await Swal.fire({
+        title: "Tolak Properti?",
+        text: "Properti ini akan ditolak dan tidak tampil di publik.",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonText: "Ya, tolak",
+        cancelButtonText: "Batal",
+        confirmButtonColor: "#e74c3c",
+        cancelButtonColor: "#6c757d",
+      });
+
+      if (result.isConfirmed) {
+        await axios.patch(`${API_URL}properties/${id}`, {
+          statusPostingan: "rejected",
+        });
+
+        socket.emit("updateProperti");
+        Swal.fire("Ditolak!", "Properti telah ditandai sebagai ditolak.", "success");
+      }
+    } catch (error) {
+      Swal.fire("Gagal!", "Tidak dapat menolak properti.", "error");
+    }
+  };
+
+  // DELETE
+  const handleDelete = async (id) => {
+    try {
+      const result = await Swal.fire({
+        title: "Hapus Properti?",
+        text: "Data properti ini akan dihapus permanen.",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonText: "Ya, hapus",
+        cancelButtonText: "Batal",
+        confirmButtonColor: "#d33",
+        cancelButtonColor: "#3085d6",
+      });
+
+      if (result.isConfirmed) {
+        await axios.delete(`${API_URL}properties/${id}`);
+        socket.emit("updateProperti");
+        Swal.fire("Terhapus!", "Properti telah dihapus dari database.", "success");
+      }
+    } catch (error) {
+      Swal.fire("Gagal!", "Tidak dapat menghapus properti.", "error");
+    }
+  };
+
+  // EDIT
   const handleEdit = (prop) => setEditData(prop);
+
+  // DETAIL
   const handleDetail = (prop) => setDetailData(prop);
-  const handleSaveEdit = async (updated) => { /* ... (kode tidak berubah) ... */ };
-  
+
+  // SAVE EDIT
+  const handleSaveEdit = async (updated) => {
+    try {
+      const result = await Swal.fire({
+        title: "Simpan Perubahan?",
+        text: "Perubahan data properti akan disimpan.",
+        icon: "question",
+        showCancelButton: true,
+        confirmButtonText: "Simpan",
+        cancelButtonText: "Batal",
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#aaa",
+      });
+
+      if (result.isConfirmed) {
+        await axios.patch(`${API_URL}properties/${updated.id}`, updated);
+        socket.emit("propertyUpdate");
+        setEditData(null);
+        Swal.fire("Tersimpan!", "Data properti berhasil diperbarui.", "success");
+      }
+    } catch (error) {
+      Swal.fire("Gagal!", "Tidak dapat menyimpan perubahan.", "error");
+    }
+  };
+
   const renderActionsPending = (prop) => (
     <>
       <motion.button whileHover={{ y: -2 }} className={styles.iconBtn} onClick={() => handleDetail(prop)} title="Lihat Detail"><FaInfoCircle className={styles.infoIcon} /></motion.button>
