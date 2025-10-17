@@ -3,8 +3,8 @@ import React, { useState, useEffect, useCallback } from "react";
 import Swal from "sweetalert2";
 import axios from "axios";
 import { io } from "socket.io-client";
-import { FaCheck, FaTimes, FaTrash, FaEdit, FaInfoCircle, FaClock, FaCheckCircle, FaSearch } from "react-icons/fa";
-import { motion } from "framer-motion"; 
+import { FaCheck, FaTimes, FaTrash, FaEdit, FaInfoCircle, FaClock, FaCheckCircle, FaSearch, FaTimesCircle } from "react-icons/fa";
+import { motion } from "framer-motion";
 import styles from "./KelolaPropertiContent.module.css";
 import { API_URL } from "../../../utils/constant";
 import PropertyTable from "./tables/PropertyTable";
@@ -14,14 +14,33 @@ import DetailPropertyModal from "./components/DetailPropertyModal";
 const socket = io("http://localhost:3005");
 const adminId = "5";
 
-const parseAndFormatDate = (dateStr) => {
-  if (!dateStr) return "-";
-  const parts = dateStr.split(/[\s/:]+/);
-  if (parts.length < 6) return "Format tanggal salah";
-  const dateObj = new Date(parts[2], parts[1] - 1, parts[0], parts[3], parts[4], parts[5]);
-  if (isNaN(dateObj.getTime())) return "Invalid Date";
+/**
+ * Parses a date string robustly from various formats (DD/MM/YYYY or ISO).
+ * @param {string} dateString The date string to parse.
+ * @returns {Date} A Date object. Returns epoch time for invalid dates to ensure they sort last.
+ */
+const smartParseDate = (dateString) => {
+  if (!dateString) return new Date(0);
+  // Handle "DD/MM/YYYY HH:mm:ss" format
+  if (String(dateString).includes('/')) {
+    const parts = dateString.split(/[\s/:]+/);
+    return new Date(parts[2], parts[1] - 1, parts[0], parts[3] || 0, parts[4] || 0, parts[5] || 0);
+  }
+  // Handle other standard formats like ISO 8601
+  const date = new Date(dateString);
+  return isNaN(date.getTime()) ? new Date(0) : date;
+};
+
+/**
+ * Formats a Date object into a readable Indonesian string.
+ * @param {Date} dateObj The Date object to format.
+ * @returns {string} The formatted date string or "-".
+ */
+const formatDisplayDate = (dateObj) => {
+  if (isNaN(dateObj.getTime()) || dateObj.getFullYear() <= 1970) return "-";
   return dateObj.toLocaleString("id-ID", { day: '2-digit', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' });
 };
+
 
 export default function KelolaPropertiContent() {
   const [properties, setProperties] = useState([]);
@@ -43,7 +62,7 @@ export default function KelolaPropertiContent() {
         axios.get(`${API_URL}properties`),
         axios.get(`${API_URL}users`)
       ]);
-      setProperties(propRes.data.sort((a, b) => new Date(b.postedAt) - new Date(a.postedAt)));
+      setProperties(propRes.data.sort((a, b) => smartParseDate(b.postedAt) - smartParseDate(a.postedAt)));
       setUsers(userRes.data);
     } catch (err) {
       console.error("Gagal fetch data:", err);
@@ -58,114 +77,53 @@ export default function KelolaPropertiContent() {
     return () => socket.off("propertyUpdate");
   }, [fetchData]);
 
-  // APPROVE
-  const handleApprove = async (id) => {
+  const handleAction = async (config) => {
     try {
-      const result = await Swal.fire({
-        title: "Setujui Properti?",
-        text: "Properti ini akan disetujui dan tampil di daftar publik.",
-        icon: "question",
-        showCancelButton: true,
-        confirmButtonText: "Ya, setujui",
-        cancelButtonText: "Batal",
-        confirmButtonColor: "#3085d6",
-        cancelButtonColor: "#d33",
-      });
-
+      const result = await Swal.fire(config.swal);
       if (result.isConfirmed) {
-        await axios.patch(`${API_URL}properties/${id}`, {
-          statusPostingan: "approved",
-        });
-
-        socket.emit("updateProperti");
-        Swal.fire("Berhasil!", "Properti telah disetujui.", "success");
-      }
-    } catch (error) {
-      Swal.fire("Gagal!", "Terjadi kesalahan saat menyetujui properti.", "error");
-    }
-  };
-
-  // REJECT
-  const handleReject = async (id) => {
-    try {
-      const result = await Swal.fire({
-        title: "Tolak Properti?",
-        text: "Properti ini akan ditolak dan tidak tampil di publik.",
-        icon: "warning",
-        showCancelButton: true,
-        confirmButtonText: "Ya, tolak",
-        cancelButtonText: "Batal",
-        confirmButtonColor: "#e74c3c",
-        cancelButtonColor: "#6c757d",
-      });
-
-      if (result.isConfirmed) {
-        await axios.patch(`${API_URL}properties/${id}`, {
-          statusPostingan: "rejected",
-        });
-
-        socket.emit("updateProperti");
-        Swal.fire("Ditolak!", "Properti telah ditandai sebagai ditolak.", "success");
-      }
-    } catch (error) {
-      Swal.fire("Gagal!", "Tidak dapat menolak properti.", "error");
-    }
-  };
-
-  // DELETE
-  const handleDelete = async (id) => {
-    try {
-      const result = await Swal.fire({
-        title: "Hapus Properti?",
-        text: "Data properti ini akan dihapus permanen.",
-        icon: "warning",
-        showCancelButton: true,
-        confirmButtonText: "Ya, hapus",
-        cancelButtonText: "Batal",
-        confirmButtonColor: "#d33",
-        cancelButtonColor: "#3085d6",
-      });
-
-      if (result.isConfirmed) {
-        await axios.delete(`${API_URL}properties/${id}`);
-        socket.emit("updateProperti");
-        Swal.fire("Terhapus!", "Properti telah dihapus dari database.", "success");
-      }
-    } catch (error) {
-      Swal.fire("Gagal!", "Tidak dapat menghapus properti.", "error");
-    }
-  };
-
-  // EDIT
-  const handleEdit = (prop) => setEditData(prop);
-
-  // DETAIL
-  const handleDetail = (prop) => setDetailData(prop);
-
-  // SAVE EDIT
-  const handleSaveEdit = async (updated) => {
-    try {
-      const result = await Swal.fire({
-        title: "Simpan Perubahan?",
-        text: "Perubahan data properti akan disimpan.",
-        icon: "question",
-        showCancelButton: true,
-        confirmButtonText: "Simpan",
-        cancelButtonText: "Batal",
-        confirmButtonColor: "#3085d6",
-        cancelButtonColor: "#aaa",
-      });
-
-      if (result.isConfirmed) {
-        await axios.patch(`${API_URL}properties/${updated.id}`, updated);
+        await config.action();
         socket.emit("propertyUpdate");
-        setEditData(null);
-        Swal.fire("Tersimpan!", "Data properti berhasil diperbarui.", "success");
+        if (config.successMsg) {
+          Swal.fire(config.successMsg.title, config.successMsg.text, "success");
+        }
+        if(config.onSuccess) config.onSuccess();
       }
     } catch (error) {
-      Swal.fire("Gagal!", "Tidak dapat menyimpan perubahan.", "error");
+      Swal.fire(config.errorMsg.title, config.errorMsg.text, "error");
     }
   };
+
+  const handleApprove = (id) => handleAction({
+    swal: { title: "Setujui Properti?", text: "Properti ini akan tampil di publik.", icon: "question", showCancelButton: true, confirmButtonText: "Ya, setujui", cancelButtonText: "Batal", confirmButtonColor: "#3085d6", cancelButtonColor: "#d33" },
+    action: () => axios.patch(`${API_URL}properties/${id}`, { statusPostingan: "approved" }),
+    successMsg: { title: "Berhasil!", text: "Properti telah disetujui." },
+    errorMsg: { title: "Gagal!", text: "Terjadi kesalahan saat menyetujui." }
+  });
+
+  const handleReject = (id) => handleAction({
+    swal: { title: "Tolak Properti?", text: "Properti ini akan dipindahkan ke daftar ditolak.", icon: "warning", showCancelButton: true, confirmButtonText: "Ya, tolak", cancelButtonText: "Batal", confirmButtonColor: "#e74c3c", cancelButtonColor: "#6c757d" },
+    action: () => axios.patch(`${API_URL}properties/${id}`, { statusPostingan: "rejected" }),
+    successMsg: { title: "Ditolak!", text: "Properti telah ditandai sebagai ditolak." },
+    errorMsg: { title: "Gagal!", text: "Tidak dapat menolak properti." }
+  });
+
+  const handleDelete = (id) => handleAction({
+    swal: { title: "Hapus Properti?", text: "Data ini akan dihapus permanen.", icon: "warning", showCancelButton: true, confirmButtonText: "Ya, hapus", cancelButtonText: "Batal", confirmButtonColor: "#d33", cancelButtonColor: "#3085d6" },
+    action: () => axios.delete(`${API_URL}properties/${id}`),
+    successMsg: { title: "Terhapus!", text: "Properti telah dihapus." },
+    errorMsg: { title: "Gagal!", text: "Tidak dapat menghapus properti." }
+  });
+
+  const handleSaveEdit = (updated) => handleAction({
+    swal: { title: "Simpan Perubahan?", text: "Perubahan data akan disimpan.", icon: "question", showCancelButton: true, confirmButtonText: "Simpan", cancelButtonText: "Batal", confirmButtonColor: "#3085d6", cancelButtonColor: "#aaa" },
+    action: () => axios.patch(`${API_URL}properties/${updated.id}`, updated),
+    onSuccess: () => setEditData(null),
+    successMsg: { title: "Tersimpan!", text: "Data properti berhasil diperbarui." },
+    errorMsg: { title: "Gagal!", text: "Tidak dapat menyimpan perubahan." }
+  });
+
+  const handleEdit = (prop) => setEditData(prop);
+  const handleDetail = (prop) => setDetailData(prop);
 
   const renderActionsPending = (prop) => (
     <>
@@ -182,18 +140,26 @@ export default function KelolaPropertiContent() {
       <motion.button whileHover={{ y: -2 }} className={styles.iconBtn} onClick={() => handleDelete(prop.id)} title="Hapus"><FaTrash className={styles.deleteIcon} /></motion.button>
     </>
   );
+  
+  const renderActionsRejected = (prop) => (
+    <>
+      <motion.button whileHover={{ y: -2 }} className={styles.iconBtn} onClick={() => handleApprove(prop.id)} title="Setujui Ulang"><FaCheck className={styles.approveIcon} /></motion.button>
+      <motion.button whileHover={{ y: -2 }} className={styles.iconBtn} onClick={() => handleDelete(prop.id)} title="Hapus Permanen"><FaTrash className={styles.deleteIcon} /></motion.button>
+    </>
+  );
 
   const pendingProperties = properties.filter((p) => p.statusPostingan === "pending");
   const approvedProperties = properties.filter((p) => p.statusPostingan === "approved");
+  const rejectedProperties = properties.filter((p) => p.statusPostingan === "rejected");
+
   const filteredApproved = approvedProperties.filter(p => (approvedView === "admin" ? String(p.ownerId) === String(adminId) : String(p.ownerId) !== String(adminId)));
   
   const searchLower = globalSearch.toLowerCase();
-  const finalPendingProperties = pendingProperties.filter(p =>
-    p.namaProperti.toLowerCase().includes(searchLower) || p.lokasi.toLowerCase().includes(searchLower) || getOwnerName(p.ownerId).toLowerCase().includes(searchLower)
-  );
-  const finalApprovedProperties = filteredApproved.filter(p =>
-    p.namaProperti.toLowerCase().includes(searchLower) || p.lokasi.toLowerCase().includes(searchLower) || getOwnerName(p.ownerId).toLowerCase().includes(searchLower)
-  );
+  const filterLogic = p => p.namaProperti.toLowerCase().includes(searchLower) || p.lokasi.toLowerCase().includes(searchLower) || getOwnerName(p.ownerId).toLowerCase().includes(searchLower);
+
+  const finalPendingProperties = pendingProperties.filter(filterLogic);
+  const finalApprovedProperties = filteredApproved.filter(filterLogic);
+  const finalRejectedProperties = rejectedProperties.filter(filterLogic);
 
   if (isLoading) {
     return ( <div className={styles.spinnerContainer}><div className={styles.spinner}></div></div> );
@@ -232,9 +198,19 @@ export default function KelolaPropertiContent() {
         emptyMessage={globalSearch ? "Tidak ada properti disetujui yang cocok." : "Tidak ada properti yang disetujui untuk filter ini."}
         approvedViewConfig={{ view: approvedView, onViewChange: setApprovedView }}
       />
+
+      <PropertyTable
+        icon={<FaTimesCircle />}
+        title={`Properti Ditolak (${finalRejectedProperties.length})`}
+        properties={finalRejectedProperties}
+        users={users}
+        renderActions={renderActionsRejected}
+        renderStatus={() => <span className={`${styles.badge} ${styles.rejected}`}>Rejected</span>}
+        emptyMessage={globalSearch ? "Tidak ada properti ditolak yang cocok." : "Tidak ada properti yang ditolak."}
+      />
       
       {editData && <EditPropertyModal data={editData} onClose={() => setEditData(null)} onSave={handleSaveEdit} />}
-      {detailData && <DetailPropertyModal data={detailData} onClose={() => setDetailData(null)} ownerName={getOwnerName(detailData.ownerId)} postedAt={parseAndFormatDate(detailData.postedAt)} />}
+      {detailData && <DetailPropertyModal data={detailData} onClose={() => setDetailData(null)} ownerName={getOwnerName(detailData.ownerId)} postedAt={formatDisplayDate(smartParseDate(detailData.postedAt))} />}
     </div>
   );
 }
