@@ -12,6 +12,27 @@ import ModalUser from "./ModalUser";
 
 const socket = io("http://localhost:3005");
 
+/**
+ * Formats a Date object to "DD/MM/YYYY HH:mm:ss".
+ * @param {Date} date The date object to format.
+ * @returns {string} The formatted timestamp string.
+ */
+const formatToCustomTimestamp = (date) => {
+  const pad = (num) => String(num).padStart(2, '0');
+  const day = pad(date.getDate());
+  const month = pad(date.getMonth() + 1); // Month is 0-indexed
+  const year = date.getFullYear();
+  const hours = pad(date.getHours());
+  const minutes = pad(date.getMinutes());
+  const seconds = pad(date.getSeconds());
+  return `${day}/${month}/${year} ${hours}:${minutes}:${seconds}`;
+};
+
+/**
+ * Parses a custom date string "DD/MM/YYYY HH:mm:ss" into a full Indonesian date string.
+ * @param {string} dateStr The date string to parse.
+ * @returns {string} Formatted Indonesian date string or "-".
+ */
 const parseAndFormatDate = (dateStr) => {
   if (!dateStr) return "-";
   const parts = dateStr.split(/[\s/:]+/);
@@ -21,13 +42,20 @@ const parseAndFormatDate = (dateStr) => {
   return dateObj.toLocaleString("id-ID", { day: '2-digit', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' });
 };
 
+/**
+ * Parses various date string formats (ISO or DD/MM/YYYY) into a short Indonesian date string.
+ * @param {string} dateStr The date string to parse.
+ * @returns {string} Short formatted Indonesian date string or "-".
+ */
 const parseAndFormatShortDate = (dateStr) => {
     if (!dateStr) return "-";
-    if (/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) {
+    // Handles ISO format like YYYY-MM-DD or YYYY-MM-DDTHH:mm:ss...
+    if (/^\d{4}-\d{2}-\d{2}/.test(dateStr)) { 
         const isoDate = new Date(dateStr);
         if (isNaN(isoDate.getTime())) return "Invalid Date";
         return isoDate.toLocaleDateString("id-ID", { year: 'numeric', month: 'short', day: 'numeric' });
     }
+    // Handles custom format DD/MM/YYYY...
     const parts = dateStr.split(/[\s/:]+/);
     if (parts.length < 3) return "Format salah";
     const dateObj = new Date(parts[2], parts[1] - 1, parts[0]);
@@ -52,13 +80,10 @@ const KelolaUserContent = () => {
       setProperties(propRes.data);
     } catch (err) {
       console.error(err);
-      if (!isLoading) {
-        Swal.fire("Error!", "Gagal memuat data dari server.", "error");
-      }
     } finally {
       setIsLoading(false);
     }
-  }, [isLoading]);
+  }, []);
 
   useEffect(() => {
     fetchData();
@@ -76,10 +101,10 @@ const KelolaUserContent = () => {
     try {
       const updatedUser = { ...target, ...updatedFields };
       await axios.put(`${API_URL}users/${id}`, updatedUser);
-      setUsers((prev) => prev.map((u) => (u.id === id ? updatedUser : u)));
+      socket.emit("userUpdate"); // Kirim sinyal update
       Swal.fire("Berhasil!", successMsg, "success");
     } catch (err) {
-      Swal.fire("Error!", "Gagal update user.", "error");
+      Swal.fire("Error!", "Gagal memperbarui data user.", "error");
     }
   };
 
@@ -100,39 +125,23 @@ const KelolaUserContent = () => {
       html: `
         <p>Pilih durasi suspend:</p>
         <div class="swal-radio-container">
-          <label class="swal-radio-option">
-            <input type="radio" name="suspend_duration" value="3" checked>
-            <span>3 Hari</span>
-          </label>
-          <label class="swal-radio-option">
-            <input type="radio" name="suspend_duration" value="7">
-            <span>7 Hari</span>
-          </label>
-          <label class="swal-radio-option">
-            <input type="radio" name="suspend_duration" value="14">
-            <span>14 Hari</span>
-          </label>
-          <label class="swal-radio-option">
-            <input type="radio" name="suspend_duration" value="30">
-            <span>30 Hari</span>
-          </label>
+          <label class="swal-radio-option"><input type="radio" name="suspend_duration" value="3" checked><span>3 Hari</span></label>
+          <label class="swal-radio-option"><input type="radio" name="suspend_duration" value="7"><span>7 Hari</span></label>
+          <label class="swal-radio-option"><input type="radio" name="suspend_duration" value="14"><span>14 Hari</span></label>
+          <label class="swal-radio-option"><input type="radio" name="suspend_duration" value="30"><span>30 Hari</span></label>
         </div>
       `,
-      customClass: {
-        htmlContainer: 'swal-suspend-override'
-      },
+      customClass: { htmlContainer: 'swal-suspend-override' },
       showCancelButton: true,
       confirmButtonText: "Suspend",
       cancelButtonText: "Batal",
       confirmButtonColor: "#f59e0b",
-      preConfirm: () => {
-        return document.querySelector('input[name="suspend_duration"]:checked').value;
-      }
+      preConfirm: () => document.querySelector('input[name="suspend_duration"]:checked').value,
     }).then(result => {
       if (result.isConfirmed && result.value) {
         const durationInDays = parseInt(result.value, 10);
         const suspendedUntil = new Date(Date.now() + durationInDays * 24 * 60 * 60 * 1000);
-        const formattedDate = suspendedUntil.toISOString().split('T')[0];
+        const formattedDate = suspendedUntil.toISOString().split('T')[0]; // Format YYYY-MM-DD
         updateUser(id, { suspendedUntil: formattedDate }, `User disuspend selama ${durationInDays} hari.`);
       }
     });
@@ -146,7 +155,12 @@ const KelolaUserContent = () => {
     Swal.fire({
         title: `Yakin ingin banned "${target.username}"?`, text: "Tindakan ini tidak bisa dibatalkan!", icon: "warning",
         showCancelButton: true, confirmButtonText: "Ya, banned", cancelButtonText: "Batal", confirmButtonColor: "#dc3545",
-    }).then(res => res.isConfirmed && updateUser(id, { banned: true, bannedAt: new Date().toISOString() }, "User telah dibanned."));
+    }).then(res => {
+        if (res.isConfirmed) {
+            const timestamp = formatToCustomTimestamp(new Date());
+            updateUser(id, { banned: true, bannedAt: timestamp }, "User telah dibanned.");
+        }
+    });
   };
   
   const handleDetail = (user) => {
@@ -174,7 +188,7 @@ const KelolaUserContent = () => {
   );
 
   const renderStatus = {
-    active: (user) => user.verified ? <span className={`${styles.badge} ${styles.approved}`}>Terverifikasi</span> : <span className={`${styles.badge} ${styles.pending}`}>Pending</span>,
+    active: (user) => user.verified ? <span className={`${styles.badge} ${styles.approved}`}>Verified</span> : <span className={`${styles.badge} ${styles.pending}`}>Unverified</span>,
     suspend: () => <span className={`${styles.badge} ${styles.suspended}`}>Suspend</span>,
     banned: () => <span className={`${styles.badge} ${styles.banned}`}>Banned</span>,
   };
@@ -183,17 +197,21 @@ const KelolaUserContent = () => {
   const sortedUsers = [...users].sort((a, b) => new Date(a.joinedAt) < new Date(b.joinedAt) ? 1 : -1);
   const searchLower = searchTerm.toLowerCase();
   
-  const filteredUsers = sortedUsers
+  // Filter utama hanya untuk role dan search term
+  const baseFilteredUsers = sortedUsers
     .filter((u) => u.role !== "admin")
-    .filter((u) => (viewVerified === "verified" ? u.verified : !u.verified))
     .filter((u) => 
         (u.username?.toLowerCase() || '').includes(searchLower) || 
         (u.nama?.toLowerCase() || '').includes(searchLower)
     );
 
-  const activeUsers = filteredUsers.filter((u) => !u.banned && (!u.suspendedUntil || new Date(u.suspendedUntil) < today));
-  const suspendUsers = filteredUsers.filter((u) => u.suspendedUntil && new Date(u.suspendedUntil) >= today && !u.banned);
-  const bannedUsers = filteredUsers.filter((u) => u.banned);
+  // Filter dinamis berdasarkan toggle (unverified/verified) hanya untuk user aktif
+  const activeUsers = baseFilteredUsers
+    .filter((u) => !u.banned && (!u.suspendedUntil || new Date(u.suspendedUntil) < today))
+    .filter((u) => (viewVerified === "verified" ? u.verified : !u.verified));
+
+  const suspendUsers = baseFilteredUsers.filter((u) => u.suspendedUntil && new Date(u.suspendedUntil) >= today && !u.banned);
+  const bannedUsers = baseFilteredUsers.filter((u) => u.banned);
 
   if (isLoading) {
     return ( <div className={styles.spinnerContainer}><div className={styles.spinner}></div></div> );
@@ -229,7 +247,7 @@ const KelolaUserContent = () => {
         properties={properties}
         renderActions={renderActionsForActive}
         renderStatus={renderStatus.active}
-        emptyMessage={searchTerm ? "Tidak ada user aktif yang cocok." : "Tidak ada user aktif."}
+        emptyMessage={searchTerm ? "Tidak ada user aktif yang cocok." : "Tidak ada user aktif untuk filter ini."}
         dateColumnHeader="Tgl Bergabung"
         renderDateColumn={(user) => parseAndFormatShortDate(user.joinedAt)}
       />
