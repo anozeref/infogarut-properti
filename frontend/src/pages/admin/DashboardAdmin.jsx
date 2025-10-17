@@ -43,10 +43,9 @@ const DashboardAdmin = () => {
               <Route path="pengaturan" element={<PengaturanContent />} /> {/* 👈 2. TAMBAHKAN ROUTE INI */}
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
+            <FooterAdmin />
           </main>
         </motion.div>
-
-        <FooterAdmin />
       </div>
     </ThemeContext.Provider>
   );

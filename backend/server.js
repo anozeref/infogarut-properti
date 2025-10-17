@@ -26,14 +26,14 @@ app.use("/media", express.static(mediaDir));
 // === Socket.IO ===
 const server = createServer(app);
 const io = new Server(server, { cors: { origin: "*" } });
-
 io.on("connection", (socket) => {
-  console.log("✅ Connected:", socket.id);
-  socket.on("new_property", (data) => io.emit("propertyUpdate", data));
-  socket.on("new_user", (data) => io.emit("userUpdate", data));
-  socket.on("disconnect", () => console.log("❌ Disconnected:", socket.id));
+console.log(`✅ Connected: ${socket.id}`);
+socket.on('propertyUpdate', () => io.emit('propertyUpdate'));
+socket.on('userUpdate', () => io.emit('userUpdate'));
+socket.on("disconnect", () => {
+console.log(`❌ Disconnected: ${socket.id}`);
+  });
 });
-
 // === MULTER Setup ===
 const storage = multer.diskStorage({
   destination: (req, file, cb) => cb(null, mediaDir),

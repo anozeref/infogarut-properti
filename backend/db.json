@@ -13,7 +13,9 @@
       "id": "1",
       "verified": true,
       "suspendedUntil": "2025-10-16T04:55:45.236Z",
-      "suspend": null
+      "suspend": null,
+      "banned": true,
+      "bannedAt": "2025-10-17T13:30:20.640Z"
     },
     {
       "id": "2",
@@ -27,7 +29,7 @@
       "desa": "Bagendit",
       "alamat": "Jl. Raya Bagendit No.12, Banyuresmi, Garut",
       "joinedAt": "05/05/2025 15:08:12",
-      "verified": false,
+      "verified": true,
       "banned": false,
       "suspendedUntil": null
     },
@@ -44,7 +46,9 @@
       "alamat": "Kp. Cikajang No.8, Cisurupan, Garut",
       "joinedAt": "27/07/2025 10:55:37",
       "verified": true,
-      "suspend": null
+      "suspend": null,
+      "banned": true,
+      "bannedAt": "2025-10-17T13:57:57.333Z"
     },
     {
       "id": "4",
@@ -58,7 +62,9 @@
       "desa": "Wanaraja",
       "alamat": "Jl. Raya Leles No.23, Leles, Garut",
       "joinedAt": "09/09/2025 19:20:44",
-      "verified": true
+      "verified": true,
+      "banned": true,
+      "bannedAt": "2025-10-17T13:57:14.166Z"
     },
     {
       "id": "5",
@@ -85,7 +91,8 @@
       "alamat": "RT 04 / RW 02",
       "role": "user",
       "joinedAt": "14/10/2025 11:21:00",
-      "verified": true
+      "verified": true,
+      "suspendedUntil": "2025-10-20"
     },
     {
       "id": "93ce",
@@ -110,8 +117,8 @@
       "namaProperti": "Kost Bagendit Indah",
       "tipeProperti": "Kos",
       "jenisProperti": "sewa",
-      "periodeSewa": "/1 bulan",
-      "harga": 750000,
+      "periodeSewa": "/1 tahun",
+      "harga": "9000000",
       "luasTanah": 200,
       "luasBangunan": 150,
       "kamarTidur": 10,
@@ -129,7 +136,9 @@
       "koordinat": {
         "lat": -7.1903,
         "lng": 107.9337
-      }
+      },
+      "periodeAngka": 1,
+      "periodeSatuan": "tahun"
     },
     {
       "id": "3",
@@ -137,8 +146,8 @@
       "namaProperti": "Ruko Strategis Cisurupan",
       "tipeProperti": "Ruko",
       "jenisProperti": "cicilan",
-      "periodeSewa": null,
-      "harga": 650000000,
+      "periodeSewa": "",
+      "harga": "6499999998",
       "luasTanah": 100,
       "luasBangunan": 120,
       "kamarTidur": 0,
@@ -156,7 +165,9 @@
       "koordinat": {
         "lat": -7.3064,
         "lng": 107.8753
-      }
+      },
+      "periodeAngka": "",
+      "periodeSatuan": "bulan"
     },
     {
       "id": "4",
@@ -274,6 +285,85 @@
         "lng": 0
       },
       "periodeSewa": ""
+    },
+    {
+      "id": "7558",
+      "namaProperti": "Bomb",
+      "jenisProperti": "Sewa",
+      "tipeProperti": "Rumah",
+      "lokasi": "Nusa Indah, Garut",
+      "kecamatan": "Tar Dulu",
+      "desa": "Sukajaya",
+      "harga": 12312123,
+      "luasTanah": 123,
+      "luasBangunan": 12,
+      "kamarTidur": 32,
+      "kamarMandi": 1,
+      "periodeAngka": "15",
+      "periodeSatuan": "tahun",
+      "deskripsi": "Lopem Ipsum",
+      "media": [
+        "1760704942936-73698856.jpeg",
+        "1760704942940-187252914.jpg",
+        "1760704942945-45421030.jpg",
+        "1760704942946-905691715.jpg"
+      ],
+      "ownerId": "5",
+      "statusPostingan": "approved",
+      "postedAt": "2025-10-17T12:42:23.028Z",
+      "koordinat": {
+        "lat": 0,
+        "lng": 0
+      },
+      "periodeSewa": "/15 tahun"
+    },
+    {
+      "id": "ecf9",
+      "namaProperti": "Kost Bagendit Indah",
+      "jenisProperti": "Sewa",
+      "tipeProperti": "Ruko",
+      "lokasi": "Nusa Indah, Garut",
+      "kecamatan": "BANYURESMI",
+      "desa": "SUKARAJA",
+      "harga": 12000,
+      "luasTanah": 1,
+      "luasBangunan": 1,
+      "kamarTidur": 1,
+      "kamarMandi": 1,
+      "periodeAngka": "1",
+      "periodeSatuan": "bulan",
+      "deskripsi": "Lorem Ipsum",
+      "media": [
+        {
+          "url": "blob:http://localhost:5173/6b9a7923-e14a-4e58-ae73-a18a9d380b63",
+          "name": "3.jpg",
+          "type": "image"
+        },
+        {
+          "url": "blob:http://localhost:5173/d7e46ee4-b163-4d46-a83b-27232df6b081",
+          "name": "2.jpg",
+          "type": "image"
+        },
+        {
+          "url": "blob:http://localhost:5173/3a02664c-bc16-4908-89d4-865851ab76d1",
+          "name": "1.jpg",
+          "type": "image"
+        },
+        {
+          "url": "blob:http://localhost:5173/438acc9c-931d-44c5-8847-6a44029aa95c",
+          "name": "1.jpeg",
+          "type": "image"
+        }
+      ],
+      "ownerId": "3",
+      "statusPostingan": "approved",
+      "postedAt": "17/10/2025 19:49:14",
+      "koordinat": {
+        "lat": 0,
+        "lng": 0
+      },
+      "periodeSewa": "/1 bulan",
+      "userId": "3"
     }
   ]
 }

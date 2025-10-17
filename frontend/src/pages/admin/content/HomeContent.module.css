@@ -93,6 +93,18 @@
 .notifList {
   padding: 8px 0;
 }
+
+/* === STYLE BARU UNTUK PEMISAH TANGGAL === */
+.notifDateSeparator {
+  padding: 16px 24px 8px 24px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-color-secondary);
+  background-color: var(--main-bg-color);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
 .notifRow {
   display: flex;
   align-items: center;

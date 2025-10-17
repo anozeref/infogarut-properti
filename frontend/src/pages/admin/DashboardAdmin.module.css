@@ -5,35 +5,31 @@
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-  background-color: var(--bg-color); /* Latar belakang utama halaman */
+  background-color: var(--bg-color);
   color: var(--text-color);
   transition: background-color 0.3s, color 0.3s;
 }
 
-/* Wrapper ini sekarang menggunakan flexbox untuk menampung sidebar dan konten */
 .dashboardWrapper {
   display: flex;
-  flex: 1; /* Membuat wrapper ini mengisi semua ruang yang tersedia */
-  min-height: 0; /* Mencegah item flex meluap pada beberapa browser */
+  flex: 1;
+  min-height: 0;
 }
 
-/* Konten utama */
 .mainContent {
-  flex: 1; /* Membuat konten utama mengisi sisa ruang di samping sidebar */
+  flex: 1;
   padding: 24px;
   overflow-y: auto;
-  /* Background sengaja transparan agar warna dari .dashboardContainer terlihat.
-     Nantinya, komponen seperti card di dalamnya yang akan memiliki background sendiri. */
 }
 
 /* =================================
    Light / Dark Theme Variables
    ================================= */
 :global([data-theme="light"]) {
-  --bg-color: #f8fafc;              /* Latar utama abu-abu netral */
-  --main-bg-color: #ffffff;         /* Latar untuk komponen seperti card & sidebar */
-  --text-color: #1f2937;            /* Warna teks utama yang kontras */
-  --text-color-secondary: #6b7280;  /* Warna teks sekunder (abu-abu) */
+  --bg-color: #f8fafc;
+  --main-bg-color: #ffffff;
+  --text-color: #1f2937;
+  --text-color-secondary: #6b7280;
   --border-color: #e5e7eb;
 }
 
