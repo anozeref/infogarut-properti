@@ -1,0 +1,106 @@
+/* src/components/HighlightProperti/HighlightProperti.module.css */
+.highlightSection {
+  padding: 3rem 2rem;
+  background-color: var(--background-light); /* Ganti menjadi putih */
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.title {
+  font-size: 2.2rem;
+  color: var(--primary-blue);
+  margin-bottom: 2.5rem;
+}
+
+/* HAPUS .grid */
+
+/* Tambahkan style untuk item slider */
+.slideItem {
+  padding: 0 10px; /* Memberi jarak kiri-kanan antar slide */
+}
+
+/* Style untuk link dan card tetap sama */
+.cardLink {
+  text-decoration: none;
+  color: inherit;
+  display: block;
+}
+
+.card {
+  background-color: var(--background-light);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  height: 100%;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+}
+
+.cardImage {
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+}
+
+.cardContent {
+  padding: 1rem 1.25rem;
+  text-align: left;
+}
+
+.cardTitle {
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin: 0 0 0.5rem 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.cardLocation {
+  font-size: 0.9rem;
+  color: #6c757d;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  margin-bottom: 0.75rem;
+}
+
+.cardPrice {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--primary-blue);
+  margin: 0;
+}
+
+/* Styling tambahan untuk dots react-slick (Opsional) */
+:global(.slick-dots li button:before) {
+  font-size: 10px;
+  color: var(--primary-blue) !important; /* Warna titik */
+  opacity: 0.5;
+}
+
+:global(.slick-dots li.slick-active button:before) {
+  opacity: 1;
+}
+
+/* Styling untuk panah (Opsional) */
+:global(.slick-prev:before),
+:global(.slick-next:before) {
+  color: var(--primary-blue) !important; /* Warna panah */
+}
+
+/* Tambahkan ini di HighlightProperti.module.css */
+.noPropertiesMessage {
+  text-align: center;
+  color: #6c757d; /* Warna abu-abu */
+  font-style: italic;
+  padding: 2rem 0; /* Beri sedikit jarak */
+}

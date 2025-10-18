@@ -12,9 +12,10 @@ const Hero = () => {
   return (
     <section className={styles.hero} style={heroStyle}>
       <div className={styles.content}>
-        <h1 className={styles.title}>Rumah Ideal Anda Menanti</h1>
+        <h1 className={styles.title}>Temukan Hunian dan Investasi Terbaik di Garut</h1>
         <p className={styles.subtitle}>
-          Jelajahi pilihan properti terbaik kami dan temukan hunian sempurna yang telah Anda nantikan.
+          Selamat datang di Infogarut Property, platform tepercaya untuk menemukan berbagai pilihan properti terbaik di Garut! Dari rumah hunian nyaman, 
+          tanah strategis, hingga proyek investasi potensial, semua dapat Anda temukan dengan mudah di sini.
         </p>
         
         {/* 2. Ganti <button> menjadi <Link> dan tambahkan prop 'to' */}
