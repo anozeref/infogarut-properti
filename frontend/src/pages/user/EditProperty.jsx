@@ -1,15 +1,15 @@
-import React, { useState, useEffect } from "react";
-import { FaArrowLeft } from "react-icons/fa";
+import React, { useState, useEffect, useRef } from "react";
+import { FaArrowLeft, FaTimes } from "react-icons/fa";
 import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
 import Swal from "sweetalert2";
 import styles from "./EditProperty.module.css";
 
-export default function EditProperty() {
+export default function EditProperty({ darkMode }) {
   const { id } = useParams();
   const navigate = useNavigate();
+  const fileInputRef = useRef(null);
 
-  // ✅ Sesuai field di db.json
   const [formData, setFormData] = useState({
     namaProperti: "",
     tipeProperti: "Rumah",
@@ -30,7 +30,7 @@ export default function EditProperty() {
   const [previewModal, setPreviewModal] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // ✅ Ambil data berdasarkan ID
+  // 🔹 Fetch data properti
   useEffect(() => {
     axios
       .get(`http://localhost:3004/properties/${id}`)
@@ -47,28 +47,55 @@ export default function EditProperty() {
       .finally(() => setLoading(false));
   }, [id, navigate]);
 
-  // ✅ Handle input teks / number / select
+  // 🔹 Input handler
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  // ✅ Upload gambar/video (preview lokal)
+  // 🔹 Upload media baru
   const handleFileChange = (e) => {
     const files = Array.from(e.target.files);
-    const filePreviews = files.map((file) => ({
+    const previews = files.map((file) => ({
+      file,
       url: URL.createObjectURL(file),
-      name: file.name,
       type: file.type.startsWith("image") ? "image" : "video",
     }));
 
     setFormData((prev) => ({
       ...prev,
-      media: [...prev.media, ...filePreviews],
+      media: [...prev.media, ...previews],
     }));
   };
 
-  // ✅ Simpan (PUT) ke db.json
+  // 🔹 Hapus media tertentu
+  const removePreview = (index) => {
+    setFormData((prev) => ({
+      ...prev,
+      media: prev.media.filter((_, i) => i !== index),
+    }));
+  };
+
+  // 🔹 Ganti media
+  const replaceFile = (index) => {
+    fileInputRef.current.click();
+    fileInputRef.current.onchange = (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const newMedia = {
+        file,
+        url: URL.createObjectURL(file),
+        type: file.type.startsWith("image") ? "image" : "video",
+      };
+      setFormData((prev) => {
+        const updated = [...prev.media];
+        updated[index] = newMedia;
+        return { ...prev, media: updated };
+      });
+    };
+  };
+
+  // 🔹 Submit update
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -78,7 +105,6 @@ export default function EditProperty() {
     }
 
     try {
-      // PUT ke endpoint
       await axios.put(`http://localhost:3004/properties/${id}`, formData);
       Swal.fire({
         title: "Berhasil!",
@@ -94,25 +120,34 @@ export default function EditProperty() {
     }
   };
 
-  const openPreview = (file) => setPreviewModal(file);
-  const closePreview = () => setPreviewModal(null);
-
   if (loading) return <div className={styles.loading}>Memuat data properti...</div>;
 
+  // 🌙 Mode class
+  const containerClass = `${styles.container} ${darkMode ? styles.dark : ""}`;
+  const cardClass = `${styles.card} ${darkMode ? styles.darkCard : ""}`;
+  const inputClass = `${styles.input} ${darkMode ? styles.darkInput : ""}`;
+  const selectClass = `${styles.select} ${darkMode ? styles.darkInput : ""}`;
+  const textareaClass = `${styles.textarea} ${darkMode ? styles.darkInput : ""}`;
+
   return (
-    <div className={styles.container}>
-      <div className={styles.card}>
+    <div className={containerClass}>
+      <button onClick={() => navigate(-1)} className={styles.backButton}>
+        <FaArrowLeft className={styles.backIcon} /> Kembali
+      </button>
+
+      <div className={cardClass}>
         <h2 className={styles.title}>Edit Properti</h2>
 
         <form onSubmit={handleSubmit} className={styles.form}>
           <div className={styles.grid}>
+            {/* 🔹 Nama dan Deskripsi */}
             <div className={styles.colFull}>
               <label>Nama Properti</label>
               <input
                 name="namaProperti"
                 value={formData.namaProperti}
                 onChange={handleChange}
-                className={styles.input}
+                className={inputClass}
                 required
               />
             </div>
@@ -124,10 +159,11 @@ export default function EditProperty() {
                 rows={3}
                 value={formData.deskripsi}
                 onChange={handleChange}
-                className={styles.textarea}
+                className={textareaClass}
               />
             </div>
 
+            {/* 🔹 Detail lainnya */}
             <div>
               <label>Harga (IDR)</label>
               <input
@@ -135,7 +171,7 @@ export default function EditProperty() {
                 name="harga"
                 value={formData.harga}
                 onChange={handleChange}
-                className={styles.input}
+                className={inputClass}
               />
             </div>
 
@@ -145,7 +181,7 @@ export default function EditProperty() {
                 name="lokasi"
                 value={formData.lokasi}
                 onChange={handleChange}
-                className={styles.input}
+                className={inputClass}
               />
             </div>
 
@@ -155,7 +191,7 @@ export default function EditProperty() {
                 name="kecamatan"
                 value={formData.kecamatan}
                 onChange={handleChange}
-                className={styles.input}
+                className={inputClass}
               />
             </div>
 
@@ -165,17 +201,18 @@ export default function EditProperty() {
                 name="desa"
                 value={formData.desa}
                 onChange={handleChange}
-                className={styles.input}
+                className={inputClass}
               />
             </div>
 
+            {/* 🔹 Dropdown properti */}
             <div>
               <label>Tipe Properti</label>
               <select
                 name="tipeProperti"
                 value={formData.tipeProperti}
                 onChange={handleChange}
-                className={styles.select}
+                className={selectClass}
               >
                 <option>Rumah</option>
                 <option>Apartemen</option>
@@ -190,7 +227,7 @@ export default function EditProperty() {
                 name="jenisProperti"
                 value={formData.jenisProperti}
                 onChange={handleChange}
-                className={styles.select}
+                className={selectClass}
               >
                 <option value="jual">Dijual</option>
                 <option value="sewa">Disewa</option>
@@ -205,11 +242,12 @@ export default function EditProperty() {
                   value={formData.periodeSewa}
                   onChange={handleChange}
                   placeholder="/1 tahun"
-                  className={styles.input}
+                  className={inputClass}
                 />
               </div>
             )}
 
+            {/* 🔹 Ukuran dan kamar */}
             <div>
               <label>Luas Tanah (m²)</label>
               <input
@@ -217,7 +255,7 @@ export default function EditProperty() {
                 name="luasTanah"
                 value={formData.luasTanah}
                 onChange={handleChange}
-                className={styles.input}
+                className={inputClass}
               />
             </div>
 
@@ -228,7 +266,7 @@ export default function EditProperty() {
                 name="luasBangunan"
                 value={formData.luasBangunan}
                 onChange={handleChange}
-                className={styles.input}
+                className={inputClass}
               />
             </div>
 
@@ -239,7 +277,7 @@ export default function EditProperty() {
                 name="kamarTidur"
                 value={formData.kamarTidur}
                 onChange={handleChange}
-                className={styles.input}
+                className={inputClass}
               />
             </div>
 
@@ -250,33 +288,60 @@ export default function EditProperty() {
                 name="kamarMandi"
                 value={formData.kamarMandi}
                 onChange={handleChange}
-                className={styles.input}
+                className={inputClass}
               />
             </div>
 
+            {/* 🔹 Upload Media */}
             <div className={styles.colFull}>
-              <label>Upload Media (Gambar/Video)</label>
+              <label>Upload Media (Foto/Video)</label>
               <input
+                ref={fileInputRef}
                 type="file"
-                accept="image/*,video/*"
                 multiple
+                accept="image/*,video/*"
                 onChange={handleFileChange}
                 className={styles.fileInput}
               />
             </div>
           </div>
 
+          {/* 🔹 Preview Media */}
           {formData.media.length > 0 && (
             <div className={styles.previewSection}>
-              <h4>Preview Media</h4>
+              <h3 className={styles.previewTitle}>Preview Media</h3>
               <div className={styles.previewGrid}>
-                {formData.media.map((file, i) => (
-                  <div key={i} className={styles.previewItem} onClick={() => openPreview(file)}>
-                    {file.type === "image" ? (
-                      <img src={file.url || file} alt={file.name || file} className={styles.previewImage} />
+                {formData.media.map((m, idx) => (
+                  <div key={idx} className={styles.previewItem}>
+                    {m.type === "image" ? (
+                      <img
+                        src={m.url}
+                        alt={`preview-${idx}`}
+                        className={styles.previewImage}
+                        onClick={() => setPreviewModal(m)}
+                      />
                     ) : (
-                      <video src={file.url || file} className={styles.previewVideo} />
+                      <video
+                        src={m.url}
+                        className={styles.previewVideo}
+                        controls
+                        onClick={() => setPreviewModal(m)}
+                      />
                     )}
+                    <button
+                      type="button"
+                      onClick={() => removePreview(idx)}
+                      className={styles.deleteBtn}
+                    >
+                      <FaTimes />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => replaceFile(idx)}
+                      className={styles.replaceBtn}
+                    >
+                      Ganti
+                    </button>
                   </div>
                 ))}
               </div>
@@ -289,15 +354,18 @@ export default function EditProperty() {
         </form>
       </div>
 
+      {/* 🔹 Modal Preview */}
       {previewModal && (
-        <div className={styles.modalOverlay} onClick={closePreview}>
+        <div className={styles.modalOverlay} onClick={() => setPreviewModal(null)}>
           <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
-            {previewModal.type === "image" ? (
-              <img src={previewModal.url} alt={previewModal.name} className={styles.modalImage} />
-            ) : (
+            {previewModal.type === "video" ? (
               <video src={previewModal.url} controls autoPlay className={styles.modalVideo} />
+            ) : (
+              <img src={previewModal.url} alt="Preview" className={styles.modalImage} />
             )}
-            <button className={styles.closeModal} onClick={closePreview}>×</button>
+            <button className={styles.closeModal} onClick={() => setPreviewModal(null)}>
+              ×
+            </button>
           </div>
         </div>
       )}

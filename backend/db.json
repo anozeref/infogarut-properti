@@ -355,6 +355,32 @@
           "type": "image"
         }
       ],
+      "periodeSewa": ""
+    },
+    {
+      "id": "ccbd",
+      "namaProperti": "Rumah Mewah Di Garut Kota",
+      "jenisProperti": "Jual",
+      "tipeProperti": "Rumah",
+      "lokasi": "Palih dinya",
+      "kecamatan": "SAMARANG",
+      "desa": "CINTAKARYA",
+      "harga": 120000000,
+      "luasTanah": 100,
+      "luasBangunan": 90,
+      "kamarTidur": 2,
+      "kamarMandi": 1,
+      "periodeAngka": "",
+      "periodeSatuan": "bulan",
+      "deskripsi": "Rumah strategis , akses angkutan umum, Pokoknya siap Cash",
+      "media": [
+        "1760864288812-507137916.jpg",
+        "1760864288815-243042287.jpg",
+        "1760864288816-335487355.jpg"
+      ],
+      "ownerId": "4",
+      "statusPostingan": "approved",
+      "postedAt": "19/10/2025 15:58:08",
       "ownerId": "3",
       "statusPostingan": "approved",
       "postedAt": "17/10/2025 19:49:14",
@@ -362,6 +388,225 @@
         "lat": 0,
         "lng": 0
       },
+      "periodeSewa": "",
+      "userId": "4"
+    },
+    {
+      "id": "1bbc",
+      "namaProperti": "Rumah Mewah Di Garut Kota",
+      "jenisProperti": "Jual",
+      "tipeProperti": "Rumah",
+      "lokasi": "Palih dinya",
+      "kecamatan": "BANYURESMI",
+      "desa": "PAMEKARSARI",
+      "harga": 120002000,
+      "luasTanah": 12,
+      "luasBangunan": 12,
+      "kamarTidur": 1,
+      "kamarMandi": 1,
+      "periodeAngka": "",
+      "periodeSatuan": "bulan",
+      "deskripsi": "RUmah sederhana , murah merah, akses helikopter",
+      "media": [
+        "1760866049941-738813161.jpg",
+        "1760866049945-626844400.jpg",
+        "1760866049966-420185860.jpg"
+      ],
+      "ownerId": "4",
+      "statusPostingan": "approved",
+      "postedAt": "19/10/2025 16:27:29",
+      "koordinat": {
+        "lat": 0,
+        "lng": 0
+      },
+      "periodeSewa": "",
+      "userId": "4"
+    },
+    {
+      "id": "aa68",
+      "namaProperti": "Rumah Mewah Di Garut Kota",
+      "jenisProperti": "Jual",
+      "tipeProperti": "Rumah",
+      "lokasi": "Palih dinya",
+      "kecamatan": "BLUBUR LIMBANGAN",
+      "desa": "LIMBANGANBARAT",
+      "harga": 123000032,
+      "luasTanah": 1000,
+      "luasBangunan": 900,
+      "kamarTidur": 5,
+      "kamarMandi": 2,
+      "periodeAngka": "",
+      "periodeSatuan": "bulan",
+      "deskripsi": "Rumah mewah pokoknamah calm we",
+      "media": [
+        "1760866258911-120931725.jpg",
+        "1760866258915-213775064.jpg",
+        "1760866258956-464830919.jpg"
+      ],
+      "ownerId": "4",
+      "statusPostingan": "approved",
+      "postedAt": "19/10/2025 16:30:58",
+      "koordinat": {
+        "lat": 0,
+        "lng": 0
+      },
+      "periodeSewa": "",
+      "userId": "4"
+    },
+    {
+      "id": "4c05",
+      "namaProperti": "Rumah Mewah Di Garut Kota",
+      "jenisProperti": "Jual",
+      "tipeProperti": "Rumah",
+      "lokasi": "Palih dinya",
+      "kecamatan": "CARINGIN",
+      "desa": "CIMAHI",
+      "harga": 11200000,
+      "luasTanah": 100,
+      "luasBangunan": 90,
+      "kamarTidur": 5,
+      "kamarMandi": 2,
+      "periodeAngka": "",
+      "periodeSatuan": "bulan",
+      "deskripsi": "Rumah nyaman dengan fasilitas kumplit",
+      "media": [
+        "1760867346542-952433908.jpg",
+        "1760867346543-47011678.jpg",
+        "1760867346545-975836161.jpg"
+      ],
+      "ownerId": "4",
+      "statusPostingan": "approved",
+      "postedAt": "19/10/2025 16:49:06",
+      "koordinat": {
+        "lat": 0,
+        "lng": 0
+      },
+      "periodeSewa": "",
+      "userId": "4"
+    },
+    {
+      "id": "86cb",
+      "namaProperti": "Rumah Mewah Di Garut Kota",
+      "jenisProperti": "Jual",
+      "tipeProperti": "Rumah",
+      "lokasi": "Palih dinya",
+      "kecamatan": "SAMARANG",
+      "desa": "SAMARANG",
+      "harga": 1200000,
+      "luasTanah": 100,
+      "luasBangunan": 90,
+      "kamarTidur": 4,
+      "kamarMandi": 1,
+      "periodeAngka": "",
+      "periodeSatuan": "bulan",
+      "deskripsi": "Rumah nyaman idaman para gadis ",
+      "media": [
+        "1760867903200-9020205.jpg",
+        "1760867903202-935631046.jpg",
+        "1760867903204-8668415.jpg"
+      ],
+      "ownerId": "4",
+      "statusPostingan": "approved",
+      "postedAt": "19/10/2025 16:58:23",
+      "koordinat": {
+        "lat": 0,
+        "lng": 0
+      },
+      "periodeSewa": "",
+      "userId": "4"
+    },
+    {
+      "id": "9329",
+      "namaProperti": "Rumah Mewah Di Garut Kotaaa",
+      "jenisProperti": "Jual",
+      "tipeProperti": "Rumah",
+      "lokasi": "Palih dinya",
+      "kecamatan": "PAMEUNGPEUK",
+      "desa": "MANDALAKASIH",
+      "harga": 123000030,
+      "luasTanah": 100,
+      "luasBangunan": 85,
+      "kamarTidur": 4,
+      "kamarMandi": 1,
+      "periodeAngka": "",
+      "periodeSatuan": "bulan",
+      "deskripsi": "Rumah nyaman dengan seisi rumahnya",
+      "media": [
+        "1760869275824-313027828.jpg",
+        "1760869275825-7730881.jpg",
+        "1760869275826-86211953.jpg"
+      ],
+      "ownerId": "4",
+      "statusPostingan": "approved",
+      "postedAt": "19/10/2025 17:21:15",
+      "koordinat": {
+        "lat": 0,
+        "lng": 0
+      },
+      "periodeSewa": "",
+      "userId": "4"
+    },
+    {
+      "id": "13fb",
+      "namaProperti": "Rumah Mewah Di Garut Kota nu kasabaraha ieu teh euy ",
+      "jenisProperti": "Jual",
+      "tipeProperti": "Rumah",
+      "lokasi": "Palih dinya",
+      "kecamatan": "GARUT KOTA",
+      "desa": "KOTAKULON",
+      "harga": 120000000,
+      "luasTanah": 1000,
+      "luasBangunan": 900,
+      "kamarTidur": 5,
+      "kamarMandi": 4,
+      "periodeAngka": "",
+      "periodeSatuan": "bulan",
+      "deskripsi": "Rumah nyaman dengan mode dark",
+      "media": [
+        "1760870112446-670279050.jpg",
+        "1760870112449-543243061.jpg",
+        "1760870112453-727177692.jpg"
+      ],
+      "ownerId": "4",
+      "statusPostingan": "approved",
+      "postedAt": "19/10/2025 17:35:12",
+      "koordinat": {
+        "lat": 0,
+        "lng": 0
+      },
+      "periodeSewa": "",
+      "userId": "4"
+    },
+    {
+      "id": "3e14",
+      "namaProperti": "Tes rumah",
+      "jenisProperti": "Jual",
+      "tipeProperti": "Rumah",
+      "lokasi": "Palih dinya",
+      "kecamatan": "KADUNGORA",
+      "desa": "KADUNGORA",
+      "harga": 12000,
+      "luasTanah": 100,
+      "luasBangunan": 90,
+      "kamarTidur": 2,
+      "kamarMandi": 0,
+      "periodeAngka": "",
+      "periodeSatuan": "bulan",
+      "deskripsi": "Manawi",
+      "media": [
+        "1760871522865-482987437.jpg",
+        "1760871522870-961081763.jpg",
+        "1760871522888-20040695.jpg"
+      ],
+      "ownerId": "4",
+      "statusPostingan": "approved",
+      "postedAt": "19/10/2025 17:58:42",
+      "koordinat": {
+        "lat": 0,
+        "lng": 0
+      },
+      "periodeSewa": "",
+      "userId": "4"
       "periodeSewa": "/1 bulan",
       "userId": "3"
     }
