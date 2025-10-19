@@ -10,7 +10,7 @@ const { Server } = require("socket.io");
 
 const app = express();
 const PORT = 3005;
-const DB_URL = "http://localhost:3004";
+const DB_URL = "http://localhost:3004"; // URL json-server (database)
 
 // === Middleware ===
 app.use(cors());
@@ -31,8 +31,8 @@ io.on("connection", (socket) => {
   console.log(`✅ Connected: ${socket.id}`);
 
   // --- LOGIKA LAMA (Untuk Admin Refresh Umum) ---
-  socket.on('propertyUpdate', () => io.emit('propertyUpdate')); // Masih dipakai admin
-  socket.on('userUpdate', () => io.emit('userUpdate'));       // Masih dipakai admin
+  socket.on('propertyUpdate', () => io.emit('propertyUpdate'));
+  socket.on('userUpdate', () => io.emit('userUpdate'));
 
   // --- LOGIKA BARU (Untuk DashboardUser.jsx) ---
   
@@ -44,19 +44,38 @@ io.on("connection", (socket) => {
     }
   });
 
-  // 2. Listen untuk event BARU dari Panel Admin (KelolaPropertiContent.jsx)
-  //    Kita akan buat event ini di langkah selanjutnya.
-  socket.on("adminPropertyUpdate", (data) => {
-    // data akan berisi = { ownerId: '5', namaProperti: 'Rumah Keren', statusPostingan: 'approved' }
-    
-    if (data && data.ownerId) {
-      // Kirim notifikasi 'propertyStatusUpdated' HANYA ke user yang punya
-      // 'to(data.ownerId)' mengirim HANYA ke room user tersebut.
-      io.to(String(data.ownerId)).emit("propertyStatusUpdated", data);
+  // 2. Listen untuk 'adminPropertyUpdate' dari KelolaPropertiContent.jsx
+  //    Tugasnya: Simpan notif ke DB, LALU kirim 'ping' ke user.
+  socket.on("adminPropertyUpdate", async (data) => {
+    // data = { ownerId, namaProperti, statusPostingan }
+    if (!data || !data.ownerId) return;
+
+    try {
+      // 1. Merakit data notifikasi
+      const statusText = data.statusPostingan === 'approved' ? 'disetujui' : 'ditolak';
+      const link = data.statusPostingan === 'approved' ? '/user/propertiaktif' : '/user/propertiditolak';
+      
+      const newNotification = {
+        userId: String(data.ownerId),
+        text: `Properti '${data.namaProperti}' Anda telah ${statusText} oleh admin.`,
+        isRead: false,
+        createdAt: new Date().toISOString(), // Simpan dalam format ISO (standar)
+        link: link
+      };
+
+      // 2. Simpan notifikasi ke db.json
+      await axios.post(`${DB_URL}/notifications`, newNotification);
+      console.log(`🔔 Notifikasi disimpan untuk User ID: ${data.ownerId}`);
+
+      // 3. Kirim "ping" ke user (jika dia online)
+      //    Memberitahu klien untuk mengambil notif baru dari DB.
+      io.to(String(data.ownerId)).emit("new_notification_ping"); 
+
+    } catch (err) {
+      console.error("❌ Gagal menyimpan notifikasi ke DB:", err.message);
     }
     
-    // Kirim refresh 'propertyUpdate' ke SEMUA KLIEN (termasuk admin lain)
-    // agar tabel admin juga ikut refresh
+    // 4. Tetap kirim refresh ke semua admin
     io.emit("propertyUpdate"); 
   });
   
