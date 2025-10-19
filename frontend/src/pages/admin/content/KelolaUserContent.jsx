@@ -8,7 +8,7 @@ import { motion } from "framer-motion";
 import { ThemeContext } from "../DashboardAdmin";
 import styles from "./KelolaUserContent.module.css";
 import { API_URL } from "../../../utils/constant";
-import TabelUser from "./tables/TabelUser";
+import TabelUser from "./components/tables/TabelUser";
 import ModalUser from "./ModalUser";
 
 // Socket global (tetap aman untuk file ini karena lifecycle-nya berbeda)

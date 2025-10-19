@@ -5,7 +5,7 @@ import { FaTimes, FaImage, FaSave } from "react-icons/fa";
 import styles from "./EditPropertyModal.module.css";
 import axios from "axios";
 import Swal from "sweetalert2";
-import { API_URL } from "../../../../utils/constant";
+import { API_URL } from "../../../../../utils/constant";
 
 export default function EditPropertyModal({ data, onClose, onSave }) {
   const [isSaving, setIsSaving] = useState(false);

@@ -7,7 +7,7 @@ import { FaCheck, FaTimes, FaTrash, FaEdit, FaInfoCircle, FaClock, FaCheckCircle
 import { motion } from "framer-motion";
 import styles from "./KelolaPropertiContent.module.css";
 import { API_URL } from "../../../utils/constant";
-import PropertyTable from "./tables/PropertyTable";
+import PropertyTable from "./components/tables/PropertyTable";
 import EditPropertyModal from "./components/EditPropertyModal";
 import DetailPropertyModal from "./components/DetailPropertyModal";
 
