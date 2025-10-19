@@ -20,16 +20,63 @@ const LoginPage = () => {
       const user = await loginUser(username, password);
 
       if (!user) {
-        Swal.fire("Gagal!", "Username atau password salah", "error");
+        Swal.fire({
+          icon: "error",
+          title: "Gagal!",
+          text: "Username atau password salah",
+          timer: 3000,
+          showConfirmButton: false,
+        });
         return;
       }
 
+      // 🔹 Cek apakah akun dibanned
+      if (user.banned === true) {
+        Swal.fire({
+          icon: "error",
+          title: "Akun Diblokir!",
+          text: "Akun Anda telah dibanned oleh admin.",
+          timer: 3000,
+          showConfirmButton: false,
+        });
+        return;
+      }
+
+      // 🔹 Cek apakah akun masih dalam masa suspend
+      if (user.suspendedUntil) {
+        const today = new Date();
+        const suspendedUntil = new Date(user.suspendedUntil);
+        if (suspendedUntil >= today) {
+          Swal.fire({
+            icon: "warning",
+            title: "Akun Ditangguhkan!",
+            text: "Akun Anda masih dalam masa suspend.",
+            timer: 3000,
+            showConfirmButton: false,
+          });
+          return;
+        }
+      }
+
+      // ✅ Jika semua lolos, login berhasil
       login(user);
-      Swal.fire("Berhasil!", `Selamat datang, ${user.nama.split(" ")[0]}!`, "success");
+      Swal.fire({
+        icon: "success",
+        title: "Berhasil!",
+        text: `Selamat datang, ${user.nama.split(" ")[0]}!`,
+        timer: 3000,
+        showConfirmButton: false,
+      });
 
       user.role === "admin" ? navigate("/admin") : navigate("/user");
     } catch (err) {
-      Swal.fire("Error!", err.message, "error");
+      Swal.fire({
+        icon: "error",
+        title: "Error!",
+        text: err.message,
+        timer: 3000,
+        showConfirmButton: false,
+      });
     }
   };
 

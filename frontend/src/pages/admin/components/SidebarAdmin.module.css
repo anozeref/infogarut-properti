@@ -1,114 +1,89 @@
-/* Sidebar container */
+/* src/pages/admin/components/SidebarAdmin.module.css */
 .sidebar {
-  position: fixed;
+  position: sticky;
   top: 0;
-  left: 0;
   height: 100vh;
-  background-color: #ffffff;
-  border-right: 1px solid #e6e6e6;
+  background-color: var(--main-bg-color);
+  border-right: 1px solid var(--border-color);
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  width: 80px;
-  padding: 20px 0;
+  padding: 16px 12px;
   overflow: hidden;
   z-index: 100;
   box-shadow: 2px 0 8px rgba(0, 0, 0, 0.05);
-  transition: background-color 0.3s ease, color 0.3s ease;
-  color: #333;
 }
 
-/* Dark mode */
-.sidebar.dark {
-  background-color: #1f1f1f;
-  color: #f1f1f1;
-  border-right: 1px solid #333;
-}
-
-/* Menu sections */
-.menuSection,
-.bottomSection {
+.menuSection, .bottomSection {
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  padding: 0 16px;
+  gap: 8px;
 }
 
-/* Menu items */
 .menuItem {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 16px;
   padding: 10px 12px;
-  border-radius: 10px;
+  border-radius: 8px;
   cursor: pointer;
   width: 100%;
   text-align: left;
-  color: inherit; /* inherit dari sidebar theme */
+  color: var(--text-color-secondary);
   font-size: 0.95rem;
+  font-weight: 500;
   text-decoration: none;
-  transition: background-color 0.25s ease, color 0.25s ease, transform 0.2s ease;
+  border: none;
+  background: transparent;
+  position: relative;
+  transition: background-color 0.2s ease, color 0.2s ease;
 }
 
-/* Hover / focus (light mode default) */
 .menuItem:hover {
-  background-color: #e6f0ff;
-  color: #004aad;
-  transform: translateX(3px);
+  background-color: #f3f4f6;
+  color: var(--text-color);
+}
+[data-theme="dark"] .menuItem:hover {
+  background-color: #374151;
 }
 
-/* Active menu item (light mode default) */
 .active {
-  background-color: #cce0ff;
-  color: #004aad;
+  background-color: rgba(59, 130, 246, 0.1);
+  color: #3b82f6;
   font-weight: 600;
 }
+[data-theme="dark"] .active {
+  background-color: rgba(59, 130, 246, 0.15);
+}
 
-/* Icon */
+/* Indikator menu aktif */
+.active::before {
+  content: '';
+  position: absolute;
+  left: -12px;
+  top: 50%;
+  transform: translateY(-50%);
+  height: 24px;
+  width: 4px;
+  background-color: #3b82f6;
+  border-radius: 0 4px 4px 0;
+}
+
 .icon {
   width: 24px;
   height: 24px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.3rem;
+  font-size: 1.2rem;
   flex-shrink: 0;
 }
+.active .icon {
+  color: #3b82f6;
+}
 
-/* Label */
 .label {
-  white-space: normal;
-  overflow-wrap: break-word;
+  white-space: nowrap;
   overflow: hidden;
-  flex: 1;
-}
-
-/* Minimalized sidebar fixes */
-.sidebar:not(:hover) .menuItem {
-  justify-content: center;
-}
-
-.sidebar:not(:hover) .label {
-  display: none;
-}
-
-/* Bottom section */
-.bottomSection {
-  padding-bottom: 20px;
-}
-
-/* Dark mode hover / active */
-.sidebar.dark .menuItem:hover {
-  background-color: #333844;
-  color: #f1f1f1;
-}
-
-.sidebar.dark .active {
-  background-color: #2a2a3a;
-  color: #f1f1f1;
-}
-
-/* Ensure icons visible in dark mode */
-.sidebar.dark .icon {
-  color: inherit;
+  flex-grow: 1;
 }

@@ -1,22 +1,14 @@
-// FooterAdmin.jsx
-import React, { useContext } from "react";
-import styles from "./FooterAdmin.module.css";
-import { ThemeContext } from "../DashboardAdmin";
+import React from 'react';
+import styles from './FooterAdmin.module.css';
 
-const FooterAdmin = () => {
-  const { theme } = useContext(ThemeContext);
+const CopyrightNotice = () => {
+  const currentYear = new Date().getFullYear();
 
   return (
-    <footer
-      className={styles.footer}
-      style={{
-        backgroundColor: theme === "dark" ? "#1f1f1f" : "#f8f9fa",
-        color: theme === "dark" ? "#f1f1f1" : "#333",
-      }}
-    >
-      <small>© 2025 infogarut Properti | Admin Panel</small>
-    </footer>
+    <div className={styles.copyrightContainer}>
+      <p>© {currentYear} infogarut Properti - Dashboard Admin</p>
+    </div>
   );
 };
 
-export default FooterAdmin;
+export default CopyrightNotice;

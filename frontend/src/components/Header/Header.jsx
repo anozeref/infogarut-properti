@@ -1,8 +1,8 @@
 // src/components/Header/Header.jsx
 import React, { useContext } from "react";
 import styles from "./Header.module.css";
-import { FaUserCircle } from "react-icons/fa";
-import { NavLink, useNavigate } from "react-router-dom";
+import { FaUserCircle, FaSignOutAlt } from "react-icons/fa";
+import { NavLink, useNavigate, useLocation } from "react-router-dom";
 import Swal from "sweetalert2";
 import { AuthContext } from "../../context/AuthContext";
 import logoImage from "../../assets/logo.png";
@@ -10,6 +10,12 @@ import logoImage from "../../assets/logo.png";
 const Header = () => {
   const { user, logout } = useContext(AuthContext);
   const navigate = useNavigate();
+  const location = useLocation();
+
+  const hideHeaderRoutes = ["/login", "/register"];
+  if (hideHeaderRoutes.includes(location.pathname)) {
+    return null;
+  }
 
   const handleUserClick = () => {
     if (!user) navigate("/login");
@@ -36,15 +42,12 @@ const Header = () => {
   return (
     <header className={styles.header}>
       <div className={styles.container}>
-        {/* ✅ Hapus nested <a>, cukup satu */}
-        <a
-          href="https://infogarut.id"
-          target="_blank"
-          rel="noopener noreferrer"
+        <NavLink to="/"
           className={styles.logo}
         >
+        
           <img src={logoImage} alt="Logo Propertease Infogarut.id" />
-        </a>
+          </NavLink>
 
         <div className={styles.rightSection}>
           <nav className={styles.nav}>
@@ -74,6 +77,7 @@ const Header = () => {
             </a>
           </nav>
 
+          {/* Tombol user/login */}
           <button
             onClick={handleUserClick}
             className={styles.userIcon}
@@ -82,9 +86,14 @@ const Header = () => {
             <FaUserCircle size={28} />
           </button>
 
+          {/* Tombol logout */}
           {user && (
-            <button onClick={handleLogout} className={styles.logoutBtn}>
-              Keluar
+            <button
+              onClick={handleLogout}
+              className={styles.logoutBtn}
+              title="Keluar"
+            >
+              <FaSignOutAlt size={24} />
             </button>
           )}
         </div>

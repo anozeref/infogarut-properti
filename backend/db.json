@@ -4,14 +4,18 @@
       "nama": "Ahmad Fauzi",
       "username": "ahmadfz",
       "email": "ahmadfz@gmail.com",
-      "noHp": "081234567890",
+      "password": "pass1234",
       "alamat": "Jl. Cimanuk No.45, Tarogong Kidul, Garut",
       "biodata": "",
       "kecamatan": "CISEWU",
       "desa": "",
       "no_hp": "081234567890",
       "id": "1",
-      "password": "123"
+      "verified": true,
+      "suspendedUntil": "2025-10-16T04:55:45.236Z",
+      "suspend": null,
+      "banned": true,
+      "bannedAt": "2025-10-17T13:30:20.640Z"
     },
     {
       "id": "2",
@@ -25,8 +29,9 @@
       "desa": "Bagendit",
       "alamat": "Jl. Raya Bagendit No.12, Banyuresmi, Garut",
       "joinedAt": "05/05/2025 15:08:12",
-      "verified": false,
-      "banned": true
+      "verified": true,
+      "banned": false,
+      "suspendedUntil": null
     },
     {
       "id": "3",
@@ -41,7 +46,9 @@
       "alamat": "Kp. Cikajang No.8, Cisurupan, Garut",
       "joinedAt": "27/07/2025 10:55:37",
       "verified": true,
-      "suspend": null
+      "suspend": null,
+      "banned": true,
+      "bannedAt": "2025-10-17T13:57:57.333Z"
     },
     {
       "id": "4",
@@ -54,7 +61,10 @@
       "kecamatan": "Leles",
       "desa": "Wanaraja",
       "alamat": "Jl. Raya Leles No.23, Leles, Garut",
-      "joinedAt": "09/09/2025 19:20:44"
+      "joinedAt": "09/09/2025 19:20:44",
+      "verified": true,
+      "banned": true,
+      "bannedAt": "2025-10-17T13:57:14.166Z"
     },
     {
       "id": "5",
@@ -81,7 +91,8 @@
       "alamat": "RT 04 / RW 02",
       "role": "user",
       "joinedAt": "14/10/2025 11:21:00",
-      "verified": true
+      "verified": true,
+      "suspendedUntil": "2025-10-20"
     },
     {
       "id": "93ce",
@@ -106,8 +117,8 @@
       "namaProperti": "Kost Bagendit Indah",
       "tipeProperti": "Kos",
       "jenisProperti": "sewa",
-      "periodeSewa": "/1 bulan",
-      "harga": 750000,
+      "periodeSewa": "/1 tahun",
+      "harga": "9000000",
       "luasTanah": 200,
       "luasBangunan": 150,
       "kamarTidur": 10,
@@ -125,7 +136,9 @@
       "koordinat": {
         "lat": -7.1903,
         "lng": 107.9337
-      }
+      },
+      "periodeAngka": 1,
+      "periodeSatuan": "tahun"
     },
     {
       "id": "3",
@@ -133,8 +146,8 @@
       "namaProperti": "Ruko Strategis Cisurupan",
       "tipeProperti": "Ruko",
       "jenisProperti": "cicilan",
-      "periodeSewa": null,
-      "harga": 650000000,
+      "periodeSewa": "",
+      "harga": "6499999998",
       "luasTanah": 100,
       "luasBangunan": 120,
       "kamarTidur": 0,
@@ -152,7 +165,9 @@
       "koordinat": {
         "lat": -7.3064,
         "lng": 107.8753
-      }
+      },
+      "periodeAngka": "",
+      "periodeSatuan": "bulan"
     },
     {
       "id": "4",
@@ -182,71 +197,163 @@
       }
     },
     {
-      "id": "576e",
+      "id": "c162",
       "namaProperti": "Loli",
-      "jenisProperti": "Sewa",
+      "jenisProperti": "sewa",
       "tipeProperti": "Kost",
-      "lokasi": "Nusa Indah, Garut",
-      "harga": "249999",
-      "periodeSewa": "/13 tahun",
-      "deskripsi": "carita.na testing koneksi backend+update db+input post",
+      "harga": "250000",
+      "luasTanah": 152,
+      "luasBangunan": "48",
+      "kamarTidur": 1,
+      "kamarMandi": 2,
+      "lokasi": "Jl. Cimanuk No.45, Tarogong Kidul, Garut",
+      "kecamatan": "Tar Dulu",
+      "desa": "Sukajaya",
+      "deskripsi": "Fitur ini digunakan untuk memastikan sistem backend dan frontend berfungsi dengan baik. Test database memeriksa koneksi ke database, menjalankan operasi CRUD, dan menampilkan log kesalahan jika terjadi masalah. Test koneksi menguji endpoint API, memverifikasi response code dan kestabilan koneksi. Test gambar memastikan sistem dapat menerima, menyimpan, dan menampilkan file gambar dengan format dan ukuran yang valid, termasuk preview upload. Proses ini membantu mendeteksi masalah sejak awal, memastikan integritas data, koneksi stabil, dan upload file berjalan lancar, sehingga sistem siap digunakan sebelum deployment.",
       "statusPostingan": "approved",
       "ownerId": "5",
-      "postedAt": "15/10/2025 00:09:41"
-    },
-    {
-      "id": "b1df",
-      "namaProperti": "jows house",
-      "jenisProperti": "Sewa",
-      "tipeProperti": "Villa",
-      "harga": 120000,
-      "luasTanah": 1200,
-      "luasBangunan": 1000,
-      "kamarTidur": 2,
-      "kamarMandi": 0,
-      "lokasi": "margawati city",
-      "kecamatan": "GARUT KOTA",
-      "desa": "desi",
-      "deskripsi": "Villa murah",
-      "statusPostingan": "approved",
-      "ownerId": "5",
-      "postedAt": "15/10/2025 20:27:20",
+      "postedAt": "15/10/2025 18:52:08",
       "koordinat": {
         "lat": 0,
         "lng": 0
       },
       "media": [
-        "1760534839995-614422439.jpg",
-        "1760534839999-129335404.jpeg",
-        "1760534840000-192795938.jpg"
+        "1760529128364-62399065.png",
+        "1760529128439-751578138.png",
+        "1760529128470-485992763.png",
+        "1760529128459-481005157.png"
       ],
-      "periodeSewa": "/3 bulan"
+      "periodeSewa": "/13 tahun",
+      "periodeAngka": 13,
+      "periodeSatuan": "tahun"
     },
     {
-      "id": "ee50",
-      "namaProperti": "Rumah Impian",
+      "id": "a4b1",
+      "ownerId": "3",
+      "namaProperti": "Villa Sejuk di Kaki Gunung",
+      "tipeProperti": "Villa",
+      "jenisProperti": "sewa",
+      "periodeSewa": "/1 bulan",
+      "harga": 15000000,
+      "luasTanah": 500,
+      "luasBangunan": 250,
+      "kamarTidur": 4,
+      "kamarMandi": 3,
+      "lokasi": "Jalan Raya Samarang, Kp. Sampireun, Garut",
+      "kecamatan": "Samarang",
+      "desa": "Sukakarya",
+      "deskripsi": "Villa dengan pemandangan langsung ke pegunungan, udara sejuk dan fasilitas lengkap. Baru diajukan untuk disewakan.",
+      "media": [
+        "villa_samarang_1.jpg",
+        "villa_samarang_2.jpg",
+        "villa_samarang_3.jpg"
+      ],
+      "statusPostingan": "approved",
+      "postedAt": "15/10/2025 19:30:00",
+      "koordinat": {
+        "lat": -7.2512,
+        "lng": 107.8855
+      }
+    },
+    {
+      "id": "e5ca",
+      "namaProperti": "Loli 2",
       "jenisProperti": "Jual",
       "tipeProperti": "Rumah",
-      "harga": 1200000,
-      "luasTanah": 1222,
-      "luasBangunan": 998,
-      "kamarTidur": 4,
-      "kamarMandi": 2,
-      "lokasi": "margawati city",
-      "kecamatan": "GARUT KOTA",
-      "desa": "lebak",
-      "deskripsi": "hade weh",
-      "statusPostingan": "approved",
+      "lokasi": "Jl. Cimanuk No.45, Tarogong Kidul, Garut",
+      "kecamatan": "Tar Dulu",
+      "desa": "Sukagila",
+      "harga": 2131231,
+      "luasTanah": 145,
+      "luasBangunan": 1234,
+      "kamarTidur": 11,
+      "kamarMandi": 21,
+      "periodeAngka": "",
+      "periodeSatuan": "bulan",
+      "deskripsi": "Kalau mau, aku bisa bikin versi ini siap pakai langsung tanpa perlu constant.js sama sekali, biar jelas 100% jalan di local. Mau aku buatkan?",
+      "media": [
+        "1760549704833-559812455.png",
+        "1760549704889-364435619.png",
+        "1760549704910-455585677.png",
+        "1760549704917-848736875.png"
+      ],
       "ownerId": "5",
-      "postedAt": "15/10/2025 20:53:27",
+      "statusPostingan": "approved",
+      "postedAt": "2025-10-15T17:35:04.953Z",
       "koordinat": {
         "lat": 0,
         "lng": 0
       },
+      "periodeSewa": ""
+    },
+    {
+      "id": "7558",
+      "namaProperti": "Bomb",
+      "jenisProperti": "Sewa",
+      "tipeProperti": "Rumah",
+      "lokasi": "Nusa Indah, Garut",
+      "kecamatan": "Tar Dulu",
+      "desa": "Sukajaya",
+      "harga": 12312123,
+      "luasTanah": 123,
+      "luasBangunan": 12,
+      "kamarTidur": 32,
+      "kamarMandi": 1,
+      "periodeAngka": "15",
+      "periodeSatuan": "tahun",
+      "deskripsi": "Lopem Ipsum",
       "media": [
-        "1760536407187-203472160.jpg",
-        "1760536407190-663924707.jpg",
-        "1760536407191-720085996.jpg"
+        "1760704942936-73698856.jpeg",
+        "1760704942940-187252914.jpg",
+        "1760704942945-45421030.jpg",
+        "1760704942946-905691715.jpg"
+      ],
+      "ownerId": "5",
+      "statusPostingan": "approved",
+      "postedAt": "2025-10-17T12:42:23.028Z",
+      "koordinat": {
+        "lat": 0,
+        "lng": 0
+      },
+      "periodeSewa": "/15 tahun"
+    },
+    {
+      "id": "ecf9",
+      "namaProperti": "Kost Bagendit Indah",
+      "jenisProperti": "Sewa",
+      "tipeProperti": "Ruko",
+      "lokasi": "Nusa Indah, Garut",
+      "kecamatan": "BANYURESMI",
+      "desa": "SUKARAJA",
+      "harga": 12000,
+      "luasTanah": 1,
+      "luasBangunan": 1,
+      "kamarTidur": 1,
+      "kamarMandi": 1,
+      "periodeAngka": "1",
+      "periodeSatuan": "bulan",
+      "deskripsi": "Lorem Ipsum",
+      "media": [
+        {
+          "url": "blob:http://localhost:5173/6b9a7923-e14a-4e58-ae73-a18a9d380b63",
+          "name": "3.jpg",
+          "type": "image"
+        },
+        {
+          "url": "blob:http://localhost:5173/d7e46ee4-b163-4d46-a83b-27232df6b081",
+          "name": "2.jpg",
+          "type": "image"
+        },
+        {
+          "url": "blob:http://localhost:5173/3a02664c-bc16-4908-89d4-865851ab76d1",
+          "name": "1.jpg",
+          "type": "image"
+        },
+        {
+          "url": "blob:http://localhost:5173/438acc9c-931d-44c5-8847-6a44029aa95c",
+          "name": "1.jpeg",
+          "type": "image"
+        }
       ],
       "periodeSewa": ""
     },
@@ -274,6 +381,9 @@
       "ownerId": "4",
       "statusPostingan": "approved",
       "postedAt": "19/10/2025 15:58:08",
+      "ownerId": "3",
+      "statusPostingan": "approved",
+      "postedAt": "17/10/2025 19:49:14",
       "koordinat": {
         "lat": 0,
         "lng": 0
@@ -497,6 +607,8 @@
       },
       "periodeSewa": "",
       "userId": "4"
+      "periodeSewa": "/1 bulan",
+      "userId": "3"
     }
   ]
 }
