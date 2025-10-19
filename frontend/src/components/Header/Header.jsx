@@ -42,14 +42,12 @@ const Header = () => {
   return (
     <header className={styles.header}>
       <div className={styles.container}>
-        <a
-          href="https://infogarut.id"
-          target="_blank"
-          rel="noopener noreferrer"
+        <NavLink to="/"
           className={styles.logo}
         >
+        
           <img src={logoImage} alt="Logo Propertease Infogarut.id" />
-        </a>
+          </NavLink>
 
         <div className={styles.rightSection}>
           <nav className={styles.nav}>

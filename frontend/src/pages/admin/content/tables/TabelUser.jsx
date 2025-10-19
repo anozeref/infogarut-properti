@@ -72,7 +72,7 @@ const TabelUser = ({
                       <td><div className={styles.truncateText} title={user.username}>{user.username}</div></td>
                       <td><div className={styles.truncateText} title={user.nama}>{user.nama}</div></td>
                       <td className={styles.hideOnSmall}>{user.email}</td>
-                      <td className={styles.hideOnSmall}>{user.noHp}</td>
+                      <td className={styles.hideOnSmall}>{user.no_hp}</td>
                       <td>{userPropsCount}</td>
                       <td className={styles.statusCell}>{renderStatus(user)}</td>
                       <td>{renderDateColumn(user)}</td>

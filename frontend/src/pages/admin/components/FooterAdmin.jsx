@@ -1,17 +1,14 @@
-import React from "react";
-import styles from "./FooterAdmin.module.css";
+import React from 'react';
+import styles from './FooterAdmin.module.css';
 
-const FooterAdmin = () => {
-  // Membuat tahun menjadi dinamis, jadi tidak perlu diubah setiap tahun
+const CopyrightNotice = () => {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className={styles.footer}>
-      <p>
-        © {currentYear} infogarut Properti • Dashboard Admin
-      </p>
-    </footer>
+    <div className={styles.copyrightContainer}>
+      <p>© {currentYear} infogarut Properti - Dashboard Admin</p>
+    </div>
   );
 };
 
-export default FooterAdmin;
+export default CopyrightNotice;

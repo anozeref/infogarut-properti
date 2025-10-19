@@ -54,6 +54,7 @@
 }
 .approved { background-color: #d1fae5; color: #065f46; }
 .pending { background-color: #fef3c7; color: #92400e; }
+.rejected { background-color: #fee2e2; color: #991b1b; } /* BARU DITAMBAHKAN */
 
 .actions { display: flex; align-items: center; gap: 4px; }
 .iconBtn { background: none; border: none; padding: 8px; margin: 0 2px; cursor: pointer; border-radius: 8px; width: 36px; height: 36px; display: inline-flex; align-items: center; justify-content: center; transition: background-color 0.2s; }
