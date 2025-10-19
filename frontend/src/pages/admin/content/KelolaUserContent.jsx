@@ -1,3 +1,4 @@
+// src/pages/admin/content/KelolaUserContent.jsx
 import React, { useState, useEffect, useCallback, useContext } from "react";
 import Swal from "sweetalert2";
 import axios from "axios";
@@ -85,13 +86,16 @@ const KelolaUserContent = () => {
     }
   }, []);
 
+  // Perbaikan listener yang hilang sudah ada di sini
   useEffect(() => {
     fetchData();
     socket.on("userUpdate", fetchData);
     socket.on("propertyUpdate", fetchData);
+    socket.on("update_property", fetchData); // <-- Listener untuk delete properti
     return () => {
       socket.off("userUpdate");
       socket.off("propertyUpdate");
+      socket.off("update_property"); // <-- Cleanup
     };
   }, [fetchData]);
 
@@ -141,7 +145,10 @@ const KelolaUserContent = () => {
       if (result.isConfirmed && result.value) {
         const durationInDays = parseInt(result.value, 10);
         const suspendedUntil = new Date(Date.now() + durationInDays * 24 * 60 * 60 * 1000);
-        const formattedDate = suspendedUntil.toISOString().split('T')[0]; // Format YYYY-MM-DD
+        
+        // <-- PERBAIKAN DI SINI: Menggunakan format kustom agar konsisten
+        const formattedDate = formatToCustomTimestamp(suspendedUntil); // Format DD/MM/YYYY HH:mm:ss
+        
         updateUser(id, { suspendedUntil: formattedDate }, `User disuspend selama ${durationInDays} hari.`);
       }
     });
@@ -157,6 +164,7 @@ const KelolaUserContent = () => {
         showCancelButton: true, confirmButtonText: "Ya, banned", cancelButtonText: "Batal", confirmButtonColor: "#dc3545",
     }).then(res => {
         if (res.isConfirmed) {
+            // Format ini (DD/MM/YYYY HH:mm:ss) sekarang konsisten dengan handleSuspend
             const timestamp = formatToCustomTimestamp(new Date());
             updateUser(id, { banned: true, bannedAt: timestamp }, "User telah dibanned.");
         }
@@ -172,7 +180,7 @@ const KelolaUserContent = () => {
     <>
       {!user.verified && (<motion.button whileHover={{ y: -2 }} className={styles.iconBtn} onClick={() => handleVerify(user.id)} title="Verifikasi User"><FaCheck className={styles.approveIcon} /></motion.button>)}
       <motion.button whileHover={{ y: -2 }} className={styles.iconBtn} onClick={() => handleSuspend(user.id)} title="Suspend User"><FaClock className={styles.suspendIcon} /></motion.button>
-      <motion.button whileHover={{ y: -2 }} className={styles.iconBtn} onClick={() => handleBanned(user.id)} title="Banned User"><FaBan className={styles.deleteIcon} /></motion.button>
+      <motion.button whileHover={{ y: -2 }} className={styles.iconBtn} onClick={() => handleBBanned(user.id)} title="Banned User"><FaBan className={styles.deleteIcon} /></motion.button>
       <motion.button whileHover={{ y: -2 }} className={styles.iconBtn} onClick={() => handleDetail(user)} title="Lihat Detail"><FaInfoCircle className={styles.infoIcon} /></motion.button>
     </>
   );

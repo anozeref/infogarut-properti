@@ -6,7 +6,7 @@ import HomeContent from "./content/HomeContent";
 import KelolaPropertiContent from "./content/KelolaPropertiContent";
 import KelolaUserContent from "./content/KelolaUserContent";
 import TambahPropertiContent from "./content/TambahPropertiContent";
-import PengaturanContent from "./content/PengaturanContent"; // 👈 1. TAMBAHKAN IMPORT INI
+import PengaturanContent from "./content/PengaturanContent"; 
 import { motion } from "framer-motion";
 import styles from "./DashboardAdmin.module.css";
 import { AuthContext } from "../../context/AuthContext";
