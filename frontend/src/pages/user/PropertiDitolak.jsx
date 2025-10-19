@@ -1,4 +1,4 @@
-// PropertiDitolak.jsx
+// frontend/src/pages/user/PropertiDitolak.jsx
 import React, { useEffect, useState, useContext } from "react";
 import axios from "axios";
 import CardProperty from "./components/CardProperty";
@@ -14,7 +14,7 @@ export default function PropertiDitolak() {
   const [properties, setProperties] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // ========================= FETCH DATA =========================
+  // 🔄 Ambil data properti ditolak user
   useEffect(() => {
     if (!user) {
       Swal.fire({
@@ -32,7 +32,7 @@ export default function PropertiDitolak() {
       try {
         const res = await axios.get("http://localhost:3004/properties");
 
-        // ✅ Hanya tampilkan properti yang statusnya ditolak
+        // 🔍 Filter: hanya milik user & status ditolak
         const filtered = res.data
           .filter((prop) => {
             const status = prop.statusPostingan?.toLowerCase();
@@ -41,7 +41,12 @@ export default function PropertiDitolak() {
               ["ditolak", "rejected", "not-approved", "declined", "failed"].includes(status)
             );
           })
-          .sort((a, b) => new Date(b.tanggal) - new Date(a.tanggal));
+          // 🔽 Urutkan dari terbaru
+          .sort(
+            (a, b) =>
+              new Date(b.tanggal || b.postedAt) -
+              new Date(a.tanggal || a.postedAt)
+          );
 
         setProperties(filtered);
       } catch (err) {
@@ -61,7 +66,7 @@ export default function PropertiDitolak() {
     fetchRejectedProperties();
   }, [user, darkMode]);
 
-  // ========================= HANDLE DELETE =========================
+  // 🗑️ Hapus properti
   const handleDelete = async (id) => {
     const confirm = await Swal.fire({
       title: "Hapus Properti?",
@@ -78,7 +83,6 @@ export default function PropertiDitolak() {
 
     try {
       await axios.delete(`http://localhost:3004/properties/${id}`);
-
       setProperties((prev) => prev.filter((p) => p.id !== id));
 
       Swal.fire({
@@ -102,7 +106,7 @@ export default function PropertiDitolak() {
     }
   };
 
-  // ========================= RENDER =========================
+  // 🕒 Loading state
   if (loading) {
     return (
       <div className={`${styles.cardContainer} ${darkMode ? styles.dark : ""}`}>
@@ -111,6 +115,7 @@ export default function PropertiDitolak() {
     );
   }
 
+  // 🚫 Jika user belum login
   if (!user) {
     return (
       <div className={`${styles.cardContainer} ${darkMode ? styles.dark : ""}`}>
@@ -119,6 +124,7 @@ export default function PropertiDitolak() {
     );
   }
 
+  // 💡 Render hasil
   return (
     <div className={`${styles.cardContainer} ${darkMode ? styles.dark : ""}`}>
       <h2 className={styles.pageTitle}>Properti Ditolak</h2>
@@ -126,14 +132,27 @@ export default function PropertiDitolak() {
       {properties.length === 0 ? (
         <p>Tidak ada properti yang ditolak saat ini.</p>
       ) : (
-        <div className={styles.gridContainer}>
+        <div className={styles.gridContainerDitolak}>
           {properties.map((item) => (
             <CardProperty
               key={item.id}
-              {...item}
+              id={item.id}
+              namaProperti={item.namaProperti}
+              tipeProperti={item.tipeProperti}
+              jenisProperti={item.jenisProperti}
+              periodeSewa={item.periodeSewa}
+              harga={item.harga}
+              luasTanah={item.luasTanah}
+              luasBangunan={item.luasBangunan}
+              kamarTidur={item.kamarTidur}
+              kamarMandi={item.kamarMandi}
+              lokasi={item.lokasi}
+              deskripsi={item.deskripsi}
+              media={item.media}
+              status={item.statusPostingan}
               darkMode={darkMode}
               onDelete={() => handleDelete(item.id)}
-              showActions={true} // ✅ Tampilkan tombol Edit & Hapus
+              showActions={true} // ✅ Tampilkan tombol hapus/edit
             />
           ))}
         </div>

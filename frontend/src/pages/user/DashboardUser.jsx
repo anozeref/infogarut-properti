@@ -1,7 +1,14 @@
 import React, { useState, useEffect, useContext, useCallback } from "react";
 import axios from "axios";
-import { Outlet, Routes, Route, useNavigate } from "react-router-dom";
+import {
+  Outlet,
+  Routes,
+  Route,
+  useNavigate,
+  useLocation,
+} from "react-router-dom";
 import { io } from "socket.io-client";
+import Swal from "sweetalert2";
 
 // Context
 import { AuthContext } from "../../context/AuthContext";
@@ -25,103 +32,131 @@ import TambahPropertiUser from "./TambahPropertiUser";
 // Styles
 import styles from "./DashboardUser.module.css";
 
-// Hapus deklarasi socket global untuk menghindari duplikasi
-// const socket = io("http://localhost:3005")
-
 const API_BASE_URL = "http://localhost:3004";
 const SOCKET_SERVER_URL = "http://localhost:3005";
 
 export default function DashboardUser() {
   const { user } = useContext(AuthContext);
   const navigate = useNavigate();
+  const location = useLocation();
 
   const [darkMode, setDarkMode] = useState(false);
   const [latestProperties, setLatestProperties] = useState([]);
-  const [socketInstance, setSocketInstance] = useState(null); // Ubah 'socket' menjadi 'socketInstance'
+  const [socketInstance, setSocketInstance] = useState(null);
 
-  // Ambil properti terbaru (dijadikan useCallback agar tidak membuat fungsi baru setiap render)
+  // === Ambil properti terbaru ===
   const fetchLatestProperties = useCallback(() => {
-    if (user?.id) {
-      axios
-        .get(`${API_BASE_URL}/properties`)
-        .then((res) => {
-          // Filter, sort, dan slice di sisi klien
-          const activeProps = res.data
-            .filter(
-              (p) =>
-                String(p.ownerId) === String(user.id) &&
-                p.statusPostingan === "approved"
-            )
-            .sort((a, b) => b.id - a.id)
-            .slice(0, 4);
-          setLatestProperties(activeProps);
-        })
-        .catch((err) => console.error("Gagal ambil data properti:", err));
-    }
-  }, [user?.id]); // Dependensi user.id agar hanya dibuat ulang jika ID berubah
+    if (!user?.id) return;
+    axios
+      .get(`${API_BASE_URL}/properties`)
+      .then((res) => {
+        const activeProps = res.data
+          .filter(
+            (p) =>
+              String(p.ownerId) === String(user.id) &&
+              p.statusPostingan === "approved"
+          )
+          .sort((a, b) => {
+            const parseDate = (postedAt) => {
+              if (!postedAt) return new Date(0);
+              const [datePart, timePart] = postedAt.split(" ");
+              const [day, month, year] = datePart.split("/");
+              return new Date(`${year}-${month}-${day}T${timePart}`);
+            };
+            return parseDate(b.postedAt) - parseDate(a.postedAt);
+          })
+          .slice(0, 3);
 
-  // ✅ Setup Socket.IO Client
+        setLatestProperties(activeProps);
+      })
+      .catch((err) => console.error("❌ Gagal ambil data properti:", err));
+  }, [user?.id]);
+
+  // === Setup Socket.IO Client ===
   useEffect(() => {
-    // Pastikan user sudah ada sebelum mencoba koneksi dan join room
     if (!user?.id) return;
 
-    // Inisialisasi socket client
-    const newSocket = io(SOCKET_SERVER_URL, {
-      transports: ["websocket", "polling"],
+    const socket = io(SOCKET_SERVER_URL, {
+      transports: ["websocket"],
       reconnection: true,
       reconnectionAttempts: 10,
       reconnectionDelay: 1000,
-      query: { userId: user.id }, // Opsi: Kirim ID user saat koneksi
+      query: { userId: user.id },
     });
 
-    // Join room khusus user
-    newSocket.emit("joinUserRoom", user.id);
-    console.log(`Socket.IO: User ${user.id} bergabung ke ruangan.`);
+    socket.emit("joinUserRoom", user.id);
+    console.log(`👤 Socket.IO: User ${user.id} bergabung ke ruangan.`);
 
-    // Event: properti update khusus user
-    const handlePropertyUpdate = (data) => {
-      // Notifikasi akan diterima jika ownerId properti cocok dengan user yang sedang login
-      if (data.ownerId === user.id) {
+    // === Saat properti disetujui / ditolak / diubah ===
+    socket.on("propertyStatusUpdated", (data) => {
+      if (String(data.ownerId) === String(user.id)) {
         const statusText =
           data.statusPostingan === "approved"
-            ? "disetujui (Aktif) 🟢"
+            ? "disetujui 🟢"
             : data.statusPostingan === "pending"
-            ? "diubah menjadi Pending 🟡"
+            ? "menunggu persetujuan 🟡"
             : data.statusPostingan === "rejected"
             ? "ditolak 🔴"
             : "diperbarui";
 
-        alert(
-          `🔔 Notifikasi Properti:\nProperti "${data.namaProperti}" telah ${statusText} oleh admin. Silakan cek di Dashboard Anda.`
-        );
+        Swal.fire({
+          toast: true,
+          position: "top-end",
+          icon: "info",
+          title: `Properti "${data.namaProperti}" telah ${statusText}.`,
+          showConfirmButton: false,
+          timer: 3000,
+          timerProgressBar: true,
+          background: darkMode ? "#1e1e1e" : "#fff",
+          color: darkMode ? "#eee" : "#333",
+        });
 
-        // Panggil fungsi untuk memuat ulang data setelah update
         fetchLatestProperties();
       }
-    };
+    });
 
-    newSocket.on("propertyStatusUpdated", handlePropertyUpdate);
+    // === Saat properti baru di-upload ===
+    socket.on("notif_upload", (data) => {
+      console.log("📢 Properti baru diupload:", data);
+      Swal.fire({
+        toast: true,
+        position: "top-end",
+        icon: "success",
+        title: data.message || "Properti baru berhasil diupload!",
+        showConfirmButton: false,
+        timer: 3000,
+        timerProgressBar: true,
+        background: darkMode ? "#1e1e1e" : "#fff",
+        color: darkMode ? "#eee" : "#333",
+      });
 
-    // Simpan socket di state supaya bisa dipakai di komponen lain jika perlu
-    setSocketInstance(newSocket);
+      fetchLatestProperties(); // 🔁 langsung ambil ulang data
+    });
 
-    // Bersihkan socket saat unmount
+    // === Saat reconnect otomatis join ulang ===
+    socket.on("connect", () => {
+      console.log("🟢 Socket connected:", socket.id);
+      socket.emit("joinUserRoom", user.id);
+    });
+
+    socket.on("disconnect", () => {
+      console.log("🔴 Socket disconnected:", socket.id);
+    });
+
+    setSocketInstance(socket);
+
     return () => {
-      newSocket.off("propertyStatusUpdated", handlePropertyUpdate); // Hapus listener
-      newSocket.disconnect(); // Putuskan koneksi
-      console.log(`Socket.IO: User ${user.id} keluar dan koneksi diputuskan.`);
+      socket.disconnect();
+      console.log(`👋 Socket.IO: Koneksi user ${user.id} ditutup.`);
     };
-  }, [user, fetchLatestProperties]); // Tambahkan fetchLatestProperties sebagai dependensi
+  }, [user, fetchLatestProperties, darkMode]);
 
-  // Ambil data properti aktif pertama kali (dan setiap kali user berubah atau ada notifikasi)
+  // === Ambil data saat pertama kali ===
   useEffect(() => {
     fetchLatestProperties();
-  }, [fetchLatestProperties]); // Gunakan fetchLatestProperties yang sudah di-memoize
+  }, [fetchLatestProperties]);
 
-  // Toggle dark mode
   const toggleTheme = () => setDarkMode((prev) => !prev);
-
-  // Arahkan ke halaman tambah properti
   const handleAddProperty = () => navigate("/user/tambahproperty");
 
   return (
@@ -140,7 +175,6 @@ export default function DashboardUser() {
         {/* Konten utama */}
         <div style={{ flex: 1, marginLeft: "20px" }}>
           <Routes>
-            {/* Halaman utama Dashboard */}
             <Route
               index
               element={
@@ -168,7 +202,6 @@ export default function DashboardUser() {
                     kamu!
                   </p>
 
-                  {/* 🔹 Bagian Update Properti Aktif */}
                   <section style={{ marginTop: "10px" }}>
                     <h3
                       style={{
@@ -217,38 +250,32 @@ export default function DashboardUser() {
             <Route path="propertisaya" element={<Outlet context={{ darkMode }} />}>
               <Route index element={<PropertiSaya />} />
             </Route>
-
             <Route
               path="propertipending"
               element={<Outlet context={{ darkMode }} />}
             >
               <Route index element={<PropertiPending />} />
             </Route>
-
             <Route
               path="propertiaktif"
               element={<Outlet context={{ darkMode }} />}
             >
               <Route index element={<PropertiAktif />} />
             </Route>
-
             <Route
               path="propertiditolak"
               element={<Outlet context={{ darkMode }} />}
             >
               <Route index element={<PropertiDitolak />} />
             </Route>
-
             <Route
               path="edit-property/:id"
               element={<EditProperty darkMode={darkMode} />}
             />
-
             <Route
               path="tambahproperty"
               element={<TambahPropertiUser darkMode={darkMode} />}
             />
-
             <Route
               path="profileuser"
               element={<ProfileUser darkMode={darkMode} />}
@@ -257,9 +284,14 @@ export default function DashboardUser() {
         </div>
       </div>
 
-      {/* Footer dan tombol tambah */}
+      {/* Footer */}
       <FooterUser darkMode={darkMode} />
-      <AddPropertyButton onClick={handleAddProperty} />
+
+      {/* Tombol tambah properti */}
+      {location.pathname.startsWith("/user") &&
+        !location.pathname.includes("tambahproperty") && (
+          <AddPropertyButton onClick={handleAddProperty} />
+        )}
     </div>
   );
 }

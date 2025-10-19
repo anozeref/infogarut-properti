@@ -14,7 +14,7 @@ export default function SidebarUser({ darkMode }) {
     <div
       className={styles.sidebar}
       style={{
-        backgroundColor: darkMode ? "#1f1f1f" : "#ffffff",
+        backgroundColor: darkMode ? "#1f2937" : "#ffffff",
         color: darkMode ? "#f1f1f1" : "#333",
         borderRight: darkMode ? "1px solid #333" : "1px solid #ddd",
         transition: "background 0.3s ease, color 0.3s ease",
