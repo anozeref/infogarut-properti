@@ -5,7 +5,7 @@ import { FaTimes, FaImage, FaSave } from "react-icons/fa";
 import styles from "./EditPropertyModal.module.css";
 import axios from "axios";
 import Swal from "sweetalert2";
-import { API_URL } from "../../../../utils/constant";
+import { API_URL } from "../../../../../utils/constant";
 
 export default function EditPropertyModal({ data, onClose, onSave }) {
   const [isSaving, setIsSaving] = useState(false);
@@ -28,21 +28,17 @@ export default function EditPropertyModal({ data, onClose, onSave }) {
   });
 
   const [mediaItems, setMediaItems] = useState([]);
-
   useEffect(() => {
-    const initialMedia = (data.media || []).map((fileName) => ({
-      id: `existing-${fileName}-${Math.random()}`, file: fileName, url: `${API_URL}/media/${fileName}`, isNew: false,
+      const initialMedia = (data.media || []).map((fileName) => ({
+      id: `existing-${fileName}-${Math.random()}`,
+      file: fileName,
+      url: `http://localhost:3005/media/${fileName}`,
+      isNew: false,
     }));
     setMediaItems(initialMedia);
-  }, [data.media]);
+  }, [data.media]); // Dependensi tetap data.media
 
-  const handleChange = (e) => setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
-  
-  // Fungsi handleFileChange, removeMedia, handleDragStart, allowDrop, handleDrop
-  // tidak saya tampilkan di sini karena Anda bilang "kode tidak berubah"
-  // tapi di kode final, pastikan mereka ada.
-  // Untuk kepastian, saya akan tambahkan implementasi dasarnya
-  
+  const handleChange = (e) => setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));  
   const handleFileChange = (e) => {
     const files = Array.from(e.target.files);
     const totalFiles = mediaItems.length + files.length;

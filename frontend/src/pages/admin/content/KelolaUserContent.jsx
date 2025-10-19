@@ -8,20 +8,17 @@ import { motion } from "framer-motion";
 import { ThemeContext } from "../DashboardAdmin";
 import styles from "./KelolaUserContent.module.css";
 import { API_URL } from "../../../utils/constant";
-import TabelUser from "./tables/TabelUser";
+import TabelUser from "./components/tables/TabelUser";
 import ModalUser from "./ModalUser";
 
+// Socket global (tetap aman untuk file ini karena lifecycle-nya berbeda)
 const socket = io("http://localhost:3005");
 
-/**
- * Formats a Date object to "DD/MM/YYYY HH:mm:ss".
- * @param {Date} date The date object to format.
- * @returns {string} The formatted timestamp string.
- */
+// Fungsi format tanggal ke DD/MM/YYYY HH:mm:ss
 const formatToCustomTimestamp = (date) => {
   const pad = (num) => String(num).padStart(2, '0');
   const day = pad(date.getDate());
-  const month = pad(date.getMonth() + 1); // Month is 0-indexed
+  const month = pad(date.getMonth() + 1);
   const year = date.getFullYear();
   const hours = pad(date.getHours());
   const minutes = pad(date.getMinutes());
@@ -29,40 +26,42 @@ const formatToCustomTimestamp = (date) => {
   return `${day}/${month}/${year} ${hours}:${minutes}:${seconds}`;
 };
 
-/**
- * Parses a custom date string "DD/MM/YYYY HH:mm:ss" into a full Indonesian date string.
- * @param {string} dateStr The date string to parse.
- * @returns {string} Formatted Indonesian date string or "-".
- */
+// Fungsi parse tanggal custom DD/MM/YYYY HH:mm:ss ke format panjang Indonesia
 const parseAndFormatDate = (dateStr) => {
   if (!dateStr) return "-";
   const parts = dateStr.split(/[\s/:]+/);
   if (parts.length < 6) return "Format salah";
-  const dateObj = new Date(parts[2], parts[1] - 1, parts[0], parts[3], parts[4], parts[5]);
+  // Urutan: tahun, bulanIndex, hari, jam, menit, detik
+  const dateObj = new Date(parts[2], parts[1] - 1, parts[0], parts[3] || 0, parts[4] || 0, parts[5] || 0);
   if (isNaN(dateObj.getTime())) return "Invalid Date";
   return dateObj.toLocaleString("id-ID", { day: '2-digit', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' });
 };
 
-/**
- * Parses various date string formats (ISO or DD/MM/YYYY) into a short Indonesian date string.
- * @param {string} dateStr The date string to parse.
- * @returns {string} Short formatted Indonesian date string or "-".
- */
-const parseAndFormatShortDate = (dateStr) => {
-    if (!dateStr) return "-";
-    // Handles ISO format like YYYY-MM-DD or YYYY-MM-DDTHH:mm:ss...
-    if (/^\d{4}-\d{2}-\d{2}/.test(dateStr)) { 
+// Fungsi parse tanggal (ISO atau DD/MM/YYYY) menjadi objek Date untuk perbandingan
+const parseDateStringForComparison = (dateStr) => {
+    if (!dateStr) return null;
+    // Handles ISO format like YYYY-MM-DD...
+    if (/^\d{4}-\d{2}-\d{2}/.test(dateStr)) {
         const isoDate = new Date(dateStr);
-        if (isNaN(isoDate.getTime())) return "Invalid Date";
-        return isoDate.toLocaleDateString("id-ID", { year: 'numeric', month: 'short', day: 'numeric' });
+        return isNaN(isoDate.getTime()) ? null : isoDate;
     }
     // Handles custom format DD/MM/YYYY...
     const parts = dateStr.split(/[\s/:]+/);
-    if (parts.length < 3) return "Format salah";
+    if (parts.length < 3) return null;
+    // Urutan: tahun, bulanIndex, hari
     const dateObj = new Date(parts[2], parts[1] - 1, parts[0]);
-    if (isNaN(dateObj.getTime())) return "Invalid Date";
+    // Set jam ke awal hari untuk perbandingan adil
+    dateObj.setHours(0, 0, 0, 0);
+    return isNaN(dateObj.getTime()) ? null : dateObj;
+};
+
+// Fungsi parse tanggal (ISO atau DD/MM/YYYY) ke format pendek Indonesia
+const parseAndFormatShortDate = (dateStr) => {
+    const dateObj = parseDateStringForComparison(dateStr);
+    if (!dateObj) return dateStr ? "Format salah" : "-";
     return dateObj.toLocaleDateString("id-ID", { year: 'numeric', month: 'short', day: 'numeric' });
 };
+
 
 const KelolaUserContent = () => {
   const { theme } = useContext(ThemeContext);
@@ -86,16 +85,16 @@ const KelolaUserContent = () => {
     }
   }, []);
 
-  // Perbaikan listener yang hilang sudah ada di sini
   useEffect(() => {
     fetchData();
+    // Gunakan socket global
     socket.on("userUpdate", fetchData);
     socket.on("propertyUpdate", fetchData);
-    socket.on("update_property", fetchData); // <-- Listener untuk delete properti
+    socket.on("update_property", fetchData);
     return () => {
       socket.off("userUpdate");
       socket.off("propertyUpdate");
-      socket.off("update_property"); // <-- Cleanup
+      socket.off("update_property");
     };
   }, [fetchData]);
 
@@ -134,8 +133,8 @@ const KelolaUserContent = () => {
           <label class="swal-radio-option"><input type="radio" name="suspend_duration" value="14"><span>14 Hari</span></label>
           <label class="swal-radio-option"><input type="radio" name="suspend_duration" value="30"><span>30 Hari</span></label>
         </div>
-      `,
-      customClass: { htmlContainer: 'swal-suspend-override' },
+      `, // Pastikan class CSS ini ada
+      customClass: { htmlContainer: 'swal-suspend-override' }, // Pastikan class CSS ini ada
       showCancelButton: true,
       confirmButtonText: "Suspend",
       cancelButtonText: "Batal",
@@ -145,10 +144,7 @@ const KelolaUserContent = () => {
       if (result.isConfirmed && result.value) {
         const durationInDays = parseInt(result.value, 10);
         const suspendedUntil = new Date(Date.now() + durationInDays * 24 * 60 * 60 * 1000);
-        
-        // <-- PERBAIKAN DI SINI: Menggunakan format kustom agar konsisten
         const formattedDate = formatToCustomTimestamp(suspendedUntil); // Format DD/MM/YYYY HH:mm:ss
-        
         updateUser(id, { suspendedUntil: formattedDate }, `User disuspend selama ${durationInDays} hari.`);
       }
     });
@@ -164,13 +160,12 @@ const KelolaUserContent = () => {
         showCancelButton: true, confirmButtonText: "Ya, banned", cancelButtonText: "Batal", confirmButtonColor: "#dc3545",
     }).then(res => {
         if (res.isConfirmed) {
-            // Format ini (DD/MM/YYYY HH:mm:ss) sekarang konsisten dengan handleSuspend
-            const timestamp = formatToCustomTimestamp(new Date());
+            const timestamp = formatToCustomTimestamp(new Date()); // Format DD/MM/YYYY HH:mm:ss
             updateUser(id, { banned: true, bannedAt: timestamp }, "User telah dibanned.");
         }
     });
   };
-  
+
   const handleDetail = (user) => {
     setSelectedUser({ ...user });
     setModalOpen(true);
@@ -180,7 +175,7 @@ const KelolaUserContent = () => {
     <>
       {!user.verified && (<motion.button whileHover={{ y: -2 }} className={styles.iconBtn} onClick={() => handleVerify(user.id)} title="Verifikasi User"><FaCheck className={styles.approveIcon} /></motion.button>)}
       <motion.button whileHover={{ y: -2 }} className={styles.iconBtn} onClick={() => handleSuspend(user.id)} title="Suspend User"><FaClock className={styles.suspendIcon} /></motion.button>
-      <motion.button whileHover={{ y: -2 }} className={styles.iconBtn} onClick={() => handleBBanned(user.id)} title="Banned User"><FaBan className={styles.deleteIcon} /></motion.button>
+      <motion.button whileHover={{ y: -2 }} className={styles.iconBtn} onClick={() => handleBanned(user.id)} title="Banned User"><FaBan className={styles.deleteIcon} /></motion.button>
       <motion.button whileHover={{ y: -2 }} className={styles.iconBtn} onClick={() => handleDetail(user)} title="Lihat Detail"><FaInfoCircle className={styles.infoIcon} /></motion.button>
     </>
   );
@@ -201,25 +196,44 @@ const KelolaUserContent = () => {
     banned: () => <span className={`${styles.badge} ${styles.banned}`}>Banned</span>,
   };
 
-  const today = new Date();
-  const sortedUsers = [...users].sort((a, b) => new Date(a.joinedAt) < new Date(b.joinedAt) ? 1 : -1);
+  // --- FILTER LOGIC ---
+  const todayStartOfDay = new Date();
+  todayStartOfDay.setHours(0, 0, 0, 0);
+
+  const sortedUsers = [...users].sort((a, b) => {
+      const dateA = parseDateStringForComparison(a.joinedAt);
+      const dateB = parseDateStringForComparison(b.joinedAt);
+      if (dateA && dateB) return dateB - dateA;
+      if (dateA) return -1;
+      if (dateB) return 1;
+      return b.id - a.id;
+  });
+
   const searchLower = searchTerm.toLowerCase();
-  
-  // Filter utama hanya untuk role dan search term
+
   const baseFilteredUsers = sortedUsers
     .filter((u) => u.role !== "admin")
-    .filter((u) => 
-        (u.username?.toLowerCase() || '').includes(searchLower) || 
+    .filter((u) =>
+        (u.username?.toLowerCase() || '').includes(searchLower) ||
         (u.nama?.toLowerCase() || '').includes(searchLower)
     );
 
-  // Filter dinamis berdasarkan toggle (unverified/verified) hanya untuk user aktif
   const activeUsers = baseFilteredUsers
-    .filter((u) => !u.banned && (!u.suspendedUntil || new Date(u.suspendedUntil) < today))
+    .filter((u) => {
+        const suspendedUntilDate = parseDateStringForComparison(u.suspendedUntil);
+        return !u.banned && (!suspendedUntilDate || suspendedUntilDate < todayStartOfDay);
+    })
     .filter((u) => (viewVerified === "verified" ? u.verified : !u.verified));
 
-  const suspendUsers = baseFilteredUsers.filter((u) => u.suspendedUntil && new Date(u.suspendedUntil) >= today && !u.banned);
-  const bannedUsers = baseFilteredUsers.filter((u) => u.banned);
+  // Filter suspend yang sudah diperbaiki
+  const suspendUsers = baseFilteredUsers.filter((u) => {
+      const suspendedUntilDate = parseDateStringForComparison(u.suspendedUntil);
+      return !u.banned && suspendedUntilDate && suspendedUntilDate >= todayStartOfDay;
+  });
+
+  const bannedUsers = baseFilteredUsers.filter((u) => u.banned === true);
+  // --- AKHIR FILTER LOGIC ---
+
 
   if (isLoading) {
     return ( <div className={styles.spinnerContainer}><div className={styles.spinner}></div></div> );
@@ -266,7 +280,7 @@ const KelolaUserContent = () => {
         properties={properties}
         renderActions={renderActionsForSuspend}
         renderStatus={renderStatus.suspend}
-        emptyMessage="Tidak ada user yang sedang disuspend."
+        emptyMessage={searchTerm ? "Tidak ada user suspend yang cocok." : "Tidak ada user yang sedang disuspend."}
         dateColumnHeader="Suspend Berakhir"
         renderDateColumn={(user) => parseAndFormatShortDate(user.suspendedUntil)}
       />
@@ -277,11 +291,11 @@ const KelolaUserContent = () => {
         properties={properties}
         renderActions={renderActionsForBanned}
         renderStatus={renderStatus.banned}
-        emptyMessage="Tidak ada user yang dibanned."
+        emptyMessage={searchTerm ? "Tidak ada user banned yang cocok." : "Tidak ada user yang dibanned."}
         dateColumnHeader="Tanggal Dibanned"
         renderDateColumn={(user) => parseAndFormatShortDate(user.bannedAt)}
       />
-      
+
       {modalOpen && (
         <ModalUser
           open={modalOpen}
@@ -289,7 +303,7 @@ const KelolaUserContent = () => {
           user={selectedUser}
           properties={properties.filter(p => String(p.ownerId) === String(selectedUser.id))}
           theme={theme}
-          joinedDate={parseAndFormatDate(selectedUser.joinedAt)}
+          joinedDate={parseAndFormatDate(selectedUser.joinedAt)} // Modal mungkin butuh format panjang
         />
       )}
     </div>
