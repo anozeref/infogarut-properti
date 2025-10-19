@@ -29,6 +29,38 @@
       "suspendedUntil": null
     }
   ],
-  "properties": [],
+  "properties": [
+    {
+      "id": "c5cc",
+      "namaProperti": "Rumah 2 Lantai Bergaya Klasik di Mondstadt, Dekat Katedral Favonius",
+      "jenisProperti": "Jual",
+      "tipeProperti": "Rumah",
+      "lokasi": "Jl. Cathedral Lane No. 12, Blok Barat, Kota Mondstadt",
+      "kecamatan": "Central Mondstadt",
+      "desa": "Windrise Barat",
+      "harga": 979999999,
+      "luasTanah": 150,
+      "luasBangunan": 220,
+      "kamarTidur": 3,
+      "kamarMandi": 2,
+      "periodeAngka": "",
+      "periodeSatuan": "bulan",
+      "deskripsi": "Dijual rumah pribadi 2 lantai di kawasan inti kota Mondstadt, tidak jauh dari Katedral Favonius dan alun-alun utama.\nRumah ini memiliki arsitektur khas Mondstadt dengan dinding batu dan atap biru bergaya Eropa, menghadap langsung ke arah danau.\nSuasananya sangat tenang, sejuk, dan penuh angin segar dari arah Windrise.\n\nRumah terdiri dari ruang tamu luas, dapur bergaya terbuka, serta balkon di lantai atas yang menghadap menara gereja.\nDekat dengan toko-toko lokal, pelabuhan Mondstadt, dan markas Knights of Favonius.\nSangat cocok bagi keluarga kecil, musisi, atau pendatang yang ingin menikmati ketenangan hidup di kota angin.",
+      "media": [
+        "1760890210990-962512817.png",
+        "1760890211064-380850120.png",
+        "1760890211198-793717666.png",
+        "1760890211284-406507583.png"
+      ],
+      "ownerId": "5",
+      "statusPostingan": "approved",
+      "postedAt": "2025-10-19T16:10:11.508Z",
+      "koordinat": {
+        "lat": 0,
+        "lng": 0
+      },
+      "periodeSewa": ""
+    }
+  ],
   "notifications": []
 }
