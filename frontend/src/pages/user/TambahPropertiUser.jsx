@@ -10,7 +10,7 @@ import { io } from "socket.io-client";
 
 const socket = io("http://localhost:3005");
 
-export default function TambahPropertiUser() {
+export default function TambahPropertiUser({ darkMode }) {
   const { user } = useContext(AuthContext);
   const navigate = useNavigate();
   const fileInputRef = useRef(null);
@@ -39,8 +39,6 @@ export default function TambahPropertiUser() {
 
   const [mediaFiles, setMediaFiles] = useState([]);
   const [mediaPreview, setMediaPreview] = useState([]);
-
-  // === State tambahan untuk wilayah ===
   const [kecamatanList, setKecamatanList] = useState([]);
   const [desaList, setDesaList] = useState([]);
   const [selectedKecamatan, setSelectedKecamatan] = useState("");
@@ -98,7 +96,7 @@ export default function TambahPropertiUser() {
     }
   }, [desaList, form.desa]);
 
-  // ===================== HANDLER UMUM =====================
+  // ===================== HANDLER =====================
   const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
 
   const getTimestamp = () => {
@@ -186,7 +184,6 @@ export default function TambahPropertiUser() {
     }
 
     try {
-      // Upload file ke server
       const formDataUpload = new FormData();
       mediaFiles.forEach((f) => formDataUpload.append("media", f));
       const uploadRes = await axios.post("http://localhost:3005/upload", formDataUpload, {
@@ -208,8 +205,6 @@ export default function TambahPropertiUser() {
         postedAt: getTimestamp(),
         media: mediaNames,
         statusPostingan: "pending",
-        postedAt : getTimestamp(),
-        media:[],
       };
 
       const res = await axios.post("http://localhost:3004/properties", propertyData);
@@ -254,9 +249,27 @@ export default function TambahPropertiUser() {
     }
   };
 
+  // ===================== STYLE MODE =====================
+  const containerStyle = {
+    backgroundColor: darkMode ? "#0d1117" : "#f9f9f9",
+    color: darkMode ? "#f1f1f1" : "#1e1e1e",
+    minHeight: "100vh",
+    padding: "20px",
+    borderRadius: "12px",
+    transition: "background 0.3s ease, color 0.3s ease",
+  };
+
+  const inputStyle = {
+    backgroundColor: darkMode ? "#161b22" : "#fff",
+    color: darkMode ? "#e6edf3" : "#1e1e1e",
+    border: darkMode ? "1px solid #30363d" : "1px solid #ccc",
+    transition: "all 0.3s ease",
+  };
+
   return (
     <motion.div
       className="container mt-4"
+      style={containerStyle}
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4 }}
@@ -265,8 +278,8 @@ export default function TambahPropertiUser() {
 
       <form onSubmit={handleSubmit}>
         <div className="row">
+          {/* FORM BAGIAN KIRI */}
           <div className="col-md-6">
-            {/* FORM BAGIAN KIRI */}
             <label>Nama Properti</label>
             <input
               type="text"
@@ -274,34 +287,37 @@ export default function TambahPropertiUser() {
               value={form.namaProperti}
               onChange={handleChange}
               className="form-control mb-2"
+              style={inputStyle}
               required
             />
-
             <label>Jenis Properti</label>
             <select
               name="jenisProperti"
               value={form.jenisProperti}
               onChange={handleChange}
               className="form-control mb-2"
+              style={inputStyle}
             >
               <option>Jual</option>
               <option>Sewa</option>
               <option>Cicilan</option>
             </select>
-
             <label>Tipe Properti</label>
             <select
               name="tipeProperti"
               value={form.tipeProperti}
               onChange={handleChange}
               className="form-control mb-2"
+              style={inputStyle}
             >
               <option>Rumah</option>
+              <option>Tanah</option>
+              <option>Villa</option>
               <option>Kost</option>
               <option>Ruko</option>
-              <option>Villa</option>
+              <option>Apartemen</option>
+              <option>Perumahan</option>
             </select>
-
             <label>Harga</label>
             <input
               type="number"
@@ -309,9 +325,9 @@ export default function TambahPropertiUser() {
               value={form.harga}
               onChange={handleChange}
               className="form-control mb-2"
+              style={inputStyle}
               required
             />
-
             {form.jenisProperti === "Sewa" && (
               <>
                 <label>Periode Sewa</label>
@@ -323,6 +339,7 @@ export default function TambahPropertiUser() {
                     onChange={handleChange}
                     placeholder="Jumlah"
                     className="form-control"
+                    style={inputStyle}
                     required
                   />
                   <select
@@ -330,6 +347,7 @@ export default function TambahPropertiUser() {
                     value={form.periodeSatuan}
                     onChange={handleChange}
                     className="form-control"
+                    style={inputStyle}
                   >
                     <option value="bulan">Bulan</option>
                     <option value="tahun">Tahun</option>
@@ -337,13 +355,13 @@ export default function TambahPropertiUser() {
                 </div>
               </>
             )}
-
             <label>Deskripsi</label>
             <textarea
               name="deskripsi"
               value={form.deskripsi}
               onChange={handleChange}
               className="form-control mb-3"
+              style={inputStyle}
             ></textarea>
           </div>
 
@@ -356,10 +374,9 @@ export default function TambahPropertiUser() {
               value={form.lokasi}
               onChange={handleChange}
               className="form-control mb-2"
+              style={inputStyle}
               required
             />
-
-            {/* Dropdown kecamatan dan desa */}
             <label>Kecamatan</label>
             <select
               name="kecamatan"
@@ -370,6 +387,7 @@ export default function TambahPropertiUser() {
                 setSelectedKecamatan(selected ? selected.id : "");
               }}
               className="form-select mb-2"
+              style={inputStyle}
             >
               <option value="">-- Pilih Kecamatan --</option>
               {kecamatanList.map((kec) => (
@@ -378,7 +396,6 @@ export default function TambahPropertiUser() {
                 </option>
               ))}
             </select>
-
             <label>Desa</label>
             <select
               name="desa"
@@ -389,6 +406,7 @@ export default function TambahPropertiUser() {
                 setSelectedDesa(selected ? selected.id : "");
               }}
               className="form-select mb-2"
+              style={inputStyle}
               disabled={!selectedKecamatan}
             >
               <option value="">-- Pilih Desa --</option>
@@ -398,7 +416,6 @@ export default function TambahPropertiUser() {
                 </option>
               ))}
             </select>
-
             <label>Luas Tanah (m²)</label>
             <input
               type="number"
@@ -406,8 +423,8 @@ export default function TambahPropertiUser() {
               value={form.luasTanah}
               onChange={handleChange}
               className="form-control mb-2"
+              style={inputStyle}
             />
-
             <label>Luas Bangunan (m²)</label>
             <input
               type="number"
@@ -415,8 +432,8 @@ export default function TambahPropertiUser() {
               value={form.luasBangunan}
               onChange={handleChange}
               className="form-control mb-2"
+              style={inputStyle}
             />
-
             <label>Kamar Tidur</label>
             <input
               type="number"
@@ -424,8 +441,8 @@ export default function TambahPropertiUser() {
               value={form.kamarTidur}
               onChange={handleChange}
               className="form-control mb-2"
+              style={inputStyle}
             />
-
             <label>Kamar Mandi</label>
             <input
               type="number"
@@ -433,8 +450,8 @@ export default function TambahPropertiUser() {
               value={form.kamarMandi}
               onChange={handleChange}
               className="form-control mb-3"
+              style={inputStyle}
             />
-
             <label>Upload Media (Foto/Video)</label>
             <input
               type="file"
@@ -443,8 +460,8 @@ export default function TambahPropertiUser() {
               onChange={handleFileChange}
               ref={fileInputRef}
               className="form-control mb-2"
+              style={inputStyle}
             />
-
             <div className="d-flex flex-wrap gap-2">
               {mediaPreview.map((m, idx) => (
                 <div

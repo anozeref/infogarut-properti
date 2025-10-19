@@ -269,7 +269,7 @@
 /* 🌙 DARK MODE */
 .dark-mode body,
 .dark-mode .container {
-  background-color: #0f172a !important;
+  background-color: #7390d3 !important;
   color: #f8fafc !important;
 }
 
@@ -346,6 +346,104 @@
 .dark-mode .submitBtn:hover {
   background-color: #7c81ff !important;
   box-shadow: 0 0 10px rgba(99, 102, 241, 0.5);
+}
+/* 🌙 Tambahan DARK MODE untuk Form Tambah Properti */
+.dark-mode .form-control,
+.dark-mode .form-select {
+  background-color: #1e293b !important;
+  border: 1px solid #334155 !important;
+  color: #f8fafc !important;
+}
+
+.dark-mode .form-control:focus,
+.dark-mode .form-select:focus {
+  background-color: #0f172a !important;
+  border-color: #6366f1 !important;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.25) !important;
+  color: #fff !important;
+}
+
+.dark-mode label {
+  color: #cbd5e1 !important;
+}
+
+.dark-mode textarea.form-control {
+  background-color: #1e293b !important;
+  border-color: #334155 !important;
+  color: #f8fafc !important;
+}
+
+.dark-mode input[type="file"] {
+  background-color: #1e293b !important;
+  border-color: #334155 !important;
+  color: #f8fafc !important;
+}
+
+.dark-mode input[type="file"]::file-selector-button {
+  background-color: #334155 !important;
+  color: #e2e8f0 !important;
+  border: none !important;
+  border-radius: 6px !important;
+  padding: 6px 12px !important;
+  margin-right: 8px !important;
+  cursor: pointer !important;
+  transition: background 0.2s ease !important;
+}
+
+.dark-mode input[type="file"]::file-selector-button:hover {
+  background-color: #1f75ec !important;
+}
+
+.dark-mode .btn-primary {
+  background-color: #6366f1 !important;
+  border-color: #6366f1 !important;
+  color: #fff !important;
+  transition: all 0.3s ease;
+}
+
+.dark-mode .btn-primary:hover {
+  background-color: #7c81ff !important;
+  box-shadow: 0 0 10px rgba(99, 102, 241, 0.5);
+}
+
+.dark-mode .btn-danger {
+  background-color: #dc2626 !important;
+  border-color: #b91c1c !important;
+}
+
+.dark-mode .btn-danger:hover {
+  background-color: #ef4444 !important;
+}
+
+/* Preview media (foto/video) */
+.dark-mode .position-relative {
+  background-color: #1e293b !important;
+  border: 1px solid #334155 !important;
+}
+
+.dark-mode video {
+  background-color: #0f172a !important;
+}
+
+.dark-mode img {
+  border: 1px solid #334155 !important;
+}
+
+/* Grid form (row/col) */
+.dark-mode .row {
+  color: #f1f5f9 !important;
+}
+
+/* Motion button (Framer Motion) */
+.dark-mode .btn.w-100 {
+  background-color: #6366f1 !important;
+  color: #fff !important;
+  border: none !important;
+}
+
+.dark-mode .btn.w-100:hover {
+  background-color: #7c81ff !important;
+  box-shadow: 0 0 8px rgba(99, 102, 241, 0.6);
 }
 
 /* ✨ Animasi lembut saat muncul */

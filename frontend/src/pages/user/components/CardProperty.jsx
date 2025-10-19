@@ -37,7 +37,23 @@ export default function CardProperty({
   const fallbackImage =
     "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=600&q=60";
 
-  const image = Array.isArray(media) && media.length > 0 ? media[0] : fallbackImage;
+  // ✅ Ambil URL gambar utama
+  let image = fallbackImage;
+
+  if (Array.isArray(media) && media.length > 0) {
+    const first = media[0];
+    if (typeof first === "object" && first.url) {
+      // kalau data-nya object { url, type }
+      image = first.url.startsWith("http")
+        ? first.url
+        : `http://localhost:3005/media/${first.url}`;
+    } else if (typeof first === "string") {
+      // kalau data-nya string nama file
+      image = first.startsWith("http")
+        ? first
+        : `http://localhost:3005/media/${first}`;
+    }
+  }
 
   const getStatusBadgeStyle = () => {
     if (status === "pending") {
@@ -125,15 +141,24 @@ export default function CardProperty({
           : "0 4px 10px rgba(0,0,0,0.1)",
       }}
     >
-      {/* Gambar */}
+      {/* 🖼️ Media */}
       <div className={styles.imageWrapper}>
-        <img
-          src={image}
-          alt={namaProperti || "Gambar Properti"}
-          loading="lazy"
-          onError={(e) => (e.target.src = fallbackImage)}
-          className={styles.image}
-        />
+        {image.endsWith(".mp4") || image.endsWith(".mov") ? (
+          <video
+            src={image}
+            className={styles.image}
+            controls
+            onError={(e) => (e.target.poster = fallbackImage)}
+          />
+        ) : (
+          <img
+            src={image}
+            alt={namaProperti || "Gambar Properti"}
+            loading="lazy"
+            onError={(e) => (e.target.src = fallbackImage)}
+            className={styles.image}
+          />
+        )}
       </div>
 
       {/* Status Badge */}
@@ -225,13 +250,17 @@ export default function CardProperty({
         {(status === "pending" || status === "ditolak") && (
           <div className={styles.actionButtons}>
             <button
-              className={`${styles.editBtn} ${darkMode ? styles.editBtnDark : ""}`}
+              className={`${styles.editBtn} ${
+                darkMode ? styles.editBtnDark : ""
+              }`}
               onClick={handleEdit}
             >
               <FaEdit />
             </button>
             <button
-              className={`${styles.deleteBtn} ${darkMode ? styles.deleteBtnDark : ""}`}
+              className={`${styles.deleteBtn} ${
+                darkMode ? styles.deleteBtnDark : ""
+              }`}
               onClick={handleDelete}
             >
               <FaTrash />
