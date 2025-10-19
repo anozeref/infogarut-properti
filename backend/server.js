@@ -112,18 +112,6 @@ app.delete("/properties/:id", async (req, res) => {
 app.get("/api/banned-users", async (_, res) => {
   try {
     const { data: users } = await axios.get(`${DB_URL}/users`);
-    const banned = users.filter(u => u.role === "banned" || u.isBanned === true);
-    res.json(banned);
-  } catch (err) {
-    console.error("❌ Fetch banned users error:", err.message);
-    res.status(500).json({ error: "Gagal mengambil data user yang diblokir" });
-  }
-});
-
-// === GET banned users ===
-app.get("/api/banned-users", async (_, res) => {
-  try {
-    const { data: users } = await axios.get(`${DB_URL}/users`);
     const bannedUsers = users.filter(u => u.banned === true);
     res.json(bannedUsers);
   } catch (err) {
