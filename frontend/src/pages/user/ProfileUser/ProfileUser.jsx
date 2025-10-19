@@ -114,55 +114,65 @@ export default function ProfileUser({ darkMode }) {
   };
 
   // ===================== HANDLE SUBMIT PROFIL =====================
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+const handleSubmit = async (e) => {
+  e.preventDefault();
 
-    if (!user || !user.id) {
-      Swal.fire("Oops!", "User belum login.", "warning");
-      return;
-    }
+  if (!user || !user.id) {
+    Swal.fire("Oops!", "User belum login.", "warning");
+    return;
+  }
 
-    const updatedUser = {
-      ...formData,
-      kecamatan: kecamatanList.find((k) => k.id === selectedKecamatan)?.name || "",
-      desa: desaList.find((d) => d.id === selectedDesa)?.name || "",
-      no_hp: formData.noHp,
-    };
+  const updatedProfile = {
+    ...formData,
+    kecamatan: kecamatanList.find((k) => k.id === selectedKecamatan)?.name || "",
+    desa: desaList.find((d) => d.id === selectedDesa)?.name || "",
+    no_hp: formData.noHp,
+  };
 
-    const confirmResult = await Swal.fire({
-      title: "Simpan perubahan?",
-      text: "Data profil kamu akan diperbarui.",
-      icon: "question",
-      showCancelButton: true,
-      confirmButtonColor: "#3085d6",
-      cancelButtonColor: "#d33",
-      confirmButtonText: "Ya, simpan!",
-      cancelButtonText: "Batal",
+  const confirmResult = await Swal.fire({
+    title: "Simpan perubahan?",
+    text: "Data profil kamu akan diperbarui.",
+    icon: "question",
+    showCancelButton: true,
+    confirmButtonColor: "#3085d6",
+    cancelButtonColor: "#d33",
+    confirmButtonText: "Ya, simpan!",
+    cancelButtonText: "Batal",
+  });
+
+  if (!confirmResult.isConfirmed) return;
+
+  try {
+    Swal.fire({
+      title: "Menyimpan data...",
+      text: "Mohon tunggu sebentar.",
+      allowOutsideClick: false,
+      didOpen: () => Swal.showLoading(),
     });
 
-    if (!confirmResult.isConfirmed) return;
+    // Ambil dulu data lama user (supaya password-nya tetap sama)
+    const resGet = await fetch(`http://localhost:3004/users/${user.id}`);
+    const oldData = await resGet.json();
 
-    try {
-      Swal.fire({
-        title: "Menyimpan data...",
-        text: "Mohon tunggu sebentar.",
-        allowOutsideClick: false,
-        didOpen: () => Swal.showLoading(),
-      });
+    // Gabungkan data lama + update baru (password TIDAK diubah)
+    const finalData = { ...oldData, ...updatedProfile, password: oldData.password };
 
-      const res = await fetch(`http://localhost:3004/users/${user.id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(updatedUser),
-      });
+    // Simpan hasil akhir
+    const res = await fetch(`http://localhost:3004/users/${user.id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(finalData),
+    });
 
-      if (!res.ok) throw new Error("Gagal menyimpan data user");
-      Swal.fire("Berhasil!", "Data profil kamu sudah diperbarui.", "success");
-    } catch (err) {
-      console.error("Error saat update data:", err);
-      Swal.fire("Gagal!", "Terjadi kesalahan saat menyimpan data.", "error");
-    }
-  };
+    if (!res.ok) throw new Error("Gagal menyimpan data user");
+
+    Swal.fire("Berhasil!", "Data profil kamu sudah diperbarui.", "success");
+  } catch (err) {
+    console.error("Error saat update data:", err);
+    Swal.fire("Gagal!", "Terjadi kesalahan saat menyimpan data.", "error");
+  }
+};
+
 
   // ===================== HANDLE UBAH PASSWORD =====================
   const handlePasswordChange = async (e) => {
@@ -241,24 +251,6 @@ export default function ProfileUser({ darkMode }) {
           <div className={styles.card}>
             <div className={styles.cardBody}>
               <form className={styles.form} onSubmit={handleSubmit}>
-                {/* Foto Profil */}
-                <div className={styles.photoRow}>
-                  <div className={styles.col}>
-                    <label>Foto Profil</label>
-                    <input type="file" accept="image/*" onChange={handlePhotoChange} />
-                  </div>
-                  <div className={styles.previewFrame}>
-                    {photoPreview ? (
-                      <img src={photoPreview} alt="Foto Profil" className={styles.previewImg} />
-                    ) : (
-                      <div className={styles.emptyFrame}>
-                        <p>Belum ada foto</p>
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-
                 {/* Nama & Username */}
                 <div className={styles.row}>
                   <div className={styles.col6}>

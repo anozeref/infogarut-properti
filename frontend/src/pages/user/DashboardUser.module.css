@@ -1,0 +1,142 @@
+/* 🌿 Container utama dashboard */
+.dashboardContainer {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background-color: #f9fafb;
+  color: #111827;
+  transition: background-color 0.3s ease, color 0.3s ease;
+  font-family: "Poppins", sans-serif;
+}
+
+/* 🌙 Dark mode */
+.dashboardContainer.dark {
+  background-color: #111827;
+  color: #f9fafb;
+}
+
+/* 🧭 Layout utama (Sidebar + Konten) */
+.mainContent {
+  display: flex;
+  flex: 1;
+  width: 100%;
+  gap: 2rem; /* beri jarak antara sidebar dan konten */
+  padding: 0 1.5rem;
+}
+
+/* 🧩 Area isi utama */
+.contentArea {
+  flex: 1;
+  padding: 40px 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  transition: all 0.3s ease;
+  border-radius: 12px;
+}
+
+/* 🏷️ Judul sapaan */
+.greetingTitle {
+  font-size: 1.6rem;
+  font-weight: 700;
+  margin-bottom: 8px;
+  line-height: 1.4;
+}
+
+.greetingSubtitle {
+  font-size: 1rem;
+  color: #4b5563;
+  margin-bottom: 16px;
+}
+
+.dark .greetingSubtitle {
+  color: #d1d5db;
+}
+
+/* 📦 Section konten */
+.section {
+  margin-top: 10px;
+}
+
+.sectionTitle {
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin-bottom: 20px;
+  color: #1f2937;
+}
+
+.dark .sectionTitle {
+  color: #f3f4f6;
+}
+
+/* 🏡 Grid layout properti */
+.propertyGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  gap: 2rem;
+  width: 100%;
+  max-width: 1280px;
+  margin: 0 auto;
+  justify-items: center;
+  align-items: stretch;
+}
+
+/* 📱 Responsif */
+@media (max-width: 1024px) {
+  .mainContent {
+    gap: 1rem;
+    padding: 0 1rem;
+  }
+
+  .contentArea {
+    padding: 28px 20px;
+  }
+
+  .propertyGrid {
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.5rem;
+  }
+}
+
+@media (max-width: 640px) {
+  .propertyGrid {
+    grid-template-columns: 1fr;
+    gap: 1.2rem;
+  }
+
+  .contentArea {
+    padding: 20px;
+  }
+}
+
+/* 🪶 Card wrapper efek hover */
+.cardWrapper {
+  display: flex;
+  justify-content: center;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.cardWrapper:hover {
+  transform: translateY(-6px);
+}
+
+/* 🧭 Footer */
+.footerArea {
+  margin-top: auto;
+}
+
+/* ========================= */
+/* 🌗 MODE DARK DASHBOARD */
+/* ========================= */
+.darkMode {
+  background-color: #111827;
+  color: #f9fafb;
+  transition: background 0.3s ease, color 0.3s ease;
+}
+
+/* 🌞 MODE LIGHT DASHBOARD */
+.lightMode {
+  background-color: #f9fafb;
+  color: #111827;
+  transition: background 0.3s ease, color 0.3s ease;
+}
