@@ -13,6 +13,12 @@ import DetailPropertyModal from "./components/DetailPropertyModal";
 
 const socket = io("http://localhost:3005");
 const adminId = "5";
+
+/**
+ * Parses a date string robustly from various formats (DD/MM/YYYY or ISO).
+ * @param {string} dateString The date string to parse.
+ * @returns {Date} A Date object. Returns epoch time for invalid dates to ensure they sort last.
+ */
 const smartParseDate = (dateString) => {
   if (!dateString) return new Date(0);
   // Handle "DD/MM/YYYY HH:mm:ss" format
@@ -25,6 +31,11 @@ const smartParseDate = (dateString) => {
   return isNaN(date.getTime()) ? new Date(0) : date;
 };
 
+/**
+ * Formats a Date object into a readable Indonesian string.
+ * @param {Date} dateObj The Date object to format.
+ * @returns {string} The formatted date string or "-".
+ */
 const formatDisplayDate = (dateObj) => {
   if (isNaN(dateObj.getTime()) || dateObj.getFullYear() <= 1970) return "-";
   return dateObj.toLocaleString("id-ID", { day: '2-digit', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' });
@@ -63,10 +74,10 @@ export default function KelolaPropertiContent() {
   useEffect(() => {
     fetchData();
     socket.on("propertyUpdate", fetchData);
-    socket.on("update_property", fetchData); // <-- PERBAIKAN 1: Menambahkan listener untuk delete
+    socket.on("update_property", fetchData); // Listener delete (sudah ada)
     return () => {
       socket.off("propertyUpdate");
-      socket.off("update_property"); // <-- PERBAIKAN 1: Menambahkan cleanup
+      socket.off("update_property");
     };
   }, [fetchData]);
 
@@ -76,11 +87,18 @@ export default function KelolaPropertiContent() {
       if (result.isConfirmed) {
         await config.action();
         
-        // <-- PERBAIKAN 2: Cek 'skipSocketEmit'
-        // Ini mencegah sinyal ganda saat menghapus
+        // <-- PERUBAHAN LOGIKA DI SINI -->
         if (config.skipSocketEmit !== true) {
-          socket.emit("propertyUpdate");
+          // Cek apakah ada data notifikasi untuk dikirim
+          if (config.successData) {
+            // Kirim event baru ke server dengan data lengkap
+            socket.emit("adminPropertyUpdate", config.successData);
+          } else {
+            // Fallback (jaga-jaga), kirim event lama
+            socket.emit("propertyUpdate");
+          }
         }
+        // <-- AKHIR PERUBAHAN -->
 
         if (config.successMsg) {
           Swal.fire(config.successMsg.title, config.successMsg.text, "success");
@@ -92,24 +110,38 @@ export default function KelolaPropertiContent() {
     }
   };
 
-  const handleApprove = (id) => handleAction({
+  // Diubah untuk menerima 'prop' (objek) bukan 'id'
+  const handleApprove = (prop) => handleAction({
     swal: { title: "Setujui Properti?", text: "Properti ini akan tampil di publik.", icon: "question", showCancelButton: true, confirmButtonText: "Ya, setujui", cancelButtonText: "Batal", confirmButtonColor: "#3085d6", cancelButtonColor: "#d33" },
-    action: () => axios.patch(`${API_URL}properties/${id}`, { statusPostingan: "approved" }),
+    action: () => axios.patch(`${API_URL}properties/${prop.id}`, { statusPostingan: "approved" }),
     successMsg: { title: "Berhasil!", text: "Properti telah disetujui." },
-    errorMsg: { title: "Gagal!", text: "Terjadi kesalahan saat menyetujui." }
+    errorMsg: { title: "Gagal!", text: "Terjadi kesalahan saat menyetujui." },
+    // Data untuk notifikasi user
+    successData: {
+      ownerId: prop.ownerId,
+      namaProperti: prop.namaProperti,
+      statusPostingan: "approved"
+    }
   });
 
-  const handleReject = (id) => handleAction({
+  // Diubah untuk menerima 'prop' (objek) bukan 'id'
+  const handleReject = (prop) => handleAction({
     swal: { title: "Tolak Properti?", text: "Properti ini akan dipindahkan ke daftar ditolak.", icon: "warning", showCancelButton: true, confirmButtonText: "Ya, tolak", cancelButtonText: "Batal", confirmButtonColor: "#e74c3c", cancelButtonColor: "#6c757d" },
-    action: () => axios.patch(`${API_URL}properties/${id}`, { statusPostingan: "rejected" }),
+    action: () => axios.patch(`${API_URL}properties/${prop.id}`, { statusPostingan: "rejected" }),
     successMsg: { title: "Ditolak!", text: "Properti telah ditandai sebagai ditolak." },
-    errorMsg: { title: "Gagal!", text: "Tidak dapat menolak properti." }
+    errorMsg: { title: "Gagal!", text: "Tidak dapat menolak properti." },
+    // Data untuk notifikasi user
+    successData: {
+      ownerId: prop.ownerId,
+      namaProperti: prop.namaProperti,
+      statusPostingan: "rejected"
+    }
   });
 
   const handleDelete = (id) => handleAction({
     swal: { title: "Hapus Properti?", text: "Data ini akan dihapus permanen.", icon: "warning", showCancelButton: true, confirmButtonText: "Ya, hapus", cancelButtonText: "Batal", confirmButtonColor: "#d33", cancelButtonColor: "#3085d6" },
     action: () => axios.delete(`${API_URL}properties/${id}`),
-    skipSocketEmit: true, // <-- PERBAIKAN 2: Memberi tahu handleAction untuk skip emit
+    skipSocketEmit: true, // Tetap true, delete ditangani 'update_property'
     successMsg: { title: "Terhapus!", text: "Properti telah dihapus." },
     errorMsg: { title: "Gagal!", text: "Tidak dapat menghapus properti." }
   });
@@ -119,7 +151,13 @@ export default function KelolaPropertiContent() {
     action: () => axios.patch(`${API_URL}properties/${updated.id}`, updated),
     onSuccess: () => setEditData(null),
     successMsg: { title: "Tersimpan!", text: "Data properti berhasil diperbarui." },
-    errorMsg: { title: "Gagal!", text: "Tidak dapat menyimpan perubahan." }
+    errorMsg: { title: "Gagal!", text: "Tidak dapat menyimpan perubahan." },
+    // Data untuk notifikasi user (menggunakan data yg sudah diupdate)
+    successData: {
+      ownerId: updated.ownerId,
+      namaProperti: updated.namaProperti,
+      statusPostingan: updated.statusPostingan // status bisa berubah (misal dari pending ke approved)
+    }
   });
 
   const handleEdit = (prop) => setEditData(prop);
@@ -128,8 +166,10 @@ export default function KelolaPropertiContent() {
   const renderActionsPending = (prop) => (
     <>
       <motion.button whileHover={{ y: -2 }} className={styles.iconBtn} onClick={() => handleDetail(prop)} title="Lihat Detail"><FaInfoCircle className={styles.infoIcon} /></motion.button>
-      <motion.button whileHover={{ y: -2 }} className={styles.iconBtn} onClick={() => handleApprove(prop.id)} title="Setujui"><FaCheck className={styles.approveIcon} /></motion.button>
-      <motion.button whileHover={{ y: -2 }} className={styles.iconBtn} onClick={() => handleReject(prop.id)} title="Tolak"><FaTimes className={styles.rejectIcon} /></motion.button>
+      {/* Mengirim seluruh 'prop' */}
+      <motion.button whileHover={{ y: -2 }} className={styles.iconBtn} onClick={() => handleApprove(prop)} title="Setujui"><FaCheck className={styles.approveIcon} /></motion.button>
+      {/* Mengirim seluruh 'prop' */}
+      <motion.button whileHover={{ y: -2 }} className={styles.iconBtn} onClick={() => handleReject(prop)} title="Tolak"><FaTimes className={styles.rejectIcon} /></motion.button>
     </>
   );
 
@@ -143,7 +183,8 @@ export default function KelolaPropertiContent() {
   
   const renderActionsRejected = (prop) => (
     <>
-      <motion.button whileHover={{ y: -2 }} className={styles.iconBtn} onClick={() => handleApprove(prop.id)} title="Setujui Ulang"><FaCheck className={styles.approveIcon} /></motion.button>
+      {/* Mengirim seluruh 'prop' */}
+      <motion.button whileHover={{ y: -2 }} className={styles.iconBtn} onClick={() => handleApprove(prop)} title="Setujui Ulang"><FaCheck className={styles.approveIcon} /></motion.button>
       <motion.button whileHover={{ y: -2 }} className={styles.iconBtn} onClick={() => handleDelete(prop.id)} title="Hapus Permanen"><FaTrash className={styles.deleteIcon} /></motion.button>
     </>
   );
@@ -174,7 +215,7 @@ export default function KelolaPropertiContent() {
         </div>
         <div className={styles.searchContainer}>
           <FaSearch className={styles.searchIcon} />
-          <input type="text" placeholder="Cari judul, lokasi, owner..." className={styles.searchInput} value={globalSearch} onChange={(e) => setGlobalSearch(e.g.value)} />
+          <input type="text" placeholder="Cari judul, lokasi, owner..." className={styles.searchInput} value={globalSearch} onChange={(e) => setGlobalSearch(e.target.value)} />
         </div>
       </div>
       

@@ -63,7 +63,7 @@
       "alamat": "Jl. Raya Leles No.23, Leles, Garut",
       "joinedAt": "09/09/2025 19:20:44",
       "verified": true,
-      "banned": true,
+      "banned": false,
       "bannedAt": "2025-10-17T13:57:14.166Z"
     },
     {
@@ -92,7 +92,7 @@
       "role": "user",
       "joinedAt": "14/10/2025 11:21:00",
       "verified": true,
-      "suspendedUntil": "2025-10-20"
+      "suspendedUntil": null
     },
     {
       "id": "93ce",
@@ -106,8 +106,8 @@
       "alamat": "Jl. Harapan yang tak kunjung Nyata",
       "role": "user",
       "joinedAt": "15/10/2025 11:45:36",
-      "verified": false,
-      "banned": true
+      "verified": true,
+      "banned": false
     }
   ],
   "properties": [
@@ -381,9 +381,6 @@
       "ownerId": "4",
       "statusPostingan": "approved",
       "postedAt": "19/10/2025 15:58:08",
-      "ownerId": "3",
-      "statusPostingan": "approved",
-      "postedAt": "17/10/2025 19:49:14",
       "koordinat": {
         "lat": 0,
         "lng": 0
@@ -607,8 +604,6 @@
       },
       "periodeSewa": "",
       "userId": "4"
-      "periodeSewa": "/1 bulan",
-      "userId": "3"
     }
   ]
 }
