@@ -13,12 +13,6 @@ import DetailPropertyModal from "./components/DetailPropertyModal";
 
 const socket = io("http://localhost:3005");
 const adminId = "5";
-
-/**
- * Parses a date string robustly from various formats (DD/MM/YYYY or ISO).
- * @param {string} dateString The date string to parse.
- * @returns {Date} A Date object. Returns epoch time for invalid dates to ensure they sort last.
- */
 const smartParseDate = (dateString) => {
   if (!dateString) return new Date(0);
   // Handle "DD/MM/YYYY HH:mm:ss" format
@@ -31,11 +25,6 @@ const smartParseDate = (dateString) => {
   return isNaN(date.getTime()) ? new Date(0) : date;
 };
 
-/**
- * Formats a Date object into a readable Indonesian string.
- * @param {Date} dateObj The Date object to format.
- * @returns {string} The formatted date string or "-".
- */
 const formatDisplayDate = (dateObj) => {
   if (isNaN(dateObj.getTime()) || dateObj.getFullYear() <= 1970) return "-";
   return dateObj.toLocaleString("id-ID", { day: '2-digit', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' });
@@ -74,7 +63,11 @@ export default function KelolaPropertiContent() {
   useEffect(() => {
     fetchData();
     socket.on("propertyUpdate", fetchData);
-    return () => socket.off("propertyUpdate");
+    socket.on("update_property", fetchData); // <-- PERBAIKAN 1: Menambahkan listener untuk delete
+    return () => {
+      socket.off("propertyUpdate");
+      socket.off("update_property"); // <-- PERBAIKAN 1: Menambahkan cleanup
+    };
   }, [fetchData]);
 
   const handleAction = async (config) => {
@@ -82,7 +75,13 @@ export default function KelolaPropertiContent() {
       const result = await Swal.fire(config.swal);
       if (result.isConfirmed) {
         await config.action();
-        socket.emit("propertyUpdate");
+        
+        // <-- PERBAIKAN 2: Cek 'skipSocketEmit'
+        // Ini mencegah sinyal ganda saat menghapus
+        if (config.skipSocketEmit !== true) {
+          socket.emit("propertyUpdate");
+        }
+
         if (config.successMsg) {
           Swal.fire(config.successMsg.title, config.successMsg.text, "success");
         }
@@ -110,6 +109,7 @@ export default function KelolaPropertiContent() {
   const handleDelete = (id) => handleAction({
     swal: { title: "Hapus Properti?", text: "Data ini akan dihapus permanen.", icon: "warning", showCancelButton: true, confirmButtonText: "Ya, hapus", cancelButtonText: "Batal", confirmButtonColor: "#d33", cancelButtonColor: "#3085d6" },
     action: () => axios.delete(`${API_URL}properties/${id}`),
+    skipSocketEmit: true, // <-- PERBAIKAN 2: Memberi tahu handleAction untuk skip emit
     successMsg: { title: "Terhapus!", text: "Properti telah dihapus." },
     errorMsg: { title: "Gagal!", text: "Tidak dapat menghapus properti." }
   });
@@ -174,7 +174,7 @@ export default function KelolaPropertiContent() {
         </div>
         <div className={styles.searchContainer}>
           <FaSearch className={styles.searchIcon} />
-          <input type="text" placeholder="Cari judul, lokasi, owner..." className={styles.searchInput} value={globalSearch} onChange={(e) => setGlobalSearch(e.target.value)} />
+          <input type="text" placeholder="Cari judul, lokasi, owner..." className={styles.searchInput} value={globalSearch} onChange={(e) => setGlobalSearch(e.g.value)} />
         </div>
       </div>
       

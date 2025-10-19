@@ -75,11 +75,17 @@ const HomeContent = () => {
 
   useEffect(() => {
     fetchData();
-    // Ganti URL socket io jika diperlukan
     const socket = io("http://localhost:3005");
     socket.on("userUpdate", fetchData);
     socket.on("propertyUpdate", fetchData);
-    return () => socket.disconnect();
+    socket.on("update_property", fetchData); // <-- PERBAIKAN: Menambahkan listener untuk delete
+    
+    return () => {
+      socket.off("userUpdate");
+      socket.off("propertyUpdate");
+      socket.off("update_property"); // <-- PERBAIKAN: Menambahkan cleanup
+      socket.disconnect();
+    };
   }, [fetchData]);
 
   const handleNotifClick = (notif) => {

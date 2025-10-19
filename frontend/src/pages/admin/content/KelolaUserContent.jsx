@@ -1,3 +1,4 @@
+// src/pages/admin/content/KelolaUserContent.jsx
 import React, { useState, useEffect, useCallback, useContext } from "react";
 import Swal from "sweetalert2";
 import axios from "axios";
@@ -89,9 +90,11 @@ const KelolaUserContent = () => {
     fetchData();
     socket.on("userUpdate", fetchData);
     socket.on("propertyUpdate", fetchData);
+    socket.on("update_property", fetchData); // <-- PERBAIKAN: Menambahkan listener untuk delete
     return () => {
       socket.off("userUpdate");
       socket.off("propertyUpdate");
+      socket.off("update_property"); // <-- PERBAIKAN: Menambahkan cleanup
     };
   }, [fetchData]);
 
