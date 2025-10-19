@@ -575,35 +575,37 @@
       "userId": "4"
     },
     {
-      "id": "3e14",
-      "namaProperti": "Tes rumah",
+      "id": "b1cb",
+      "namaProperti": "Rumah 2 Lantai di Mondstadt, Nyaman dan Siap Huni",
       "jenisProperti": "Jual",
       "tipeProperti": "Rumah",
-      "lokasi": "Palih dinya",
-      "kecamatan": "KADUNGORA",
-      "desa": "KADUNGORA",
-      "harga": 12000,
-      "luasTanah": 100,
-      "luasBangunan": 90,
-      "kamarTidur": 2,
-      "kamarMandi": 0,
+      "lokasi": "Jl. Cimanuk No.45, Tarogong Kidul, Garut",
+      "kecamatan": "TAROGONG KIDUL",
+      "desa": "JAYARAGA",
+      "harga": "1250000000",
+      "luasTanah": 120,
+      "luasBangunan": 160,
+      "kamarTidur": 3,
+      "kamarMandi": 2,
       "periodeAngka": "",
       "periodeSatuan": "bulan",
-      "deskripsi": "Manawi",
+      "deskripsi": "Dijual rumah pribadi 2 lantai di kawasan Mondstadt. Kondisi masih sangat terawat, sudah ditempati sendiri sejak baru, dan dijual karena pindah kerja.\nLingkungannya tenang, udara sejuk, dan tetangga ramah. Rumah ini punya 3 kamar tidur, 2 kamar mandi, ruang tamu luas, dapur bersih, serta balkon dengan pemandangan terbuka.\nLokasinya strategis — cuma 5 menit ke pusat kota Mondstadt, dekat sekolah, rumah sakit, dan area perbelanjaan. Cocok untuk keluarga kecil atau pasangan muda yang ingin tinggal di lingkungan nyaman dan aman.",
       "media": [
-        "1760871522865-482987437.jpg",
-        "1760871522870-961081763.jpg",
-        "1760871522888-20040695.jpg"
+        "1760877403271-408687343.png",
+        "1760877403339-816951283.png",
+        "1760877403363-924849073.png",
+        "1760877403396-196466215.png"
       ],
-      "ownerId": "4",
+      "ownerId": "9c47",
       "statusPostingan": "approved",
-      "postedAt": "19/10/2025 17:58:42",
+      "postedAt": "19/10/2025 19:36:43",
       "koordinat": {
         "lat": 0,
         "lng": 0
       },
       "periodeSewa": "",
-      "userId": "4"
+      "userId": "9c47"
     }
-  ]
+  ],
+  "notifications": []
 }

@@ -1,5 +1,5 @@
 // src/pages/admin/content/KelolaPropertiContent.jsx
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import Swal from "sweetalert2";
 import axios from "axios";
 import { io } from "socket.io-client";
@@ -11,14 +11,11 @@ import PropertyTable from "./tables/PropertyTable";
 import EditPropertyModal from "./components/EditPropertyModal";
 import DetailPropertyModal from "./components/DetailPropertyModal";
 
-const socket = io("http://localhost:3005");
+// 1. Hapus socket global
+// const socket = io("http://localhost:3005");
+
 const adminId = "5";
 
-/**
- * Parses a date string robustly from various formats (DD/MM/YYYY or ISO).
- * @param {string} dateString The date string to parse.
- * @returns {Date} A Date object. Returns epoch time for invalid dates to ensure they sort last.
- */
 const smartParseDate = (dateString) => {
   if (!dateString) return new Date(0);
   // Handle "DD/MM/YYYY HH:mm:ss" format
@@ -31,11 +28,6 @@ const smartParseDate = (dateString) => {
   return isNaN(date.getTime()) ? new Date(0) : date;
 };
 
-/**
- * Formats a Date object into a readable Indonesian string.
- * @param {Date} dateObj The Date object to format.
- * @returns {string} The formatted date string or "-".
- */
 const formatDisplayDate = (dateObj) => {
   if (isNaN(dateObj.getTime()) || dateObj.getFullYear() <= 1970) return "-";
   return dateObj.toLocaleString("id-ID", { day: '2-digit', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' });
@@ -50,6 +42,9 @@ export default function KelolaPropertiContent() {
   const [editData, setEditData] = useState(null);
   const [detailData, setDetailData] = useState(null);
   const [globalSearch, setGlobalSearch] = useState("");
+  
+  // 2. Bikin Ref untuk simpan socket
+  const socketRef = useRef(null); 
 
   const getOwnerName = useCallback((ownerId) => {
     const user = users.find(u => String(u.id) === String(ownerId));
@@ -71,13 +66,29 @@ export default function KelolaPropertiContent() {
     }
   }, []);
 
+  // 3. Modifikasi useEffect
   useEffect(() => {
     fetchData();
+
+    // Bikin koneksi socket HANYA jika belum ada
+    if (!socketRef.current) {
+      socketRef.current = io("http://localhost:3005");
+    }
+    
+    // Pakai instance socket dari ref
+    const socket = socketRef.current;
+
+    // Daftarin listener
     socket.on("propertyUpdate", fetchData);
-    socket.on("update_property", fetchData); // Listener delete (sudah ada)
+    socket.on("update_property", fetchData);
+
+    // Cleanup: Hapus listener pas komponen unmount
     return () => {
-      socket.off("propertyUpdate");
-      socket.off("update_property");
+      socket.off("propertyUpdate", fetchData);
+      socket.off("update_property", fetchData);
+      
+      // Kita biarin socket connect biar bisa dipakai lagi
+      // pas komponen mount ulang.
     };
   }, [fetchData]);
 
@@ -87,18 +98,22 @@ export default function KelolaPropertiContent() {
       if (result.isConfirmed) {
         await config.action();
         
-        // <-- PERUBAHAN LOGIKA DI SINI -->
+        // Pastiin socket-nya udah ada
+        if (!socketRef.current) {
+          console.error("Socket not initialized!");
+          return;
+        }
+
+        // 4. Modifikasi handleAction
         if (config.skipSocketEmit !== true) {
-          // Cek apakah ada data notifikasi untuk dikirim
           if (config.successData) {
-            // Kirim event baru ke server dengan data lengkap
-            socket.emit("adminPropertyUpdate", config.successData);
+            // Kirim event baru pakai socketRef.current
+            socketRef.current.emit("adminPropertyUpdate", config.successData);
           } else {
-            // Fallback (jaga-jaga), kirim event lama
-            socket.emit("propertyUpdate");
+            // Fallback (jaga-jaga)
+            socketRef.current.emit("propertyUpdate");
           }
         }
-        // <-- AKHIR PERUBAHAN -->
 
         if (config.successMsg) {
           Swal.fire(config.successMsg.title, config.successMsg.text, "success");
@@ -110,13 +125,13 @@ export default function KelolaPropertiContent() {
     }
   };
 
-  // Diubah untuk menerima 'prop' (objek) bukan 'id'
+  // Diubah jadi nerima 'prop' (objek utuh) bukan 'id' aja
   const handleApprove = (prop) => handleAction({
     swal: { title: "Setujui Properti?", text: "Properti ini akan tampil di publik.", icon: "question", showCancelButton: true, confirmButtonText: "Ya, setujui", cancelButtonText: "Batal", confirmButtonColor: "#3085d6", cancelButtonColor: "#d33" },
     action: () => axios.patch(`${API_URL}properties/${prop.id}`, { statusPostingan: "approved" }),
     successMsg: { title: "Berhasil!", text: "Properti telah disetujui." },
     errorMsg: { title: "Gagal!", text: "Terjadi kesalahan saat menyetujui." },
-    // Data untuk notifikasi user
+    // Data buat notif user
     successData: {
       ownerId: prop.ownerId,
       namaProperti: prop.namaProperti,
@@ -124,13 +139,13 @@ export default function KelolaPropertiContent() {
     }
   });
 
-  // Diubah untuk menerima 'prop' (objek) bukan 'id'
+  // Diubah jadi nerima 'prop' (objek utuh) bukan 'id' aja
   const handleReject = (prop) => handleAction({
     swal: { title: "Tolak Properti?", text: "Properti ini akan dipindahkan ke daftar ditolak.", icon: "warning", showCancelButton: true, confirmButtonText: "Ya, tolak", cancelButtonText: "Batal", confirmButtonColor: "#e74c3c", cancelButtonColor: "#6c757d" },
     action: () => axios.patch(`${API_URL}properties/${prop.id}`, { statusPostingan: "rejected" }),
     successMsg: { title: "Ditolak!", text: "Properti telah ditandai sebagai ditolak." },
     errorMsg: { title: "Gagal!", text: "Tidak dapat menolak properti." },
-    // Data untuk notifikasi user
+    // Data buat notif user
     successData: {
       ownerId: prop.ownerId,
       namaProperti: prop.namaProperti,
@@ -141,7 +156,7 @@ export default function KelolaPropertiContent() {
   const handleDelete = (id) => handleAction({
     swal: { title: "Hapus Properti?", text: "Data ini akan dihapus permanen.", icon: "warning", showCancelButton: true, confirmButtonText: "Ya, hapus", cancelButtonText: "Batal", confirmButtonColor: "#d33", cancelButtonColor: "#3085d6" },
     action: () => axios.delete(`${API_URL}properties/${id}`),
-    skipSocketEmit: true, // Tetap true, delete ditangani 'update_property'
+    skipSocketEmit: true, // Tetap true, delete di-handle 'update_property'
     successMsg: { title: "Terhapus!", text: "Properti telah dihapus." },
     errorMsg: { title: "Gagal!", text: "Tidak dapat menghapus properti." }
   });
@@ -152,11 +167,11 @@ export default function KelolaPropertiContent() {
     onSuccess: () => setEditData(null),
     successMsg: { title: "Tersimpan!", text: "Data properti berhasil diperbarui." },
     errorMsg: { title: "Gagal!", text: "Tidak dapat menyimpan perubahan." },
-    // Data untuk notifikasi user (menggunakan data yg sudah diupdate)
+    // Data notif (pakai data yg udah ke-update)
     successData: {
       ownerId: updated.ownerId,
       namaProperti: updated.namaProperti,
-      statusPostingan: updated.statusPostingan // status bisa berubah (misal dari pending ke approved)
+      statusPostingan: updated.statusPostingan 
     }
   });
 
@@ -166,16 +181,16 @@ export default function KelolaPropertiContent() {
   const renderActionsPending = (prop) => (
     <>
       <motion.button whileHover={{ y: -2 }} className={styles.iconBtn} onClick={() => handleDetail(prop)} title="Lihat Detail"><FaInfoCircle className={styles.infoIcon} /></motion.button>
-      {/* Mengirim seluruh 'prop' */}
+      {/* Kirim seluruh 'prop' */}
       <motion.button whileHover={{ y: -2 }} className={styles.iconBtn} onClick={() => handleApprove(prop)} title="Setujui"><FaCheck className={styles.approveIcon} /></motion.button>
-      {/* Mengirim seluruh 'prop' */}
+      {/* Kirim seluruh 'prop' */}
       <motion.button whileHover={{ y: -2 }} className={styles.iconBtn} onClick={() => handleReject(prop)} title="Tolak"><FaTimes className={styles.rejectIcon} /></motion.button>
     </>
   );
 
   const renderActionsApproved = (prop) => (
     <>
-      <motion.button whileHover={{ y: -2 }} className={styles.iconBtn} onClick={() => handleDetail(prop)} title="Lihat Detail"><FaInfoCircle className={styles.infoIcon} /></motion.button>
+      <motion.button whileHover={{ y: -2 }} className={styles.iconBtn} onClick={() => handleDetail(prop)} title="Liat Detail"><FaInfoCircle className={styles.infoIcon} /></motion.button>
       <motion.button whileHover={{ y: -2 }} className={styles.iconBtn} onClick={() => handleEdit(prop)} title="Edit"><FaEdit className={styles.editIcon} /></motion.button>
       <motion.button whileHover={{ y: -2 }} className={styles.iconBtn} onClick={() => handleDelete(prop.id)} title="Hapus"><FaTrash className={styles.deleteIcon} /></motion.button>
     </>
@@ -183,7 +198,7 @@ export default function KelolaPropertiContent() {
   
   const renderActionsRejected = (prop) => (
     <>
-      {/* Mengirim seluruh 'prop' */}
+      {/* Kirim seluruh 'prop' */}
       <motion.button whileHover={{ y: -2 }} className={styles.iconBtn} onClick={() => handleApprove(prop)} title="Setujui Ulang"><FaCheck className={styles.approveIcon} /></motion.button>
       <motion.button whileHover={{ y: -2 }} className={styles.iconBtn} onClick={() => handleDelete(prop.id)} title="Hapus Permanen"><FaTrash className={styles.deleteIcon} /></motion.button>
     </>
