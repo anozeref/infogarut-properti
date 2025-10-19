@@ -7,6 +7,33 @@ import styles from "./LoginPage.module.css";
 import { FaLock } from "react-icons/fa";
 import { motion } from "framer-motion";
 
+// --- 🛠️ FUNGSI HELPER TAMBAHAN ---
+/**
+ * Mem-parsing string tanggal custom "DD/MM/YYYY HH:mm:ss" menjadi objek Date.
+ * @param {string} dateString String tanggal.
+ * @returns {Date|null} Objek Date atau null jika tidak valid.
+ */
+const smartParseDate = (dateString) => {
+  if (!dateString) return null; // Return null jika string kosong
+
+  // Handle custom "DD/MM/YYYY HH:mm:ss" format
+  if (dateString.includes('/')) {
+    const parts = dateString.split(/[\s/:]+/);
+    // Cek jika parts tidak lengkap (minimal 6: D,M,Y,H,m,s)
+    if (parts.length < 6) return null;
+    
+    // new Date(year, monthIndex, day, hours, minutes, seconds)
+    const date = new Date(parts[2], parts[1] - 1, parts[0], parts[3] || 0, parts[4] || 0, parts[5] || 0);
+    return isNaN(date.getTime()) ? null : date;
+  }
+  
+  // Handle other standard formats like ISO 8601
+  const date = new Date(dateString);
+  return isNaN(date.getTime()) ? null : date; // Return null jika invalid
+};
+// --- AKHIR FUNGSI HELPER ---
+
+
 const LoginPage = () => {
   const navigate = useNavigate();
   const { login } = useContext(AuthContext);
@@ -45,8 +72,14 @@ const LoginPage = () => {
       // 🔹 Cek apakah akun masih dalam masa suspend
       if (user.suspendedUntil) {
         const today = new Date();
-        const suspendedUntil = new Date(user.suspendedUntil);
-        if (suspendedUntil >= today) {
+
+        // --- 🛠️ PERBAIKAN DI SINI ---
+        // Gunakan helper untuk membaca format 'DD/MM/YYYY...'
+        const suspendedUntil = smartParseDate(user.suspendedUntil); 
+        // --- AKHIR PERBAIKAN ---
+
+        // Tambahkan cek 'suspendedUntil' (jika tanggalnya valid)
+        if (suspendedUntil && suspendedUntil >= today) { 
           Swal.fire({
             icon: "warning",
             title: "Akun Ditangguhkan!",

@@ -32,20 +32,13 @@ export default function EditPropertyModal({ data, onClose, onSave }) {
       const initialMedia = (data.media || []).map((fileName) => ({
       id: `existing-${fileName}-${Math.random()}`,
       file: fileName,
-      // Ganti API_URL (port 3004) jadi port 3005
       url: `http://localhost:3005/media/${fileName}`,
       isNew: false,
     }));
     setMediaItems(initialMedia);
   }, [data.media]); // Dependensi tetap data.media
 
-  const handleChange = (e) => setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
-  
-  // Fungsi handleFileChange, removeMedia, handleDragStart, allowDrop, handleDrop
-  // tidak saya tampilkan di sini karena Anda bilang "kode tidak berubah"
-  // tapi di kode final, pastikan mereka ada.
-  // Untuk kepastian, saya akan tambahkan implementasi dasarnya
-  
+  const handleChange = (e) => setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));  
   const handleFileChange = (e) => {
     const files = Array.from(e.target.files);
     const totalFiles = mediaItems.length + files.length;
