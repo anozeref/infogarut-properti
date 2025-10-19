@@ -4,38 +4,39 @@ import styles from './Properti.module.css';
 import PropertyCard from '../../components/PropertyCard/PropertyCard.jsx';
 import { useSearchParams } from 'react-router-dom';
 
-// Fungsi bantuan BARU yang lebih teliti untuk format DD/MM/YYYY HH:mm:ss
-const parseCustomDate = (dateString) => {
-    if (!dateString || typeof dateString !== 'string') return null;
-    
-    // Pisahkan tanggal dan waktu
-    const dateTimeParts = dateString.split(' ');
-    if (dateTimeParts.length !== 2) return null; // Harus ada tanggal dan waktu
+/**
+ * Helper function untuk mengubah string tanggal (dari format DD/MM/YYYY HH:mm:ss atau ISO)
+ * menjadi objek Date yang bisa dibandingkan.
+ * @param {string} dateString - String tanggal dari db.json (misal: "17/10/2025 19:49:14" atau "2025-10-17T12:42:23.028Z")
+ * @returns {Date} Objek Date
+ */
+const parsePostedAt = (dateString) => {
+  // Prioritas 1: Cek format "DD/MM/YYYY HH:mm:ss"
+  if (dateString && dateString.includes('/')) {
+    const parts = dateString.split(' ');
+    if (parts.length === 2) {
+      const dateParts = parts[0].split('/'); // [DD, MM, YYYY]
+      const timeParts = parts[1].split(':'); // [HH, mm, ss]
 
-    const datePart = dateTimeParts[0];
-    const timePart = dateTimeParts[1];
-
-    // Pisahkan bagian tanggal (DD/MM/YYYY)
-    const dateParts = datePart.split('/');
-    if (dateParts.length !== 3) return null; // Harus ada DD, MM, YYYY
-    const day = parseInt(dateParts[0], 10);
-    const month = parseInt(dateParts[1], 10); // Bulan (1-12)
-    const year = parseInt(dateParts[2], 10);
-
-    // Pisahkan bagian waktu (HH:mm:ss)
-    const timeParts = timePart.split(':');
-    if (timeParts.length !== 3) return null; // Harus ada HH, mm, ss
-    const hours = parseInt(timeParts[0], 10);
-    const minutes = parseInt(timeParts[1], 10);
-    const seconds = parseInt(timeParts[2], 10);
-
-    // Periksa apakah semua bagian adalah angka yang valid
-    if (isNaN(day) || isNaN(month) || isNaN(year) || isNaN(hours) || isNaN(minutes) || isNaN(seconds)) {
-        return null;
+      // Pastikan semua bagian ada sebelum membuat objek Date
+      if (dateParts.length === 3 && timeParts.length === 3) {
+        // new Date(YYYY, MM-1, DD, HH, mm, ss)
+        // Bulan (MM) di JS dimulai dari 0 (Januari=0)
+        return new Date(dateParts[2], dateParts[1] - 1, dateParts[0], timeParts[0], timeParts[1], timeParts[2]);
+      }
     }
+  }
 
-    // Buat objek Date (Bulan dikurangi 1 karena JS bulan 0-11)
-    return new Date(year, month - 1, day, hours, minutes, seconds);
+  // Fallback (Anomali atau format ISO): Tangani "2025-10-15T17:35:04.953Z"
+  // new Date() bisa langsung mem-parsing format ini.
+  // Pastikan dateString valid sebelum membuat objek Date
+  if (dateString) {
+      return new Date(dateString);
+  }
+  
+  // Jika dateString null/undefined/kosong, kembalikan tanggal yang sangat lama
+  // agar properti ini muncul paling belakang jika tidak ada tanggal posting
+  return new Date(0); 
 };
 
 
@@ -50,29 +51,26 @@ const Properti = () => {
 
     useEffect(() => {
         setLoading(true);
-        // Hapus parameter sort dari URL fetch
+        // Mengambil data dari endpoint 'properti' di db.json
         fetch('http://localhost:3004/properties')
             .then(res => res.json())
             .then(data => {
-                // Lakukan pengurutan di sini SETELAH data diterima
-                const sortedData = [...data].sort((a, b) => {
-                    const dateA = parseCustomDate(a.postedAt);
-                    const dateB = parseCustomDate(b.postedAt);
-                    
-                    // Jika salah satu tanggal tidak bisa di-parse, jangan ubah urutan
-                    if (!dateA) return 1;  // Taruh yg tidak valid di akhir
-                    if (!dateB) return -1; // Taruh yg tidak valid di akhir
-
-                    // Urutkan descending (terbaru dulu)
-                    return dateB.getTime() - dateA.getTime(); 
+                // Urutkan data menggunakan fungsi helper parsePostedAt
+                const sortedData = data.sort((a, b) => {
+                    const dateA = parsePostedAt(a.postedAt);
+                    const dateB = parsePostedAt(b.postedAt);
+                    // Urutkan descending: data B - data A (terbaru ke terlama)
+                    return dateB.getTime() - dateA.getTime(); // Menggunakan getTime() untuk perbandingan yang lebih aman
                 });
-                setProperties(sortedData); // Simpan data yang sudah terurut
+                
+                // Simpan data yang sudah diurutkan ke state
+                setProperties(sortedData);
             })
             .catch(error => console.error("Gagal mengambil data properti:", error))
             .finally(() => {
                 setLoading(false);
             });
-    }, []); // Hanya berjalan sekali
+    }, []); // Dependency array kosong agar fetch hanya berjalan sekali saat komponen mount
 
     useEffect(() => {
         const tipeDariUrl = searchParams.get('tipe');
@@ -83,12 +81,15 @@ const Properti = () => {
         }
     }, [searchParams]);
     
-    // Filter seperti biasa (data sudah terurut di state 'properties')
+    // Data yang sudah diurutkan (dari state) kemudian difilter
     const filteredProperties = properties.filter(property => {
+        // FILTER BARU: Hanya tampilkan properti yang sudah disetujui
         const statusMatch = property.statusPostingan === 'approved';
+
         const tipeMatch = tipeFilter === 'Semua Tipe' || property.tipeProperti.toLowerCase() === tipeFilter.toLowerCase();
         const jenisMatch = jenisFilter === 'Semua Jenis' || property.jenisProperti.toLowerCase() === jenisFilter.toLowerCase();
         const locationMatch = property.lokasi.toLowerCase().includes(locationSearch.toLowerCase());
+
         return statusMatch && tipeMatch && jenisMatch && locationMatch;
     });
 
@@ -108,8 +109,7 @@ const Properti = () => {
             <div className={styles.filterSection}>
                 <h2 className={styles.title}>Temukan Properti Sempurna Anda</h2>
                 <div className={styles.filters}>
-                     {/* ... Filter Anda tidak berubah ... */}
-                     <div className={styles.filterGroup}>
+                    <div className={styles.filterGroup}>
                         <label>Cari Lokasi</label>
                         <input 
                             type="text" 
@@ -126,7 +126,6 @@ const Properti = () => {
                             <option value="Kos">Kos</option>
                             <option value="Ruko">Ruko</option>
                             <option value="Tanah">Tanah</option>
-                             <option value="Villa">Villa</option>
                         </select>
                     </div>
                     <div className={styles.filterGroup}>
@@ -147,7 +146,7 @@ const Properti = () => {
             <div className={styles.resultsSection}>
                 <p className={styles.resultsCount}>{filteredProperties.length} properti ditemukan</p>
                 <div className={styles.propertyGrid}>
-                    {/* Map data yang sudah difilter dan diurutkan */}
+                    {/* Data yang di-map di sini sudah terurut DAN terfilter */}
                     {filteredProperties.map(property => (
                         <PropertyCard key={property.id} property={property} />
                     ))}
