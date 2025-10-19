@@ -5,12 +5,16 @@ import { motion } from 'framer-motion';
 import { FiKey, FiTrash2, FiUsers } from 'react-icons/fi';
 import styles from './PengaturanContent.module.css';
 import axios from 'axios';
+import { io } from 'socket.io-client'; // <-- 1. Import io
 
 // ==== Axios instance ke backend ====
 const api = axios.create({
   baseURL: 'http://localhost:3005',
   headers: { 'X-Admin-Request': 'true' }
 });
+
+// <-- 2. Buat instance socket -->
+const socket = io("http://localhost:3005");
 
 // Varian animasi Framer Motion
 const cardVariants = {
@@ -22,7 +26,7 @@ export default function PengaturanContent() {
   const [bannedUsers, setBannedUsers] = useState([]);
   const [isLoadingBanned, setIsLoadingBanned] = useState(true);
 
-  // Ambil daftar user yang diblokir
+  // Fungsi fetchBannedUsers (tidak berubah)
   useEffect(() => {
     const fetchBannedUsers = async () => {
       setIsLoadingBanned(true);
@@ -39,7 +43,7 @@ export default function PengaturanContent() {
     fetchBannedUsers();
   }, []);
 
-  // Hapus media tidak terpakai
+  // Fungsi handleMediaCleanup (tidak berubah)
   const handleMediaCleanup = () => {
     Swal.fire({
       title: 'Apakah Anda yakin?',
@@ -83,8 +87,16 @@ export default function PengaturanContent() {
     }).then(async (result) => {
       if (result.isConfirmed) {
         try {
+          // Panggil endpoint yang sudah diaktifkan lagi
           await api.patch(`/api/users/${userId}/unban`);
+          
+          // Update state lokal (hapus user dari daftar banned)
           setBannedUsers(current => current.filter(u => u.id !== userId));
+          
+          // <-- 3. Tambahkan emit socket -->
+          console.log("🔔 [Pengaturan] Mengirim sinyal 'userUpdate'...");
+          socket.emit('userUpdate'); // Beri tahu komponen lain (KelolaUser)
+          
           Swal.fire('Berhasil!', `Pengguna ${username} telah di-unban.`, 'success');
         } catch (err) {
           const message = err.response?.data?.error || 'Gagal membuka blokir user.';
@@ -94,6 +106,7 @@ export default function PengaturanContent() {
     });
   };
 
+  // ... (Sisa kode JSX tidak berubah) ...
   return (
     <div className={styles.container}>
       <motion.h1
@@ -130,7 +143,8 @@ export default function PengaturanContent() {
               <div key={user.id} className={styles.userItem}>
                 <div className={styles.userItemInfo}>
                   <p>{user.username}</p>
-                  <p>{user.email}</p>
+                  {/* Tampilkan email jika ada */}
+                  {user.email && <p className={styles.userEmail}>{user.email}</p>} 
                 </div>
                 <button
                   onClick={() => handleUnbanUser(user.id, user.username)}
@@ -152,7 +166,7 @@ export default function PengaturanContent() {
           <FiKey className="text-blue-500" /> Keamanan Akun
         </h2>
         <p className={styles.cardDescription}>
-          Ubah kata sandi admin untuk menjaga keamanan akun Anda.
+          Ubah kata sandi admin untuk menjaga keamanan akun Anda. (ID Admin: 5)
         </p>
         <form
           onSubmit={async (e) => {
@@ -172,14 +186,16 @@ export default function PengaturanContent() {
             }
 
             try {
-              const res = await api.get("/users/5");
+              // Asumsi ID admin selalu 5 dan endpoint /users/5 ada di json-server
+              const res = await axios.get("http://localhost:3004/users/5"); 
               const adminData = res.data;
 
               if (adminData.password !== passwordLama) {
                 return Swal.fire("Error", "Password lama tidak cocok.", "error");
               }
 
-              await api.patch("/users/5", { password: passwordBaru });
+              // Update password via json-server
+              await axios.patch("http://localhost:3004/users/5", { password: passwordBaru }); 
               Swal.fire("Berhasil!", "Password berhasil diperbarui.", "success");
               e.target.reset();
             } catch (err) {

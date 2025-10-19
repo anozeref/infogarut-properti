@@ -28,13 +28,16 @@ export default function EditPropertyModal({ data, onClose, onSave }) {
   });
 
   const [mediaItems, setMediaItems] = useState([]);
-
   useEffect(() => {
-    const initialMedia = (data.media || []).map((fileName) => ({
-      id: `existing-${fileName}-${Math.random()}`, file: fileName, url: `${API_URL}/media/${fileName}`, isNew: false,
+      const initialMedia = (data.media || []).map((fileName) => ({
+      id: `existing-${fileName}-${Math.random()}`,
+      file: fileName,
+      // Ganti API_URL (port 3004) jadi port 3005
+      url: `http://localhost:3005/media/${fileName}`,
+      isNew: false,
     }));
     setMediaItems(initialMedia);
-  }, [data.media]);
+  }, [data.media]); // Dependensi tetap data.media
 
   const handleChange = (e) => setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   

@@ -31,27 +31,31 @@ io.on("connection", (socket) => {
   console.log(`✅ Connected: ${socket.id}`);
 
   // --- LOGIKA LAMA (Untuk Admin Refresh Umum) ---
-  socket.on('propertyUpdate', () => io.emit('propertyUpdate'));
-  socket.on('userUpdate', () => io.emit('userUpdate'));
+  socket.on('propertyUpdate', () => {
+    console.log("🔔 [Server] Menerima 'propertyUpdate', membalas ke semua admin...");
+    io.emit('propertyUpdate');
+  });
+  socket.on('userUpdate', () => {
+    // <-- CONSOLE.LOG DITAMBAHKAN -->
+    console.log("🔔 [Server] Menerima 'userUpdate', membalas ke semua admin...");
+    io.emit('userUpdate'); // Sinyal ini tetap ada, dipakai oleh KelolaUser & Pengaturan
+  });
 
   // --- LOGIKA BARU (Untuk DashboardUser.jsx) ---
   
-  // 1. Listen untuk event 'joinUserRoom' dari DashboardUser.jsx
   socket.on("joinUserRoom", (userId) => {
     if (userId) {
-      socket.join(String(userId)); // Masukkan socket user ke room pribadi
+      socket.join(String(userId));
       console.log(`✅ User ${socket.id} (ID: ${userId}) bergabung ke room: ${userId}`);
     }
   });
 
-  // 2. Listen untuk 'adminPropertyUpdate' dari KelolaPropertiContent.jsx
-  //    Tugasnya: Simpan notif ke DB, LALU kirim 'ping' ke user.
   socket.on("adminPropertyUpdate", async (data) => {
-    // data = { ownerId, namaProperti, statusPostingan }
     if (!data || !data.ownerId) return;
+    
+    console.log("🔔 [Server] Menerima 'adminPropertyUpdate', menyimpan notif...");
 
     try {
-      // 1. Merakit data notifikasi
       const statusText = data.statusPostingan === 'approved' ? 'disetujui' : 'ditolak';
       const link = data.statusPostingan === 'approved' ? '/user/propertiaktif' : '/user/propertiditolak';
       
@@ -59,23 +63,20 @@ io.on("connection", (socket) => {
         userId: String(data.ownerId),
         text: `Properti '${data.namaProperti}' Anda telah ${statusText} oleh admin.`,
         isRead: false,
-        createdAt: new Date().toISOString(), // Simpan dalam format ISO (standar)
+        createdAt: new Date().toISOString(),
         link: link
       };
 
-      // 2. Simpan notifikasi ke db.json
       await axios.post(`${DB_URL}/notifications`, newNotification);
-      console.log(`🔔 Notifikasi disimpan untuk User ID: ${data.ownerId}`);
+      console.log(`🔔 [Server] Notifikasi disimpan untuk User ID: ${data.ownerId}`);
 
-      // 3. Kirim "ping" ke user (jika dia online)
-      //    Memberitahu klien untuk mengambil notif baru dari DB.
       io.to(String(data.ownerId)).emit("new_notification_ping"); 
 
     } catch (err) {
       console.error("❌ Gagal menyimpan notifikasi ke DB:", err.message);
     }
     
-    // 4. Tetap kirim refresh ke semua admin
+    console.log("🔔 [Server] Membalas 'propertyUpdate' ke semua admin...");
     io.emit("propertyUpdate"); 
   });
   
@@ -95,7 +96,6 @@ const storage = multer.diskStorage({
   },
 });
 
-// Batas 20MB untuk video
 const upload = multer({
   storage,
   limits: { fileSize: 20 * 1024 * 1024 }, // 20 MB
@@ -153,7 +153,7 @@ app.delete("/properties/:id", async (req, res) => {
     }
 
     await axios.delete(`${DB_URL}/properties/${id}`);
-    io.emit("update_property", { id, deleted: true }); // Event delete tetap umum
+    io.emit("update_property", { id, deleted: true });
     res.json({ success: true, deletedId: id });
   } catch (err) {
     console.error("❌ Delete error:", err.message);
@@ -165,18 +165,8 @@ app.delete("/properties/:id", async (req, res) => {
 app.get("/api/banned-users", async (_, res) => {
   try {
     const { data: users } = await axios.get(`${DB_URL}/users`);
-    const banned = users.filter(u => u.role === "banned" || u.isBanned === true);
-    res.json(banned);
-  } catch (err) {
-    console.error("❌ Fetch banned users error:", err.message);
-    res.status(500).json({ error: "Gagal mengambil data user yang diblokir" });
-  }
-});
-
-app.get("/api/banned-users", async (_, res) => {
-  try {
-    const { data: users } = await axios.get(`${DB_URL}/users`);
-    const bannedUsers = users.filter(u => u.banned === true);
+    // Perbaiki filter: pakai field 'banned' saja
+    const bannedUsers = users.filter(u => u.banned === true); 
     res.json(bannedUsers);
   } catch (err) {
     console.error("❌ Fetch banned users error:", err.message);
@@ -184,8 +174,34 @@ app.get("/api/banned-users", async (_, res) => {
   }
 });
 
-/* Endpoint Unban (sudah dikomentari) */
-// app.patch("/api/users/:id/unban", ...);
+// === Unban user ===
+// <-- PERBAIKAN: Blok ini diaktifkan lagi -->
+app.patch("/api/users/:id/unban", async (req, res) => {
+  const { id } = req.params;
+  try {
+    const { data: user } = await axios.get(`${DB_URL}/users/${id}`);
+    if (!user) return res.status(404).json({ error: "User tidak ditemukan" });
+
+    // Hanya ubah banned jika true
+    if (user.banned !== true) { // Periksa secara eksplisit boolean true
+      return res.status(400).json({ error: "User ini tidak sedang diblokir." });
+    }
+
+    // Ubah banned jadi false, HAPUS bannedAt
+    const updatedUser = { ...user, banned: false, bannedAt: null }; 
+    await axios.patch(`${DB_URL}/users/${id}`, updatedUser);
+
+    // <-- PERBAIKAN: Hapus baris ini agar tidak konflik -->
+    // io.emit("userUpdate", { id, unbanned: true }); 
+    
+    console.log(`✅ [Server] User ${id} di-unban via endpoint.`);
+    res.json({ success: true, user: updatedUser });
+  } catch (err) {
+    console.error("❌ Unban error:", err.message);
+    res.status(500).json({ error: "Gagal membuka blokir user" });
+  }
+});
+// <-- AKHIR PERBAIKAN -->
 
 // === Media cleanup ===
 app.post("/api/media/cleanup", async (_, res) => {
