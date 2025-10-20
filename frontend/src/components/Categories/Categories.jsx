@@ -1,10 +1,11 @@
+// src/components/Categories/Categories.jsx
 import React from 'react';
 import styles from './Categories.module.css';
 import { Link } from 'react-router-dom';
 import { IoHomeOutline } from "react-icons/io5";
-import { LuCastle } from "react-icons/lu";
+import { LuCastle, LuBuilding } from "react-icons/lu"; // 1. Import ikon baru (LuBuilding)
 import { TbDimensions } from "react-icons/tb";
-import { BsBuildings } from "react-icons/bs";
+import { BsBuildings, BsShop } from "react-icons/bs"; // 1. Import ikon baru (BsShop)
 
 const categoriesData = [
   {
@@ -26,9 +27,22 @@ const categoriesData = [
     icon: <BsBuildings size={40} />,
     title: "Perumahan",
     description: "Pilih hunian di lingkungan yang terencana dan aman."
+  },
+  // 2. Tambahkan kategori "Kost"
+  {
+    icon: <LuBuilding size={40} />, // Menggunakan ikon gedung
+    title: "Kost",
+    description: "Cari kamar kost yang sesuai dengan kebutuhan dan budget Anda."
+  },
+  // 3. Tambahkan kategori "Ruko"
+  {
+    icon: <BsShop size={40} />, // Menggunakan ikon toko
+    title: "Ruko",
+    description: "Temukan ruko di lokasi strategis untuk memulai usaha Anda."
   }
 ];
 
+// Komponen Card tidak perlu diubah
 const CategoryCard = ({ icon, title, description }) => (
   <div className={styles.card}>
     <div className={styles.icon}>{icon}</div>

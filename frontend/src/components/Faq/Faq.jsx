@@ -3,25 +3,31 @@ import React, { useState } from 'react';
 import styles from './Faq.module.css';
 import { IoChevronDown } from "react-icons/io5";
 
+// DATA FAQ YANG BARU DIMASUKKAN DI SINI
 const faqData = [
   {
-    question: "Bagaimana cara memulai proses pembelian properti?",
-    answer: "Langkah pertama adalah menentukan anggaran Anda dan mencari properti yang sesuai. Setelah itu, hubungi agen kami untuk menjadwalkan kunjungan dan kami akan memandu Anda melalui proses negosiasi hingga selesai."
+    question: "Apa itu Infogarut Property?",
+    answer: "Infogarut Property adalah platform informasi dan layanan properti di Garut yang membantu masyarakat menemukan hunian, tanah, maupun investasi terbaik. Kami menyediakan data terbaru, panduan lokasi, serta koneksi langsung dengan agen dan pemilik terpercaya di wilayah Garut."
   },
   {
-    question: "Dokumen apa saja yang saya perlukan?",
-    answer: "Anda akan memerlukan dokumen identitas (KTP), NPWP, slip gaji atau bukti penghasilan, dan dokumen lain yang mungkin diminta oleh bank jika Anda mengajukan KPR."
+    question: "Apakah semua properti yang ditampilkan di Infogarut Property sudah diverifikasi?",
+    answer: "Ya. Setiap listing yang tampil di Infogarut Property melalui proses verifikasi untuk memastikan keaslian data dan kejelasan kepemilikan, agar calon pembeli merasa aman dan nyaman dalam bertransaksi."
   },
   {
-    question: "Berapa lama proses pembelian biasanya berlangsung?",
-    answer: "Prosesnya bervariasi, tetapi umumnya memakan waktu antara 1 hingga 3 bulan, tergantung pada kelengkapan dokumen dan proses persetujuan kredit dari bank."
+    question: "Jenis properti apa saja yang bisa ditemukan di Infogarut Property?",
+    answer: "Anda dapat menemukan berbagai jenis properti seperti rumah tinggal, tanah kavling, ruko, kos, hingga lahan investasi strategis di seluruh wilayah Garut, mulai dari kawasan perkotaan hingga daerah wisata."
   },
   {
-    question: "Bisakah saya menegosiasikan harga properti?",
-    answer: "Tentu saja. Negosiasi harga adalah bagian umum dari proses pembelian properti. Agen kami akan membantu Anda mendapatkan harga terbaik yang disepakati oleh kedua belah pihak."
+    question: "Apakah Infogarut Property menyediakan layanan konsultasi atau bantuan investasi?",
+    answer: "Tentu. Tim Infogarut Property siap memberikan panduan investasi lokal, termasuk analisis nilai properti, potensi pengembangan wilayah, serta tips membeli atau menjual properti dengan aman dan menguntungkan."
+  },
+  {
+    question: "Bagaimana cara menghubungi tim Infogarut Property jika saya tertarik dengan salah satu listing?",
+    answer: "Anda dapat langsung menghubungi kami melalui form kontak di website Infogarut Property, atau melalui WhatsApp dan email resmi yang tertera di setiap halaman listing. Tim kami akan merespons dengan cepat dan membantu proses transaksi Anda hingga tuntas."
   }
 ];
 
+// Komponen FaqItem tidak perlu diubah
 const FaqItem = ({ faq, index, toggleFAQ }) => {
   return (
     <div
@@ -39,6 +45,7 @@ const FaqItem = ({ faq, index, toggleFAQ }) => {
   );
 };
 
+// Komponen Faq utama tidak perlu diubah logikanya
 const Faq = () => {
   const [faqs, setFaqs] = useState(
     faqData.map(item => ({...item, open: false}))
