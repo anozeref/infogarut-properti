@@ -1,3 +1,4 @@
+// src/pages/user/components/NavbarUser.jsx
 import React, { useState, useRef, useEffect, useContext } from "react";
 import {
   FaBell,
@@ -7,29 +8,23 @@ import {
   FaGlobe,
   FaMoon,
   FaSun,
+  FaCheckDouble, // Ikon untuk clear
 } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 import { AuthContext } from "../../../context/AuthContext";
 import styles from "./NavbarUser.module.css";
-import logo from "../../../assets/logo.png";
+import logo from "../assets/logo.png";
 import logodarkmode from "../assets/logodarkmode.png";
-import { io } from "socket.io-client";
+// HAPUS IMPORT 'io' KARENA SOCKET DIPINDAH
 
-
-// === Hubungkan ke server backend ===
-const SOCKET_URL = "http://localhost:3005";
-const socket = io(SOCKET_URL, {
-  transports: ["websocket", "polling"],
-  reconnection: true,
-  reconnectionAttempts: 10,
-  reconnectionDelay: 1000,
-});
-
-export default function NavbarUser({ darkMode, toggleTheme }) {
+// ====================================================================
+// Menerima 'handleClear' dari props
+// ====================================================================
+export default function NavbarUser({ darkMode, toggleTheme, notifications, handleClear }) {
   const [showNotif, setShowNotif] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
-  const [notifications, setNotifications] = useState([]);
+  
   const notifRef = useRef(null);
   const profileRef = useRef(null);
   const navigate = useNavigate();
@@ -45,6 +40,11 @@ export default function NavbarUser({ darkMode, toggleTheme }) {
     setShowProfile((prev) => !prev);
     setShowNotif(false);
   };
+  
+  // ====================================================================
+  // HAPUS 'handleClearNotifications' LOKAL DARI SINI
+  // Tombol clear akan langsung memanggil 'handleClear' dari props
+  // ====================================================================
 
   // === Logout ===
   const handleLogout = async () => {
@@ -73,103 +73,25 @@ export default function NavbarUser({ darkMode, toggleTheme }) {
   // === Tutup dropdown jika klik di luar ===
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (
-        notifRef.current &&
-        !notifRef.current.contains(event.target) &&
-        profileRef.current &&
-        !profileRef.current.contains(event.target)
-      ) {
+      const isInsideNotif = notifRef.current && notifRef.current.contains(event.target);
+      const isInsideProfile = profileRef.current && profileRef.current.contains(event.target);
+      
+      if (!isInsideNotif && !isInsideProfile) {
         setShowNotif(false);
         setShowProfile(false);
       }
     };
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
+  }, []); 
 
-  // === Socket.IO setup ===
-  useEffect(() => {
-    if (!user?.id) return;
+  // HAPUS SEMUA 'useEffect' SOCKET.IO DARI SINI
+  // HAPUS FUNGSI 'addNotification' DAN TOAST DARI SINI
 
-    socket.emit("joinUserRoom", user.id);
-    console.log("👤 Join room user:", user.id);
-
-    socket.on("connect", () => {
-      console.log("🟢 Socket connected:", socket.id);
-    });
-
-    socket.on("disconnect", () => {
-      console.log("🔴 Socket disconnected:", socket.id);
-    });
-
-    socket.on("connect_error", (err) => {
-      console.error("❌ Socket connect error:", err.message);
-    });
-
-    // === Property status updated ===
-    socket.on("propertyStatusUpdated", (data) => {
-      console.log("📢 propertyStatusUpdated:", data);
-      if (String(data.ownerId) === String(user.id)) {
-        const msg =
-          data.statusPostingan === "approved"
-            ? `✅ Properti "${data.namaProperti}" telah disetujui admin.`
-            : `❌ Properti "${data.namaProperti}" ditolak atau diubah admin.`;
-        addNotification(msg);
-      }
-    });
-
-    // === Upload baru ===
-    socket.on("notif_upload", (data) => {
-      console.log("📢 notif_upload:", data);
-      const msg = data.message || `${data.files?.length || 0} file baru diupload.`;
-      addNotification(msg);
-    });
-
-    // === Property approved ===
-    socket.on("notif_property_approved", (data) => {
-      if (String(data.ownerId) === String(user.id)) {
-        const msg = `✅ Properti "${data.namaProperti}" disetujui!`;
-        addNotification(msg);
-      }
-    });
-
-    // === Property rejected ===
-    socket.on("notif_property_rejected", (data) => {
-      if (String(data.ownerId) === String(user.id)) {
-        const msg = `❌ Properti "${data.namaProperti}" ditolak!`;
-        addNotification(msg);
-      }
-    });
-
-    return () => {
-      socket.off("connect");
-      socket.off("disconnect");
-      socket.off("connect_error");
-      socket.off("propertyStatusUpdated");
-      socket.off("notif_upload");
-      socket.off("notif_property_approved");
-      socket.off("notif_property_rejected");
-    };
-  }, [user]);
-
-  // === Tambah notifikasi ke list + tampilkan popup ===
-  const addNotification = (msg) => {
-    const newNotif = { message: msg, time: new Date() };
-    setNotifications((prev) => [newNotif, ...prev]);
-
-    // 🔔 SweetAlert2 Toast
-    Swal.fire({
-      toast: true,
-      position: "top-end",
-      icon: "info",
-      title: msg,
-      showConfirmButton: false,
-      timer: 3500,
-      timerProgressBar: true,
-      background: darkMode ? "#1e1e1e" : "#fff",
-      color: darkMode ? "#eee" : "#333",
-    });
-  };
+  // ====================================================================
+  // Hitung notifikasi yang BELUM DIBACA
+  // ====================================================================
+  const unreadCount = notifications.filter(n => !n.isRead).length; 
 
   return (
     <nav className={`${styles.navbar} ${darkMode ? styles.dark : ""}`}>
@@ -200,21 +122,50 @@ export default function NavbarUser({ darkMode, toggleTheme }) {
         <div className={styles.notif} ref={notifRef}>
           <button className={styles.notifBtn} onClick={toggleNotif}>
             <FaBell size={20} />
-            {notifications.length > 0 && (
-              <span className={styles.notifBadge}>{notifications.length}</span>
+            {/* Badge sekarang menampilkan unreadCount */}
+            {unreadCount > 0 && (
+              <span className={styles.notifBadge}>{unreadCount}</span>
             )}
           </button>
 
           {showNotif && (
             <div className={`${styles.notifBox} ${darkMode ? styles.notifBoxDark : ""}`}>
+              <div className={styles.notifHeader}>
+                <strong>Notifikasi</strong>
+                {/* Tombol clear sekarang memanggil 'handleClear' dari props */}
+                {unreadCount > 0 && ( // Hanya tampilkan jika ada yg belum dibaca
+                   <button 
+                     onClick={handleClear} // PANGGIL FUNGSI DARI 'OTAK'
+                     className={styles.clearNotifBtn}
+                     title="Tandai semua sudah dibaca"
+                   >
+                     <FaCheckDouble />
+                   </button>
+                )}
+              </div>
+              
+              {/* Render list notifikasi dari props */}
               {notifications.length === 0 ? (
                 <p className={styles.emptyNotif}>Tidak ada notifikasi baru</p>
               ) : (
-                notifications.map((notif, i) => (
-                  <p key={i} className={styles.notifItem}>
+                notifications.map((notif) => (
+                  <p 
+                    key={notif.id} 
+                    // Tambahkan style 'notifRead' jika 'isRead' true
+                    className={`
+                      ${styles.notifItem} 
+                      ${notif.link ? styles.notifLink : ''} 
+                      ${notif.isRead ? styles.notifRead : ''}
+                    `}
+                    onClick={() => {
+                      if (notif.link) navigate(notif.link);
+                      setShowNotif(false);
+                      // (Opsional) Bisa tambahkan logic PATCH 'isRead' tunggal di sini
+                    }}
+                  >
                     {notif.message}
                     <br />
-                    <small>{new Date(notif.time).toLocaleTimeString("id-ID")}</small>
+                    <small>{new Date(notif.time).toLocaleString("id-ID", { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })}</small>
                   </p>
                 ))
               )}
@@ -235,6 +186,7 @@ export default function NavbarUser({ darkMode, toggleTheme }) {
               <Link
                 to="/user/profileuser"
                 className={`${styles.settingBtn} ${darkMode ? styles.settingBtnDark : ""}`}
+                onClick={() => setShowProfile(false)} 
               >
                 <FaCog className={styles.settingIcon} /> Pengaturan Akun
               </Link>

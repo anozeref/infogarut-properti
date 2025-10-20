@@ -6,11 +6,7 @@ import { FaPlus, FaTimes } from "react-icons/fa";
 import { AuthContext } from "../../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import { io } from "socket.io-client";
-
-const socket = io("http://localhost:3005");
-
-export default function TambahPropertiUser({ darkMode }) {
+export default function TambahPropertiUser({ darkMode, socket }) {
   const { user } = useContext(AuthContext);
   const navigate = useNavigate();
   const fileInputRef = useRef(null);
@@ -156,6 +152,7 @@ export default function TambahPropertiUser({ darkMode }) {
   };
   const allowDrop = (e) => e.preventDefault();
 
+
   // ===================== SUBMIT =====================
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -184,14 +181,17 @@ export default function TambahPropertiUser({ darkMode }) {
     }
 
     try {
+      // 1. Upload media ke server backend (server.js)
+      // Endpoint /upload ini akan memicu 'new_upload' global di server
       const formDataUpload = new FormData();
       mediaFiles.forEach((f) => formDataUpload.append("media", f));
       const uploadRes = await axios.post("http://localhost:3005/upload", formDataUpload, {
         headers: { "Content-Type": "multipart/form-data" },
       });
-
+      
       const mediaNames = uploadRes.data.files;
 
+      // 2. Siapkan data properti untuk dikirim ke db.json
       const propertyData = {
         ...form,
         harga: Number(form.harga),
@@ -207,16 +207,21 @@ export default function TambahPropertiUser({ darkMode }) {
         statusPostingan: "pending",
       };
 
+      // 3. Simpan data properti ke json-server (db.json)
       const res = await axios.post("http://localhost:3004/properties", propertyData);
 
-      socket.emit("new_property", {
-        ...propertyData,
-        id: res.data.id || new Date().getTime(),
-      });
+      // 4. KIRIM NOTIFIKASI SPESIFIK "Menunggu Persetujuan"
+      // Gunakan socket dari props, dan kirim event 'new_upload'
+      // Server akan menangkap 'new_upload' dan menyiarkannya sebagai 'notif_upload'
+      if (socket && socket.connected) {
+         socket.emit("new_upload", {
+           message: `Properti "${form.namaProperti}" Anda sedang ditinjau admin.`
+         });
+      }
 
       Swal.fire("Sukses", `Properti "${form.namaProperti}" berhasil ditambahkan!`, "success");
 
-      // Reset
+      // 5. Reset form
       mediaPreview.forEach((m) => URL.revokeObjectURL(m.url));
       setForm({
         namaProperti: "",
@@ -243,6 +248,7 @@ export default function TambahPropertiUser({ darkMode }) {
       setMediaPreview([]);
       if (fileInputRef.current) fileInputRef.current.value = "";
       navigate("/user/propertipending");
+      
     } catch (err) {
       console.error(err);
       Swal.fire("Error", "Gagal menambahkan properti!", "error");

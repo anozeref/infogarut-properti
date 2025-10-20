@@ -40,8 +40,8 @@
       "alamat": "RT 05 / RW 03",
       "role": "user",
       "joinedAt": "20/10/2025 00:40:28",
-      "noHp": "085183231185",
-      "biodata": ""
+      "biodata": "",
+      "verified": true
     }
   ],
   "properties": [
@@ -166,7 +166,133 @@
         "lng": 0
       },
       "periodeSewa": ""
+    },
+    {
+      "id": "50b7",
+      "namaProperti": "Rumah Impian 6",
+      "jenisProperti": "Jual",
+      "tipeProperti": "Rumah",
+      "lokasi": "pembangunan",
+      "kecamatan": "BANJARWANGI",
+      "desa": "TANJUNGJAYA",
+      "harga": 25000,
+      "luasTanah": 12,
+      "luasBangunan": 1,
+      "kamarTidur": 1,
+      "kamarMandi": 15,
+      "periodeAngka": "",
+      "periodeSatuan": "bulan",
+      "deskripsi": "Manawi Wegah",
+      "media": [
+        "1760930350028-368311035.avif",
+        "1760930350029-300309706.avif",
+        "1760930350030-976510038.avif"
+      ],
+      "ownerId": "9c47",
+      "statusPostingan": "approved",
+      "postedAt": "20/10/2025 10:19:10",
+      "koordinat": {
+        "lat": 0,
+        "lng": 0
+      },
+      "periodeSewa": "",
+      "userId": "9c47"
+    },
+    {
+      "id": "fe77",
+      "namaProperti": "jows house",
+      "jenisProperti": "Jual",
+      "tipeProperti": "Rumah",
+      "lokasi": "pembangunan",
+      "kecamatan": "BANJARWANGI",
+      "desa": "TANJUNGJAYA",
+      "harga": 12500,
+      "luasTanah": 23,
+      "luasBangunan": 43,
+      "kamarTidur": 67,
+      "kamarMandi": 1,
+      "periodeAngka": "",
+      "periodeSatuan": "bulan",
+      "deskripsi": "Manawi Wegah pecas",
+      "media": [
+        "1760932386519-402305447.avif",
+        "1760932386519-467371497.avif",
+        "1760932386520-68496466.avif"
+      ],
+      "ownerId": "9c47",
+      "statusPostingan": "approved",
+      "postedAt": "20/10/2025 10:53:06",
+      "koordinat": {
+        "lat": 0,
+        "lng": 0
+      },
+      "periodeSewa": "",
+      "userId": "9c47"
+    },
+    {
+      "id": "de7f",
+      "namaProperti": "Villa Rancabango 2 Murah Meriah",
+      "jenisProperti": "Jual",
+      "tipeProperti": "Rumah",
+      "lokasi": "Jl. Ibrahim Adjie No. 960",
+      "kecamatan": "BANYURESMI",
+      "desa": "SUKAMUKTI",
+      "harga": 12863217,
+      "luasTanah": 123,
+      "luasBangunan": 23,
+      "kamarTidur": 51,
+      "kamarMandi": 1,
+      "periodeAngka": "",
+      "periodeSatuan": "bulan",
+      "deskripsi": "Manawi Wegah Pecas",
+      "media": [
+        "1760944407207-406201342.avif",
+        "1760944407208-870527674.avif",
+        "1760944407209-542059803.avif"
+      ],
+      "ownerId": "9c47",
+      "statusPostingan": "approved",
+      "postedAt": "20/10/2025 14:13:27",
+      "koordinat": {
+        "lat": 0,
+        "lng": 0
+      },
+      "periodeSewa": "",
+      "userId": "9c47"
     }
   ],
-  "notifications": []
+  "notifications": [
+    {
+      "id": "ce8a",
+      "userId": "9c47",
+      "text": "Properti 'Rumah Impian 6' Anda telah disetujui oleh admin.",
+      "isRead": true,
+      "createdAt": "2025-10-20T03:20:45.984Z",
+      "link": "/user/propertiaktif"
+    },
+    {
+      "id": "288c",
+      "userId": "9c47",
+      "text": "Properti 'jows house' Anda telah ditolak oleh admin.",
+      "isRead": true,
+      "createdAt": "2025-10-20T03:53:43.487Z",
+      "link": "/user/propertiditolak"
+    },
+    {
+      "id": "81dd",
+      "userId": "9c47",
+      "text": "Properti 'jows house' Anda telah disetujui oleh admin.",
+      "isRead": true,
+      "createdAt": "2025-10-20T03:56:21.945Z",
+      "link": "/user/propertiaktif"
+    },
+    {
+      "id": "8c2f",
+      "userId": "9c47",
+      "text": "Properti 'Villa Rancabango 2 Murah Meriah' Anda telah disetujui oleh admin.",
+      "isRead": true,
+      "createdAt": "2025-10-20T07:13:39.544Z",
+      "link": "/user/propertiaktif"
+    }
+  ]
 }

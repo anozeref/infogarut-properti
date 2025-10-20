@@ -105,6 +105,29 @@
   color: #6366f1;
 }
 
+/* BADGE NOTIFIKASI (Bulatan Merah) */
+.notifBadge {
+  position: absolute;
+  top: -5px;
+  right: -8px;
+  background-color: #ef4444; /* Merah */
+  color: white;
+  font-size: 10px;
+  font-weight: bold;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid #ffffff; /* Border putih */
+}
+
+.dark .notifBadge {
+  border-color: #1f2937; /* Border warna background dark */
+}
+
+
 /* BOX NOTIF */
 .notifBox {
   position: absolute;
@@ -114,34 +137,144 @@
   color: #111827;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
   border-radius: 10px;
-  padding: 10px 12px;
+  padding: 0; /* Padding diatur di header & item */
   font-size: 14px;
-  width: 260px;
+  width: 300px; /* Sedikit lebih lebar */
   animation: fadeIn 0.25s ease;
   z-index: 100;
+  overflow: hidden; /* Agar border-radius rapi */
 }
 
-.notifBox p {
+/* HEADER NOTIF (Judul + Tombol Clear) */
+.notifHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 12px;
+  border-bottom: 1px solid #e5e7eb;
+  background-color: #f9fafb; /* Latar header sedikit beda */
+}
+
+.notifHeader strong {
+  font-weight: 600;
+  font-size: 15px;
+}
+
+/* TOMBOL CLEAR (FaCheckDouble) */
+.clearNotifBtn {
+  background: none;
+  border: none;
+  color: #9ca3af; /* Abu-abu netral */
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.clearNotifBtn:hover {
+  color: #4f46e5; /* Warna utama */
+  background-color: #eef2ff; /* Latar hover */
+}
+
+/* ITEM NOTIFIKASI (MENGGANTIKAN .notifBox p) */
+.notifItem {
   margin: 0;
-  padding: 6px 8px;
-  border-radius: 6px;
+  padding: 10px 12px;
+  border-bottom: 1px solid #f3f4f6; /* Garis pemisah tipis */
+  font-size: 13px;
+  line-height: 1.4;
   transition: background 0.2s ease;
 }
 
-.notifBox p:hover {
+.notifItem:last-child {
+  border-bottom: none; /* Hapus border di item terakhir */
+}
+
+.notifItem small {
+  font-size: 11px;
+  color: #6b7280; /* Warna abu-abu untuk waktu */
+}
+
+/* Style jika notif bisa diklik */
+.notifLink {
+  cursor: pointer;
+}
+.notifLink:hover {
+  background-color: #f9fafb;
+}
+
+/* Style jika notif SUDAH DIBACA */
+.notifRead {
+  opacity: 0.6; /* Redup */
+  color: #6b7280;
+}
+.notifRead:hover {
+  opacity: 1;
+  color: #111827;
   background-color: #f3f4f6;
 }
 
-/* 🌙 DARK MODE NOTIF */
-.dark .notifBox {
-  background: #2d2d2d;
-  color: #f9fafb;
-  border: 1px solid #3f3f3f;
+/* Style jika tidak ada notif */
+.emptyNotif {
+  padding: 20px 12px;
+  color: #6b7280;
+  font-style: italic;
+  text-align: center;
+  font-size: 13px;
+  margin: 0;
 }
 
-.dark .notifBox p:hover {
-  background-color: #3b3b3b;
+
+/* 🌙 DARK MODE NOTIF (LENGKAP) */
+.dark .notifBox {
+  background: #1f2937; /* Background box dark */
+  color: #f9fafb;
+  border: 1px solid #374151;
 }
+
+.dark .notifHeader {
+  background-color: #374151; /* Latar header dark */
+  border-bottom: 1px solid #4b5563;
+}
+
+.dark .clearNotifBtn {
+  color: #9ca3af;
+}
+
+.dark .clearNotifBtn:hover {
+  color: #c7d2fe; /* Warna utama (terang) */
+  background-color: #4b5563;
+}
+
+.dark .notifItem {
+  border-bottom: 1px solid #374151; /* Garis pemisah dark */
+}
+
+.dark .notifItem small {
+  color: #9ca3af;
+}
+
+.dark .notifLink:hover {
+  background-color: #374151;
+}
+
+.dark .notifRead {
+  opacity: 0.5;
+  color: #9ca3af;
+}
+.dark .notifRead:hover {
+  opacity: 1;
+  color: #f9fafb;
+  background-color: #374151;
+}
+
+.dark .emptyNotif {
+  color: #9ca3af;
+}
+
 
 /* ===================== */
 /* 👤 PROFILE DROPDOWN */
@@ -170,9 +303,9 @@
 
 /* 🌙 DARK MODE PROFILE BOX */
 .dark .profileBox {
-  background: #2d2d2d;
+  background: #1f2937; /* Background box dark */
   color: #f9fafb;
-  border: 1px solid #3f3f3f;
+  border: 1px solid #374151;
 }
 
 /* ===================== */
@@ -250,7 +383,7 @@
 
   .notifBox,
   .profileBox {
-    width: 200px;
+    width: 240px; /* Sedikit lebih lebar untuk notif */
   }
 
   .landingBtn {

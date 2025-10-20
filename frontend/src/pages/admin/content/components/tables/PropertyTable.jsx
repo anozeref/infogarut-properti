@@ -1,8 +1,8 @@
 // src/pages/admin/content/tables/PropertyTable.jsx
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import styles from "../KelolaPropertiContent.module.css";
-import Pagination from "../components/Pagination";
+import styles from "../../KelolaPropertiContent.module.css";
+import Pagination from "../../components/Pagination";
 
 const ITEMS_PER_PAGE = 5;
 
