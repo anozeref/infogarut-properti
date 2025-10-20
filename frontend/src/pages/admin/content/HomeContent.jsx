@@ -7,7 +7,7 @@ import { io } from "socket.io-client";
 import styles from "./HomeContent.module.css";
 import { ThemeContext } from "../DashboardAdmin";
 import { API_URL } from "../../../utils/constant";
-import StatCard from "./components/HomeContent/StatCard";
+import StatCard from "./components/components/StatCard";
 
 /**
  * Parses a date string that could be in "DD/MM/YYYY HH:mm:ss" format or ISO 8601.

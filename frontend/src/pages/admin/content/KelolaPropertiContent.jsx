@@ -8,8 +8,8 @@ import { motion } from "framer-motion";
 import styles from "./KelolaPropertiContent.module.css";
 import { API_URL } from "../../../utils/constant";
 import PropertyTable from "./components/tables/PropertyTable";
-import EditPropertyModal from "./components/EditPropertyModal";
-import DetailPropertyModal from "./components/DetailPropertyModal";
+import EditPropertyModal from "./components/components/EditPropertyModal";
+import DetailPropertyModal from "./components/components/DetailPropertyModal";
 
 // 1. BUAT SOCKET GLOBAL (seperti KelolaUser)
 const socket = io("http://localhost:3005");

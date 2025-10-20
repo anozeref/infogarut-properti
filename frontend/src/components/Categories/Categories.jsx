@@ -23,22 +23,11 @@ const categoriesData = [
     title: "Tanah",
     description: "Investasi di lokasi strategis untuk masa depan."
   },
-  {
-    icon: <BsBuildings size={40} />,
-    title: "Perumahan",
-    description: "Pilih hunian di lingkungan yang terencana dan aman."
-  },
   // 2. Tambahkan kategori "Kost"
   {
     icon: <LuBuilding size={40} />, // Menggunakan ikon gedung
     title: "Kost",
     description: "Cari kamar kost yang sesuai dengan kebutuhan dan budget Anda."
-  },
-  // 3. Tambahkan kategori "Ruko"
-  {
-    icon: <BsShop size={40} />, // Menggunakan ikon toko
-    title: "Ruko",
-    description: "Temukan ruko di lokasi strategis untuk memulai usaha Anda."
   }
 ];
 
