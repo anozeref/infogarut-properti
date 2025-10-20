@@ -5,33 +5,25 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background: #fff;
-  padding: 10px 20px;
-  border-bottom: 1px solid #ddd;
-  transition: background 0.3s ease, color 0.3s ease;
+  background: #ffffff;
+  color: #111827;
+  padding: 12px 24px;
+  border-bottom: 1px solid #e5e7eb;
+  transition: background 0.3s ease, color 0.3s ease, border 0.3s ease;
+  z-index: 50;
 }
 
 /* 🌙 DARK MODE */
 .dark {
-  background: #1a1a1a;
-  color: #f1f1f1;
-}
-
-.navbar.dark .landingBtn {
-  background: #ffffff;
-  color: rgb(0, 0, 0)
-}
-
-.navbar.dark .landingBtn:hover {
-  background: #6366f1;
+  background: #1f2937;
+  color: #f9fafb;
+  border-bottom: 1px solid #374151;
 }
 
 /* ===================== */
 /* 🔷 LOGO */
 /* ===================== */
 .logo {
-  font-size: 18px;
-  font-weight: 600;
   display: flex;
   align-items: center;
   gap: 8px;
@@ -41,10 +33,15 @@
   height: 40px;
   width: auto;
   display: block;
+  transition: transform 0.3s ease;
+}
+
+.logo img:hover {
+  transform: scale(1.05);
 }
 
 /* ===================== */
-/* 🌍 LINK LANDING PAGE */
+/* 🌍 LINK KE LANDING PAGE */
 /* ===================== */
 .landingLink {
   margin-left: auto;
@@ -71,13 +68,15 @@
   transform: translateX(3px);
 }
 
-.landingBtnDark {
-  background: #4f46e5;
-  color: white;
+/* 🌙 DARK MODE LANDING BUTTON */
+.dark .landingBtn {
+  background: #374151;
+  color: #f9fafb;
 }
 
-.landingBtnDark:hover {
+.dark .landingBtn:hover {
   background: #6366f1;
+  color: #fff;
 }
 
 /* ===================== */
@@ -98,43 +97,50 @@
   border: none;
   cursor: pointer;
   color: inherit;
-  transition: transform 0.2s ease;
+  transition: transform 0.2s ease, color 0.3s ease;
 }
 
 .notifBtn:hover {
   transform: scale(1.1);
+  color: #6366f1;
 }
 
+/* BOX NOTIF */
 .notifBox {
   position: absolute;
   right: 0;
-  top: 35px;
-  background: white;
-  color: #333;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-  border-radius: 8px;
-  padding: 10px;
+  top: 38px;
+  background: #ffffff;
+  color: #111827;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  border-radius: 10px;
+  padding: 10px 12px;
   font-size: 14px;
-  width: 240px;
-  animation: fadeIn 0.2s ease-in-out;
+  width: 260px;
+  animation: fadeIn 0.25s ease;
   z-index: 100;
 }
 
 .notifBox p {
   margin: 0;
-  padding: 6px;
-  border-radius: 4px;
+  padding: 6px 8px;
+  border-radius: 6px;
+  transition: background 0.2s ease;
 }
 
 .notifBox p:hover {
   background-color: #f3f4f6;
 }
 
-/* 🌙 DARK MODE untuk Notif */
-.notifBoxDark {
-  background: #2a2a2a;
-  color: #f1f1f1;
-  border: 1px solid #444;
+/* 🌙 DARK MODE NOTIF */
+.dark .notifBox {
+  background: #2d2d2d;
+  color: #f9fafb;
+  border: 1px solid #3f3f3f;
+}
+
+.dark .notifBox p:hover {
+  background-color: #3b3b3b;
 }
 
 /* ===================== */
@@ -147,49 +153,48 @@
   align-items: center;
   transition: transform 0.2s ease;
 }
-
 .profileBox {
   position: absolute;
   right: 0;
-  top: 35px;
-  background: white;
-  color: #333;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-  border-radius: 8px;
+  top: 38px;
+  background: #ffffff;
+  color: #111827;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  border-radius: 10px;
   padding: 10px;
   font-size: 14px;
   width: 220px;
-  animation: fadeIn 0.2s ease-in-out;
+  animation: fadeIn 0.25s ease;
   z-index: 100;
 }
 
-/* 🌙 DARK MODE untuk Profile Box */
-.profileBoxDark {
-  background: #2a2a2a;
-  color: #f1f1f1;
-  border: 1px solid #444;
+/* 🌙 DARK MODE PROFILE BOX */
+.dark .profileBox {
+  background: #2d2d2d;
+  color: #f9fafb;
+  border: 1px solid #3f3f3f;
 }
 
 /* ===================== */
-/* ⚙️ LINK & LOGOUT STYLE (DISEMPURNAKAN) */
+/* ⚙️ LINK & LOGOUT STYLE */
 /* ===================== */
 .settingBtn,
 .logoutBtn {
   display: flex;
   align-items: center;
   gap: 8px;
-  text-decoration: none;
   background: transparent;
   border: none;
   width: 100%;
   text-align: left;
   font-weight: 500;
   font-size: 14px;
-  color: #333;
+  color: inherit;
   padding: 8px 10px;
   border-radius: 6px;
   cursor: pointer;
   transition: background 0.2s ease, color 0.2s ease;
+  text-decoration: none;
 }
 
 .settingBtn:hover,
@@ -198,20 +203,15 @@
   color: #4f46e5;
 }
 
-/* 🌙 DARK MODE */
-.settingBtnDark,
-.logoutBtnDark {
-  color: #f1f1f1;
-}
-
-.settingBtnDark:hover,
-.logoutBtnDark:hover {
+/* 🌙 DARK MODE BUTTON */
+.dark .settingBtn:hover,
+.dark .logoutBtn:hover {
   background-color: #3b3b3b;
   color: #6366f1;
 }
 
 /* ===================== */
-/* 🌗 TOMBOL TEMA */
+/* 🌗 TOMBOL MODE TEMA */
 /* ===================== */
 .themeBtn {
   background: none;
@@ -225,6 +225,11 @@
 .themeBtn:hover {
   transform: rotate(25deg);
   color: #6366f1;
+}
+
+/* 🌙 DARK MODE TOMBOL TEMA */
+.dark .themeBtn {
+  color: #f9fafb;
 }
 
 /* ===================== */
@@ -245,7 +250,12 @@
 
   .notifBox,
   .profileBox {
-    width: 180px;
+    width: 200px;
+  }
+
+  .landingBtn {
+    font-size: 13px;
+    padding: 6px 10px;
   }
 }
 

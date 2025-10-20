@@ -1,6 +1,14 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect, useContext, useCallback } from "react";
 import axios from "axios";
-import { Outlet, Routes, Route, useNavigate } from "react-router-dom";
+import {
+  Outlet,
+  Routes,
+  Route,
+  useNavigate,
+  useLocation,
+} from "react-router-dom";
+import { io } from "socket.io-client";
+import Swal from "sweetalert2";
 
 // Context
 import { AuthContext } from "../../context/AuthContext";
@@ -21,49 +29,142 @@ import ProfileUser from "./ProfileUser/ProfileUser";
 import EditProperty from "./EditProperty";
 import TambahPropertiUser from "./TambahPropertiUser";
 
+// Styles
+import styles from "./DashboardUser.module.css";
+
+const API_BASE_URL = "http://localhost:3004";
+const SOCKET_SERVER_URL = "http://localhost:3005";
+
 export default function DashboardUser() {
   const { user } = useContext(AuthContext);
   const navigate = useNavigate();
+  const location = useLocation();
 
   const [darkMode, setDarkMode] = useState(false);
   const [latestProperties, setLatestProperties] = useState([]);
+  const [socketInstance, setSocketInstance] = useState(null);
 
-  // Toggle dark mode
+  // === Ambil properti terbaru ===
+  const fetchLatestProperties = useCallback(() => {
+    if (!user?.id) return;
+    axios
+      .get(`${API_BASE_URL}/properties`)
+      .then((res) => {
+        const activeProps = res.data
+          .filter(
+            (p) =>
+              String(p.ownerId) === String(user.id) &&
+              p.statusPostingan === "approved"
+          )
+          .sort((a, b) => {
+            const parseDate = (postedAt) => {
+              if (!postedAt) return new Date(0);
+              const [datePart, timePart] = postedAt.split(" ");
+              const [day, month, year] = datePart.split("/");
+              return new Date(`${year}-${month}-${day}T${timePart}`);
+            };
+            return parseDate(b.postedAt) - parseDate(a.postedAt);
+          })
+          .slice(0, 3);
+
+        setLatestProperties(activeProps);
+      })
+      .catch((err) => console.error("❌ Gagal ambil data properti:", err));
+  }, [user?.id]);
+
+  // === Setup Socket.IO Client ===
+  useEffect(() => {
+    if (!user?.id) return;
+
+    const socket = io(SOCKET_SERVER_URL, {
+      transports: ["websocket"],
+      reconnection: true,
+      reconnectionAttempts: 10,
+      reconnectionDelay: 1000,
+      query: { userId: user.id },
+    });
+
+    socket.emit("joinUserRoom", user.id);
+    console.log(`👤 Socket.IO: User ${user.id} bergabung ke ruangan.`);
+
+    // === Saat properti disetujui / ditolak / diubah ===
+    socket.on("propertyStatusUpdated", (data) => {
+      if (String(data.ownerId) === String(user.id)) {
+        const statusText =
+          data.statusPostingan === "approved"
+            ? "disetujui 🟢"
+            : data.statusPostingan === "pending"
+            ? "menunggu persetujuan 🟡"
+            : data.statusPostingan === "rejected"
+            ? "ditolak 🔴"
+            : "diperbarui";
+
+        Swal.fire({
+          toast: true,
+          position: "top-end",
+          icon: "info",
+          title: `Properti "${data.namaProperti}" telah ${statusText}.`,
+          showConfirmButton: false,
+          timer: 3000,
+          timerProgressBar: true,
+          background: darkMode ? "#1e1e1e" : "#fff",
+          color: darkMode ? "#eee" : "#333",
+        });
+
+        fetchLatestProperties();
+      }
+    });
+
+    // === Saat properti baru di-upload ===
+    socket.on("notif_upload", (data) => {
+      console.log("📢 Properti baru diupload:", data);
+      Swal.fire({
+        toast: true,
+        position: "top-end",
+        icon: "success",
+        title: data.message || "Properti baru berhasil diupload!",
+        showConfirmButton: false,
+        timer: 3000,
+        timerProgressBar: true,
+        background: darkMode ? "#1e1e1e" : "#fff",
+        color: darkMode ? "#eee" : "#333",
+      });
+
+      fetchLatestProperties(); // 🔁 langsung ambil ulang data
+    });
+
+    // === Saat reconnect otomatis join ulang ===
+    socket.on("connect", () => {
+      console.log("🟢 Socket connected:", socket.id);
+      socket.emit("joinUserRoom", user.id);
+    });
+
+    socket.on("disconnect", () => {
+      console.log("🔴 Socket disconnected:", socket.id);
+    });
+
+    setSocketInstance(socket);
+
+    return () => {
+      socket.disconnect();
+      console.log(`👋 Socket.IO: Koneksi user ${user.id} ditutup.`);
+    };
+  }, [user, fetchLatestProperties, darkMode]);
+
+  // === Ambil data saat pertama kali ===
+  useEffect(() => {
+    fetchLatestProperties();
+  }, [fetchLatestProperties]);
+
   const toggleTheme = () => setDarkMode((prev) => !prev);
-
-  // Arahkan ke halaman tambah properti
   const handleAddProperty = () => navigate("/user/tambahproperty");
 
-  // Style utama dashboard
-  const dashboardStyle = {
-    backgroundColor: darkMode ? "#0d1117" : "#f9f9f9",
-    color: darkMode ? "#f1f1f1" : "#1e1e1e",
-    minHeight: "100vh",
-    transition: "background 0.3s ease, color 0.3s ease",
-  };
-
-  // Ambil data properti aktif terbaru user
-  useEffect(() => {
-    if (user?.id) {
-      axios
-        .get("http://localhost:3004/properties")
-        .then((res) => {
-          const activeProps = res.data
-            .filter(
-              (p) =>
-                String(p.ownerId) === String(user.id) &&
-                p.statusPostingan === "approved"
-            )
-            .sort((a, b) => b.id - a.id)
-            .slice(0, 4); // ambil 4 terakhir
-          setLatestProperties(activeProps);
-        })
-        .catch((err) => console.error("Gagal ambil data properti:", err));
-    }
-  }, [user]);
-
   return (
-    <div style={dashboardStyle}>
+    <div
+      className={`${styles.dashboardContainer} ${
+        darkMode ? styles.darkMode : styles.lightMode
+      }`}
+    >
       {/* Navbar */}
       <NavbarUser darkMode={darkMode} toggleTheme={toggleTheme} />
 
@@ -72,17 +173,8 @@ export default function DashboardUser() {
         <SidebarUser darkMode={darkMode} />
 
         {/* Konten utama */}
-        <div
-          style={{
-            flex: 1,
-            padding: "20px 30px",
-            display: "flex",
-            flexDirection: "column",
-            gap: "20px",
-          }}
-        >
+        <div style={{ flex: 1, marginLeft: "20px" }}>
           <Routes>
-            {/* Halaman utama Dashboard */}
             <Route
               index
               element={
@@ -106,10 +198,10 @@ export default function DashboardUser() {
                       marginBottom: "20px",
                     }}
                   >
-                    Yuk, kelola dan lihat update properti terbaru di dashboard kamu!
+                    Yuk, kelola dan lihat update properti terbaru di dashboard
+                    kamu!
                   </p>
 
-                  {/* 🔹 Bagian Update Properti Aktif */}
                   <section style={{ marginTop: "10px" }}>
                     <h3
                       style={{
@@ -120,38 +212,28 @@ export default function DashboardUser() {
                       Update Properti Aktif Terbaru
                     </h3>
 
-                    <div
-                      style={{
-                        display: "flex",
-                        gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))",
-                        gap: "2rem",
-                        width: "100%",
-                        maxWidth: "1200px",
-                        margin: "0 auto",
-                        justifyItems: "center",
-                        alignItems: "stretch",
-                      }}
-                    >
+                    <div className={styles.propertyGrid}>
                       {latestProperties.length > 0 ? (
                         latestProperties.map((prop) => (
-                          <CardProperty
-                            key={prop.id}
-                            id={prop.id}
-                            namaProperti={prop.namaProperti}
-                            tipeProperti={prop.tipeProperti}
-                            jenisProperti={prop.jenisProperti}
-                            periodeSewa={prop.periodeSewa}
-                            harga={prop.harga}
-                            luasTanah={prop.luasTanah}
-                            luasBangunan={prop.luasBangunan}
-                            kamarTidur={prop.kamarTidur}
-                            kamarMandi={prop.kamarMandi}
-                            lokasi={prop.lokasi}
-                            deskripsi={prop.deskripsi}
-                            media={prop.media}
-                            status={prop.statusPostingan}
-                            darkMode={darkMode}
-                          />
+                          <div key={prop.id} className={styles.cardWrapper}>
+                            <CardProperty
+                              id={prop.id}
+                              namaProperti={prop.namaProperti}
+                              tipeProperti={prop.tipeProperti}
+                              jenisProperti={prop.jenisProperti}
+                              periodeSewa={prop.periodeSewa}
+                              harga={prop.harga}
+                              luasTanah={prop.luasTanah}
+                              luasBangunan={prop.luasBangunan}
+                              kamarTidur={prop.kamarTidur}
+                              kamarMandi={prop.kamarMandi}
+                              lokasi={prop.lokasi}
+                              deskripsi={prop.deskripsi}
+                              media={prop.media}
+                              status={prop.statusPostingan}
+                              darkMode={darkMode}
+                            />
+                          </div>
                         ))
                       ) : (
                         <p style={{ color: darkMode ? "#bbb" : "#777" }}>
@@ -168,29 +250,28 @@ export default function DashboardUser() {
             <Route path="propertisaya" element={<Outlet context={{ darkMode }} />}>
               <Route index element={<PropertiSaya />} />
             </Route>
-
             <Route
               path="propertipending"
               element={<Outlet context={{ darkMode }} />}
             >
               <Route index element={<PropertiPending />} />
             </Route>
-
             <Route
               path="propertiaktif"
               element={<Outlet context={{ darkMode }} />}
             >
               <Route index element={<PropertiAktif />} />
             </Route>
-
             <Route
               path="propertiditolak"
               element={<Outlet context={{ darkMode }} />}
             >
               <Route index element={<PropertiDitolak />} />
             </Route>
-
-            <Route path="edit-property/:id" element={<EditProperty />} />
+            <Route
+              path="edit-property/:id"
+              element={<EditProperty darkMode={darkMode} />}
+            />
             <Route
               path="tambahproperty"
               element={<TambahPropertiUser darkMode={darkMode} />}
@@ -203,9 +284,14 @@ export default function DashboardUser() {
         </div>
       </div>
 
-      {/* Footer dan tombol tambah */}
+      {/* Footer */}
       <FooterUser darkMode={darkMode} />
-      <AddPropertyButton onClick={handleAddProperty} />
+
+      {/* Tombol tambah properti */}
+      {location.pathname.startsWith("/user") &&
+        !location.pathname.includes("tambahproperty") && (
+          <AddPropertyButton onClick={handleAddProperty} />
+        )}
     </div>
   );
 }

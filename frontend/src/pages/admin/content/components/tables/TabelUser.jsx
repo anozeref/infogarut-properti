@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import styles from "../KelolaUserContent.module.css";
-import Pagination from "../components/Pagination";
+import Pagination from "../Pagination";
 
 const ITEMS_PER_PAGE = 5;
 

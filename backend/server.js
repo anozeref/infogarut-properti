@@ -10,7 +10,7 @@ const { Server } = require("socket.io");
 
 const app = express();
 const PORT = 3005;
-const DB_URL = "http://localhost:3004";
+const DB_URL = "http://localhost:3004"; // URL json-server (database)
 
 // === Middleware ===
 app.use(cors());
@@ -25,15 +25,98 @@ app.use("/media", express.static(mediaDir));
 
 // === Socket.IO ===
 const server = createServer(app);
-const io = new Server(server, { cors: { origin: "*" } });
+const io = new Server(server, {
+  cors: {
+    origin: "http://localhost:5173", // Sesuaikan dengan frontend
+    methods: ["GET", "POST"],
+    credentials: true,
+  },
+});
+
+🟢 SOCKET.IO EVENT HANDLER
+*/
 io.on("connection", (socket) => {
-console.log(`✅ Connected: ${socket.id}`);
-socket.on('propertyUpdate', () => io.emit('propertyUpdate'));
-socket.on('userUpdate', () => io.emit('userUpdate'));
-socket.on("disconnect", () => {
-console.log(`❌ Disconnected: ${socket.id}`);
+  console.log(`✅ Connected: ${socket.id}`);
+
+  // === EVENT UMUM UNTUK DASHBOARD ===
+  socket.on("new_property", (data) => io.emit("propertyUpdate", data));
+  socket.on("new_user", (data) => io.emit("userUpdate", data));
+
+  // === Notifikasi upload global ===
+  socket.on("new_upload", (data) => {
+    console.log("🆕 New upload:", data);
+    io.emit("notif_upload", data);
+  });
+
+  /* 
+  ===========================================================
+  🔔 NOTIFIKASI PER USER (DashboardUser.jsx)
+  ===========================================================
+  */
+
+  // 🧩 User bergabung ke room berdasarkan ID user
+io.on("connection", (socket) => {
+  console.log(`✅ Connected: ${socket.id}`);
+
+  // --- LOGIKA LAMA (Untuk Admin Refresh Umum) ---
+  socket.on('propertyUpdate', () => {
+    console.log("🔔 [Server] Menerima 'propertyUpdate', membalas ke semua admin...");
+    io.emit('propertyUpdate');
+  });
+  socket.on('userUpdate', () => {
+    // <-- CONSOLE.LOG DITAMBAHKAN -->
+    console.log("🔔 [Server] Menerima 'userUpdate', membalas ke semua admin...");
+    io.emit('userUpdate'); // Sinyal ini tetap ada, dipakai oleh KelolaUser & Pengaturan
+  });
+
+  // --- LOGIKA BARU (Untuk DashboardUser.jsx) ---
+  
+  socket.on("joinUserRoom", (userId) => {
+    if (userId) {
+      socket.join(String(userId));
+      console.log(`✅ User ${socket.id} (ID: ${userId}) bergabung ke room: ${userId}`);
+    }
+  });
+
+  socket.on("adminPropertyUpdate", async (data) => {
+    if (!data || !data.ownerId) return;
+    
+    console.log("🔔 [Server] Menerima 'adminPropertyUpdate', menyimpan notif...");
+
+    try {
+      const statusText = data.statusPostingan === 'approved' ? 'disetujui' : 'ditolak';
+      const link = data.statusPostingan === 'approved' ? '/user/propertiaktif' : '/user/propertiditolak';
+      
+      const newNotification = {
+        userId: String(data.ownerId),
+        text: `Properti '${data.namaProperti}' Anda telah ${statusText} oleh admin.`,
+        isRead: false,
+        createdAt: new Date().toISOString(),
+        link: link
+      };
+
+      await axios.post(`${DB_URL}/notifications`, newNotification);
+      console.log(`🔔 [Server] Notifikasi disimpan untuk User ID: ${data.ownerId}`);
+
+      io.to(String(data.ownerId)).emit("new_notification_ping"); 
+
+    } catch (err) {
+      console.error("❌ Gagal menyimpan notifikasi ke DB:", err.message);
+    }
+    
+    console.log("🔔 [Server] Membalas 'propertyUpdate' ke semua admin...");
+    io.emit("propertyUpdate"); 
+  });
+  
+  // --- Akhir Logika Baru ---
+
+  socket.on("disconnect", () => {
+    console.log(`❌ Disconnected: ${socket.id}`);
   });
 });
+
+📤 MULTER SETUP (Upload File Properti)
+*/
 // === MULTER Setup ===
 const storage = multer.diskStorage({
   destination: (req, file, cb) => cb(null, mediaDir),
@@ -45,7 +128,7 @@ const storage = multer.diskStorage({
 
 const upload = multer({
   storage,
-  limits: { fileSize: 2 * 1024 * 1024 }, // 2 MB per file
+  limits: { fileSize: 20 * 1024 * 1024 }, // 20 MB
 }).array("media", 4);
 
 // === Upload Endpoint ===
@@ -55,11 +138,14 @@ app.post("/upload", (req, res) => {
       console.error("❌ Upload error:", err.message);
       return res.status(400).json({ error: err.message });
     }
+
     if (!req.files || req.files.length === 0) {
       return res.status(400).json({ error: "No files uploaded" });
     }
+
     const files = req.files.map((f) => f.filename);
     console.log("📸 Uploaded:", files);
+
     res.json({ files });
     io.emit("new_upload", { files, time: new Date() });
   });
@@ -108,23 +194,21 @@ app.delete("/properties/:id", async (req, res) => {
   }
 });
 
-// === GET banned users ===
-app.get("/api/banned-users", async (_, res) => {
-  try {
-    const { data: users } = await axios.get(`${DB_URL}/users`);
-    const banned = users.filter(u => u.role === "banned" || u.isBanned === true);
-    res.json(banned);
-  } catch (err) {
-    console.error("❌ Fetch banned users error:", err.message);
-    res.status(500).json({ error: "Gagal mengambil data user yang diblokir" });
-  }
-});
+🚫 USER BAN MANAGEMENT
+*/
 
+// GET semua user yang dibanned
+app.get("/api/banned-users", async (_, res) => {
+  try {
+    const { data: users } = await axios.get(`${DB_URL}/users`);
+    const banned = users.filter((u) => u.role === "banned" || u.banned === true);
+    res.json(banned);
 // === GET banned users ===
 app.get("/api/banned-users", async (_, res) => {
   try {
     const { data: users } = await axios.get(`${DB_URL}/users`);
-    const bannedUsers = users.filter(u => u.banned === true);
+    // Perbaiki filter: pakai field 'banned' saja
+    const bannedUsers = users.filter(u => u.banned === true); 
     res.json(bannedUsers);
   } catch (err) {
     console.error("❌ Fetch banned users error:", err.message);
@@ -132,38 +216,45 @@ app.get("/api/banned-users", async (_, res) => {
   }
 });
 
-// === Unban user ===
+// PATCH untuk unban user
 app.patch("/api/users/:id/unban", async (req, res) => {
   const { id } = req.params;
   try {
     const { data: user } = await axios.get(`${DB_URL}/users/${id}`);
     if (!user) return res.status(404).json({ error: "User tidak ditemukan" });
-
-    // Hanya ubah banned jika true
     if (!user.banned) {
       return res.status(400).json({ error: "User ini tidak sedang diblokir." });
     }
 
-    const updatedUser = { ...user, banned: false };
+    // Ubah banned jadi false, HAPUS bannedAt
+    const updatedUser = { ...user, banned: false, bannedAt: null }; 
     await axios.patch(`${DB_URL}/users/${id}`, updatedUser);
 
-    io.emit("userUpdate", { id, unbanned: true });
+    // <-- PERBAIKAN: Hapus baris ini agar tidak konflik -->
+    // io.emit("userUpdate", { id, unbanned: true }); 
+    
+    console.log(`✅ [Server] User ${id} di-unban via endpoint.`);
     res.json({ success: true, user: updatedUser });
   } catch (err) {
     console.error("❌ Unban error:", err.message);
     res.status(500).json({ error: "Gagal membuka blokir user" });
   }
 });
+// <-- AKHIR PERBAIKAN -->
 
-// === Media cleanup ===
+/* 
+===========================================================
+🧹 MEDIA CLEANUP
+===========================================================
+*/
 app.post("/api/media/cleanup", async (_, res) => {
   try {
     const { data: properties } = await axios.get(`${DB_URL}/properties`);
-    const usedFiles = new Set(properties.flatMap(p => p.media || []));
+    const usedFiles = new Set(properties.flatMap((p) => p.media || []));
     const allFiles = fs.readdirSync(mediaDir);
 
     let deleted = 0;
-    allFiles.forEach(file => {
+    allFiles.forEach((file) => {
       if (!usedFiles.has(file)) {
         fs.unlinkSync(path.join(mediaDir, file));
         deleted++;

@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useContext } from "react";
+import React, { useEffect, useState, useContext, useRef } from "react";
 import axios from "axios";
 import CardProperty from "./components/CardProperty";
 import styles from "./components/CardProperty.module.css";
@@ -9,9 +9,10 @@ import { useOutletContext } from "react-router-dom";
 export default function PropertiSaya() {
   const [properties, setProperties] = useState([]);
   const { user } = useContext(AuthContext);
-
-  // ✅ Ambil darkMode langsung dari LayoutUser (parent)
   const { darkMode } = useOutletContext();
+
+  // 🧠 Simpan status lama properti buat deteksi perubahan
+  const prevStatuses = useRef({});
 
   useEffect(() => {
     if (!user) {
@@ -28,13 +29,57 @@ export default function PropertiSaya() {
     const fetchMyProperties = async () => {
       try {
         const res = await axios.get("http://localhost:3004/properties");
+
+        // 🔍 Filter hanya properti milik user login
         const userProperties = res.data
-          .filter((prop) => prop.userId === user.id)
-          .sort((a, b) => new Date(b.tanggal) - new Date(a.tanggal));
+          .filter((prop) => String(prop.ownerId) === String(user.id))
+          .sort((a, b) => {
+            // Urutkan berdasarkan tanggal terbaru (postedAt)
+            const parseDate = (postedAt) => {
+              if (!postedAt) return new Date(0);
+              const [datePart, timePart] = postedAt.split(" ");
+              const [day, month, year] = datePart.split("/");
+              return new Date(`${year}-${month}-${day}T${timePart}`);
+            };
+            return parseDate(b.postedAt) - parseDate(a.postedAt);
+          });
+
+        // 🔔 Deteksi perubahan status (disetujui / ditolak)
+        userProperties.forEach((prop) => {
+          const prevStatus = prevStatuses.current[prop.id];
+          if (prevStatus && prevStatus !== prop.statusPostingan) {
+            if (prop.statusPostingan === "approved" || prop.statusPostingan === "disetujui") {
+              Swal.fire({
+                icon: "success",
+                title: "Properti Disetujui!",
+                text: `${prop.namaProperti} telah disetujui oleh admin.`,
+                timer: 4000,
+                showConfirmButton: false,
+                background: darkMode ? "#1f2937" : "#fff",
+                color: darkMode ? "#fff" : "#000",
+              });
+            }
+
+            if (prop.statusPostingan === "rejected" || prop.statusPostingan === "ditolak") {
+              Swal.fire({
+                icon: "error",
+                title: "Properti Ditolak",
+                text: `${prop.namaProperti} ditolak oleh admin.`,
+                timer: 4000,
+                showConfirmButton: false,
+                background: darkMode ? "#1f2937" : "#fff",
+                color: darkMode ? "#fff" : "#000",
+              });
+            }
+          }
+
+          // Simpan status terbaru
+          prevStatuses.current[prop.id] = prop.statusPostingan;
+        });
 
         setProperties(userProperties);
       } catch (err) {
-        console.error("Gagal memuat properti:", err);
+        console.error("❌ Gagal memuat properti:", err);
         Swal.fire({
           icon: "error",
           title: "Gagal Memuat Data",
@@ -45,7 +90,10 @@ export default function PropertiSaya() {
       }
     };
 
+    // 🔁 Jalankan pertama kali & update setiap 10 detik
     fetchMyProperties();
+    const interval = setInterval(fetchMyProperties, 10000);
+    return () => clearInterval(interval);
   }, [user, darkMode]);
 
   const handleDelete = (id) => {

@@ -1,16 +1,12 @@
 import { API_URL } from "./constant";
 
-/* ===========================================================
-   🔹 LOGIN USER
-   Login menggunakan username + password (bukan email)
-   =========================================================== */
 export const loginUser = async (username, password) => {
   try {
     const res = await fetch(`${API_URL}users?username=${username}&password=${password}`);
     if (!res.ok) throw new Error("Gagal menghubungi server");
 
     const data = await res.json();
-    return data.length ? data[0] : null; // kalau kosong → null
+    return data.length ? data[0] : null;
   } catch (error) {
     console.error("Login error:", error);
     throw error;

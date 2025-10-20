@@ -13,16 +13,29 @@ import Swal from "sweetalert2";
 import { AuthContext } from "../../../context/AuthContext";
 import styles from "./NavbarUser.module.css";
 import logo from "../../../assets/logo.png";
+import logodarkmode from "../assets/logodarkmode.png";
+import { io } from "socket.io-client";
+
+
+// === Hubungkan ke server backend ===
+const SOCKET_URL = "http://localhost:3005";
+const socket = io(SOCKET_URL, {
+  transports: ["websocket", "polling"],
+  reconnection: true,
+  reconnectionAttempts: 10,
+  reconnectionDelay: 1000,
+});
 
 export default function NavbarUser({ darkMode, toggleTheme }) {
   const [showNotif, setShowNotif] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
+  const [notifications, setNotifications] = useState([]);
   const notifRef = useRef(null);
   const profileRef = useRef(null);
   const navigate = useNavigate();
+  const { user, logout } = useContext(AuthContext);
 
-  const { logout } = useContext(AuthContext);
-
+  // === Toggle dropdown ===
   const toggleNotif = () => {
     setShowNotif(!showNotif);
     setShowProfile(false);
@@ -33,7 +46,7 @@ export default function NavbarUser({ darkMode, toggleTheme }) {
     setShowNotif(false);
   };
 
-  // ✅ Fungsi logout
+  // === Logout ===
   const handleLogout = async () => {
     const confirm = await Swal.fire({
       title: "Yakin mau keluar?",
@@ -53,13 +66,11 @@ export default function NavbarUser({ darkMode, toggleTheme }) {
         text: "Kamu telah keluar dari akun.",
         icon: "success",
         confirmButtonColor: "#4f46e5",
-      }).then(() => {
-        navigate("/"); // 🔙 Kembali ke Landing Page
-      });
+      }).then(() => navigate("/"));
     }
   };
 
-  // ✅ Tutup dropdown jika klik di luar
+  // === Tutup dropdown jika klik di luar ===
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (
@@ -76,48 +87,142 @@ export default function NavbarUser({ darkMode, toggleTheme }) {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  // === Socket.IO setup ===
+  useEffect(() => {
+    if (!user?.id) return;
+
+    socket.emit("joinUserRoom", user.id);
+    console.log("👤 Join room user:", user.id);
+
+    socket.on("connect", () => {
+      console.log("🟢 Socket connected:", socket.id);
+    });
+
+    socket.on("disconnect", () => {
+      console.log("🔴 Socket disconnected:", socket.id);
+    });
+
+    socket.on("connect_error", (err) => {
+      console.error("❌ Socket connect error:", err.message);
+    });
+
+    // === Property status updated ===
+    socket.on("propertyStatusUpdated", (data) => {
+      console.log("📢 propertyStatusUpdated:", data);
+      if (String(data.ownerId) === String(user.id)) {
+        const msg =
+          data.statusPostingan === "approved"
+            ? `✅ Properti "${data.namaProperti}" telah disetujui admin.`
+            : `❌ Properti "${data.namaProperti}" ditolak atau diubah admin.`;
+        addNotification(msg);
+      }
+    });
+
+    // === Upload baru ===
+    socket.on("notif_upload", (data) => {
+      console.log("📢 notif_upload:", data);
+      const msg = data.message || `${data.files?.length || 0} file baru diupload.`;
+      addNotification(msg);
+    });
+
+    // === Property approved ===
+    socket.on("notif_property_approved", (data) => {
+      if (String(data.ownerId) === String(user.id)) {
+        const msg = `✅ Properti "${data.namaProperti}" disetujui!`;
+        addNotification(msg);
+      }
+    });
+
+    // === Property rejected ===
+    socket.on("notif_property_rejected", (data) => {
+      if (String(data.ownerId) === String(user.id)) {
+        const msg = `❌ Properti "${data.namaProperti}" ditolak!`;
+        addNotification(msg);
+      }
+    });
+
+    return () => {
+      socket.off("connect");
+      socket.off("disconnect");
+      socket.off("connect_error");
+      socket.off("propertyStatusUpdated");
+      socket.off("notif_upload");
+      socket.off("notif_property_approved");
+      socket.off("notif_property_rejected");
+    };
+  }, [user]);
+
+  // === Tambah notifikasi ke list + tampilkan popup ===
+  const addNotification = (msg) => {
+    const newNotif = { message: msg, time: new Date() };
+    setNotifications((prev) => [newNotif, ...prev]);
+
+    // 🔔 SweetAlert2 Toast
+    Swal.fire({
+      toast: true,
+      position: "top-end",
+      icon: "info",
+      title: msg,
+      showConfirmButton: false,
+      timer: 3500,
+      timerProgressBar: true,
+      background: darkMode ? "#1e1e1e" : "#fff",
+      color: darkMode ? "#eee" : "#333",
+    });
+  };
+
   return (
     <nav className={`${styles.navbar} ${darkMode ? styles.dark : ""}`}>
-      {/* 🔷 Logo */}
+      {/* 🔹 Logo berubah sesuai tema */}
       <div className={styles.logo}>
         <Link to="/">
-          <img src={logo} alt="Logo" className={styles.logoImg} />
+          <img
+            src={darkMode ? logodarkmode : logo}
+            alt="Logo"
+            className={styles.logoImg}
+          />
         </Link>
       </div>
 
-      {/* 🌐 Tombol Kembali ke Landing Page */}
+      {/* 🔗 Link ke landing page */}
       <div className={styles.landingLink}>
         <Link
           to="/"
-          className={`${styles.landingBtn} ${
-            darkMode ? styles.landingBtnDark : ""
-          }`}
+          className={`${styles.landingBtn} ${darkMode ? styles.landingBtnDark : ""}`}
         >
-          <FaGlobe className={styles.landingIcon} /> Kembali ke Landing Page
+          <FaGlobe className={styles.landingIcon} /> Beranda
         </Link>
       </div>
 
-      {/* 🔔 Bagian kanan navbar */}
+      {/* 🔧 Bagian kanan navbar */}
       <div className={styles.navbarRight}>
-        {/* Notifikasi */}
+        {/* 🔔 Notifikasi */}
         <div className={styles.notif} ref={notifRef}>
           <button className={styles.notifBtn} onClick={toggleNotif}>
             <FaBell size={20} />
+            {notifications.length > 0 && (
+              <span className={styles.notifBadge}>{notifications.length}</span>
+            )}
           </button>
+
           {showNotif && (
-            <div
-              className={`${styles.notifBox} ${
-                darkMode ? styles.notifBoxDark : ""
-              }`}
-            >
-              <p>🏠 Properti kamu disetujui!</p>
-              <p>🕓 Properti “Rumah Minimalis” masih ditinjau</p>
-              <p>❌ Properti “Villa Lama” ditolak</p>
+            <div className={`${styles.notifBox} ${darkMode ? styles.notifBoxDark : ""}`}>
+              {notifications.length === 0 ? (
+                <p className={styles.emptyNotif}>Tidak ada notifikasi baru</p>
+              ) : (
+                notifications.map((notif, i) => (
+                  <p key={i} className={styles.notifItem}>
+                    {notif.message}
+                    <br />
+                    <small>{new Date(notif.time).toLocaleTimeString("id-ID")}</small>
+                  </p>
+                ))
+              )}
             </div>
           )}
         </div>
 
-        {/* 🌙 / ☀️ Tombol Tema */}
+        {/* 🌙 Tema */}
         <button className={styles.themeBtn} onClick={toggleTheme}>
           {darkMode ? <FaSun /> : <FaMoon />}
         </button>
@@ -126,26 +231,16 @@ export default function NavbarUser({ darkMode, toggleTheme }) {
         <div className={styles.userLogo} ref={profileRef}>
           <FaUserCircle size={28} onClick={toggleProfile} />
           {showProfile && (
-            <div
-              className={`${styles.profileBox} ${
-                darkMode ? styles.profileBoxDark : ""
-              }`}
-            >
-              {/* 🔧 Pengaturan Akun */}
+            <div className={`${styles.profileBox} ${darkMode ? styles.profileBoxDark : ""}`}>
               <Link
                 to="/user/profileuser"
-                className={`${styles.settingBtn} ${
-                  darkMode ? styles.settingBtnDark : ""
-                }`}
+                className={`${styles.settingBtn} ${darkMode ? styles.settingBtnDark : ""}`}
               >
                 <FaCog className={styles.settingIcon} /> Pengaturan Akun
               </Link>
 
-              {/* 🚪 Logout */}
               <button
-                className={`${styles.settingBtn} ${
-                  darkMode ? styles.settingBtnDark : ""
-                }`}
+                className={`${styles.settingBtn} ${darkMode ? styles.settingBtnDark : ""}`}
                 onClick={handleLogout}
               >
                 <FaSignOutAlt className={styles.settingIcon} /> Logout
