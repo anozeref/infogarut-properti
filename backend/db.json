@@ -364,6 +364,66 @@
       },
       "periodeSewa": "/1 bulan",
       "userId": "3"
+    },
+    {
+      "id": "5058",
+      "namaProperti": "jows house",
+      "jenisProperti": "Jual",
+      "tipeProperti": "Rumah",
+      "lokasi": "ad",
+      "kecamatan": "ss",
+      "desa": "12",
+      "harga": 123,
+      "luasTanah": 22,
+      "luasBangunan": 22,
+      "kamarTidur": 22,
+      "kamarMandi": 22,
+      "periodeAngka": "",
+      "periodeSatuan": "bulan",
+      "deskripsi": "ad",
+      "media": [
+        "1760923038451-509281537.avif",
+        "1760923038451-720054142.avif",
+        "1760923038452-847704159.avif"
+      ],
+      "ownerId": "5",
+      "statusPostingan": "approved",
+      "postedAt": "2025-10-20T01:17:18.457Z",
+      "koordinat": {
+        "lat": 0,
+        "lng": 0
+      },
+      "periodeSewa": ""
+    },
+    {
+      "id": "ca67",
+      "namaProperti": "ff house",
+      "jenisProperti": "Jual",
+      "tipeProperti": "Rumah",
+      "lokasi": "pembangunan",
+      "kecamatan": "GARUT KOTA",
+      "desa": "desi",
+      "harga": 44444,
+      "luasTanah": 4000,
+      "luasBangunan": 3000,
+      "kamarTidur": 6,
+      "kamarMandi": 5,
+      "periodeAngka": "",
+      "periodeSatuan": "bulan",
+      "deskripsi": "bagus",
+      "media": [
+        "1760924254819-682535076.avif",
+        "1760924254820-880987043.avif",
+        "1760924254821-659569968.avif"
+      ],
+      "ownerId": "5",
+      "statusPostingan": "approved",
+      "postedAt": "2025-10-20T01:37:34.829Z",
+      "koordinat": {
+        "lat": 0,
+        "lng": 0
+      },
+      "periodeSewa": ""
     }
   ]
 }

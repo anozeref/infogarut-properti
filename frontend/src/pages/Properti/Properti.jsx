@@ -123,9 +123,11 @@ const Properti = () => {
                         <select value={tipeFilter} onChange={(e) => setTipeFilter(e.target.value)}>
                             <option value="Semua Tipe">Semua Tipe</option>
                             <option value="Rumah">Rumah</option>
-                            <option value="Kos">Kos</option>
+                            <option value="Kos">Villa</option>
                             <option value="Ruko">Ruko</option>
                             <option value="Tanah">Tanah</option>
+                            <option value="Kost">Kost</option>
+                            <option value="Tanah">Perumahan</option>
                         </select>
                     </div>
                     <div className={styles.filterGroup}>
