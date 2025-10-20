@@ -153,11 +153,6 @@
   align-items: center;
   transition: transform 0.2s ease;
 }
-
-.userLogo:hover {
-  transform: scale(1.05);
-}
-
 .profileBox {
   position: absolute;
   right: 0;

@@ -17,7 +17,7 @@ export default function CardProperty({
   id,
   namaProperti,
   tipeProperti,
-  jenisProperti, // jual | sewa
+  jenisProperti,
   periodeSewa,
   harga,
   luasTanah,
@@ -27,7 +27,7 @@ export default function CardProperty({
   lokasi,
   deskripsi,
   media,
-  status, // pending | aktif | ditolak
+  status,
   darkMode,
   onDelete,
 }) {
@@ -37,50 +37,40 @@ export default function CardProperty({
   const fallbackImage =
     "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=600&q=60";
 
-  // ✅ Ambil URL gambar utama
-  let image = fallbackImage;
+  // ✅ Pastikan media jadi array gambar URL yang valid
+  const imageList = Array.isArray(media)
+    ? media.map((m) => {
+        if (typeof m === "object" && m.url) {
+          return m.url.startsWith("http")
+            ? m.url
+            : `http://localhost:3005/media/${m.url}`;
+        }
+        if (typeof m === "string") {
+          return m.startsWith("http")
+            ? m
+            : `http://localhost:3005/media/${m}`;
+        }
+        return fallbackImage;
+      })
+    : [fallbackImage];
 
-  if (Array.isArray(media) && media.length > 0) {
-    const first = media[0];
-    if (typeof first === "object" && first.url) {
-      // kalau data-nya object { url, type }
-      image = first.url.startsWith("http")
-        ? first.url
-        : `http://localhost:3005/media/${first.url}`;
-    } else if (typeof first === "string") {
-      // kalau data-nya string nama file
-      image = first.startsWith("http")
-        ? first
-        : `http://localhost:3005/media/${first}`;
-    }
-  }
+  const image = imageList[0] || fallbackImage;
 
   const getStatusBadgeStyle = () => {
-    if (status === "pending") {
-      return {
-        backgroundColor: isHovered ? "#facc15" : "#fbbf24",
-        text: "⏳ Menunggu Persetujuan",
-      };
-    }
-    if (status === "aktif") {
-      return {
-        backgroundColor: isHovered ? "#16a34a" : "#22c55e",
-        text: "✅ Aktif",
-      };
-    }
-    if (status === "ditolak") {
-      return {
-        backgroundColor: isHovered ? "#dc2626" : "#ef4444",
-        text: "❌ Ditolak",
-      };
-    }
+    if (status === "pending")
+      return { backgroundColor: isHovered ? "#facc15" : "#fbbf24", text: "⏳ Menunggu Persetujuan" };
+    if (status === "aktif")
+      return { backgroundColor: isHovered ? "#16a34a" : "#22c55e", text: "✅ Aktif" };
+    if (status === "ditolak")
+      return { backgroundColor: isHovered ? "#dc2626" : "#ef4444", text: "❌ Ditolak" };
     return null;
   };
 
   const badgeStyle = getStatusBadgeStyle();
 
-  // ⚠️ Hapus Properti
-  const handleDelete = async () => {
+  // 🗑️ Hapus Properti
+  const handleDelete = async (e) => {
+    e.stopPropagation();
     const result = await Swal.fire({
       title: "Yakin hapus properti ini?",
       text: `Properti "${namaProperti}" akan dihapus permanen.`,
@@ -106,7 +96,6 @@ export default function CardProperty({
           background: darkMode ? "#1f2937" : "#fff",
           color: darkMode ? "#fff" : "#000",
         });
-
         if (onDelete) onDelete(id);
       } catch (error) {
         Swal.fire({
@@ -116,14 +105,91 @@ export default function CardProperty({
           background: darkMode ? "#1f2937" : "#fff",
           color: darkMode ? "#fff" : "#000",
         });
-        console.error("Gagal hapus properti:", error);
       }
     }
   };
 
   // ✏️ Edit Properti
-  const handleEdit = () => {
+  const handleEdit = (e) => {
+    e.stopPropagation();
     navigate(`/user/edit-property/${id}`);
+  };
+
+  // 👁️ Preview dengan slideshow
+  const handlePreview = () => {
+    const galleryHtml = `
+      <div id="gallery-container" style="position: relative; text-align:center;">
+        <img id="gallery-img" src="${imageList[0]}" 
+          style="width:100%; border-radius:10px; max-height:400px; object-fit:cover; transition:opacity 0.3s ease;">
+        ${
+          imageList.length > 1
+            ? `
+            <button id="prev-btn" style="
+              position:absolute; top:50%; left:10px; transform:translateY(-50%);
+              background:rgba(0,0,0,0.6); color:white; border:none; padding:8px 12px;
+              border-radius:50%; cursor:pointer; font-size:18px;">❮</button>
+            <button id="next-btn" style="
+              position:absolute; top:50%; right:10px; transform:translateY(-50%);
+              background:rgba(0,0,0,0.6); color:white; border:none; padding:8px 12px;
+              border-radius:50%; cursor:pointer; font-size:18px;">❯</button>
+            <div id="indicator" style="
+              position:absolute; bottom:8px; right:10px; background:rgba(0,0,0,0.5);
+              color:white; font-size:12px; padding:3px 8px; border-radius:8px;">
+              1 / ${imageList.length}
+            </div>
+            `
+            : ""
+        }
+      </div>
+    `;
+
+    Swal.fire({
+      title: namaProperti,
+      html: `
+        <div style="text-align:left">
+          <p><b>Jenis:</b> ${jenisProperti}</p>
+          <p><b>Tipe:</b> ${tipeProperti}</p>
+          <p><b>Harga:</b> Rp${Number(harga).toLocaleString("id-ID")}</p>
+          <p><b>Lokasi:</b> ${lokasi}</p>
+          <p><b>Deskripsi:</b> ${deskripsi}</p>
+          <hr style="margin:10px 0;">
+          ${galleryHtml}
+        </div>
+      `,
+      width: "650px",
+      confirmButtonText: "Tutup",
+      showCloseButton: true,
+      background: darkMode ? "#1f2937" : "#fff",
+      color: darkMode ? "#fff" : "#000",
+      didOpen: () => {
+        if (imageList.length > 1) {
+          let currentIndex = 0;
+          const imgEl = document.getElementById("gallery-img");
+          const prevBtn = document.getElementById("prev-btn");
+          const nextBtn = document.getElementById("next-btn");
+          const indicator = document.getElementById("indicator");
+
+          const updateImage = (newIndex) => {
+            imgEl.style.opacity = 0;
+            setTimeout(() => {
+              imgEl.src = imageList[newIndex];
+              indicator.textContent = `${newIndex + 1} / ${imageList.length}`;
+              imgEl.style.opacity = 1;
+            }, 200);
+          };
+
+          prevBtn.addEventListener("click", () => {
+            currentIndex = (currentIndex - 1 + imageList.length) % imageList.length;
+            updateImage(currentIndex);
+          });
+
+          nextBtn.addEventListener("click", () => {
+            currentIndex = (currentIndex + 1) % imageList.length;
+            updateImage(currentIndex);
+          });
+        }
+      },
+    });
   };
 
   return (
@@ -131,6 +197,7 @@ export default function CardProperty({
       className={`${styles.card} ${darkMode ? styles.dark : ""}`}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
+      onClick={handlePreview}
       style={{
         position: "relative",
         cursor: "pointer",
@@ -141,27 +208,18 @@ export default function CardProperty({
           : "0 4px 10px rgba(0,0,0,0.1)",
       }}
     >
-      {/* 🖼️ Media */}
+      {/* 🖼️ Gambar utama */}
       <div className={styles.imageWrapper}>
-        {image.endsWith(".mp4") || image.endsWith(".mov") ? (
-          <video
-            src={image}
-            className={styles.image}
-            controls
-            onError={(e) => (e.target.poster = fallbackImage)}
-          />
-        ) : (
-          <img
-            src={image}
-            alt={namaProperti || "Gambar Properti"}
-            loading="lazy"
-            onError={(e) => (e.target.src = fallbackImage)}
-            className={styles.image}
-          />
-        )}
+        <img
+          src={image}
+          alt={namaProperti || "Gambar Properti"}
+          loading="lazy"
+          onError={(e) => (e.target.src = fallbackImage)}
+          className={styles.image}
+        />
       </div>
 
-      {/* Status Badge */}
+      {/* 🏷️ Status */}
       {badgeStyle && (
         <div
           style={{
@@ -180,21 +238,17 @@ export default function CardProperty({
         </div>
       )}
 
-      {/* Body Card */}
+      {/* 🧱 Body */}
       <div className={styles.cardBody}>
         <div className={styles.badgeGroup}>
           {tipeProperti && (
-            <span
-              className={`${styles.badge} ${darkMode ? styles.badgeDark : ""}`}
-            >
+            <span className={`${styles.badge} ${darkMode ? styles.badgeDark : ""}`}>
               {tipeProperti}
             </span>
           )}
           {jenisProperti && (
             <span
-              className={`${styles.badgeSecondary} ${
-                darkMode ? styles.badgeDark : ""
-              }`}
+              className={`${styles.badgeSecondary} ${darkMode ? styles.badgeDark : ""}`}
             >
               {jenisProperti === "sewa" ? "Untuk Disewa" : "Dijual"}
             </span>
@@ -219,7 +273,6 @@ export default function CardProperty({
           </p>
         )}
 
-        {/* Detail Properti */}
         <div className={styles.propertyDetails}>
           {luasTanah && (
             <span>
@@ -240,27 +293,20 @@ export default function CardProperty({
 
         {deskripsi && (
           <p className={styles.cardDesc}>
-            {deskripsi.length > 100
-              ? deskripsi.slice(0, 100) + "..."
-              : deskripsi}
+            {deskripsi.length > 100 ? deskripsi.slice(0, 100) + "..." : deskripsi}
           </p>
         )}
 
-        {/* ✅ Tombol Edit & Delete hanya untuk Pending & Ditolak */}
         {(status === "pending" || status === "ditolak") && (
           <div className={styles.actionButtons}>
             <button
-              className={`${styles.editBtn} ${
-                darkMode ? styles.editBtnDark : ""
-              }`}
+              className={`${styles.editBtn} ${darkMode ? styles.editBtnDark : ""}`}
               onClick={handleEdit}
             >
               <FaEdit />
             </button>
             <button
-              className={`${styles.deleteBtn} ${
-                darkMode ? styles.deleteBtnDark : ""
-              }`}
+              className={`${styles.deleteBtn} ${darkMode ? styles.deleteBtnDark : ""}`}
               onClick={handleDelete}
             >
               <FaTrash />

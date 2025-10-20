@@ -27,6 +27,21 @@
       "joinedAt": "14/10/2025 11:21:00",
       "verified": true,
       "suspendedUntil": null
+    },
+    {
+      "id": "45d2",
+      "nama": "Nur Alam",
+      "username": "Alam",
+      "email": "nuralamgarut2311@gmail.com",
+      "password": "nuralam123",
+      "no_hp": "085183231185",
+      "kecamatan": "GARUT KOTA",
+      "desa": "KOTAKULON",
+      "alamat": "RT 05 / RW 03",
+      "role": "user",
+      "joinedAt": "20/10/2025 00:40:28",
+      "noHp": "085183231185",
+      "biodata": ""
     }
   ],
   "properties": [
@@ -60,6 +75,37 @@
         "lng": 0
       },
       "periodeSewa": ""
+    },
+    {
+      "id": "56c7",
+      "namaProperti": "Rumah Bagus",
+      "jenisProperti": "Jual",
+      "tipeProperti": "Rumah",
+      "lokasi": "Palih dinya",
+      "kecamatan": "KERSAMANAH",
+      "desa": "MEKARRAYA",
+      "harga": 12000000,
+      "luasTanah": 100,
+      "luasBangunan": 90,
+      "kamarTidur": 2,
+      "kamarMandi": 1,
+      "periodeAngka": "",
+      "periodeSatuan": "bulan",
+      "deskripsi": "Rumah nyaman ",
+      "media": [
+        "1760899575950-985871423.jpg",
+        "1760899575952-889413226.jpg",
+        "1760899575953-512327863.jpg"
+      ],
+      "ownerId": "45d2",
+      "statusPostingan": "approved",
+      "postedAt": "20/10/2025 01:46:15",
+      "koordinat": {
+        "lat": 0,
+        "lng": 0
+      },
+      "periodeSewa": "",
+      "userId": "45d2"
     }
   ],
   "notifications": []

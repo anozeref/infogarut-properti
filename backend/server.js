@@ -25,8 +25,36 @@ app.use("/media", express.static(mediaDir));
 
 // === Socket.IO ===
 const server = createServer(app);
-const io = new Server(server, { cors: { origin: "*" } });
+const io = new Server(server, {
+  cors: {
+    origin: "http://localhost:5173", // Sesuaikan dengan frontend
+    methods: ["GET", "POST"],
+    credentials: true,
+  },
+});
 
+🟢 SOCKET.IO EVENT HANDLER
+*/
+io.on("connection", (socket) => {
+  console.log(`✅ Connected: ${socket.id}`);
+
+  // === EVENT UMUM UNTUK DASHBOARD ===
+  socket.on("new_property", (data) => io.emit("propertyUpdate", data));
+  socket.on("new_user", (data) => io.emit("userUpdate", data));
+
+  // === Notifikasi upload global ===
+  socket.on("new_upload", (data) => {
+    console.log("🆕 New upload:", data);
+    io.emit("notif_upload", data);
+  });
+
+  /* 
+  ===========================================================
+  🔔 NOTIFIKASI PER USER (DashboardUser.jsx)
+  ===========================================================
+  */
+
+  // 🧩 User bergabung ke room berdasarkan ID user
 io.on("connection", (socket) => {
   console.log(`✅ Connected: ${socket.id}`);
 
@@ -87,6 +115,8 @@ io.on("connection", (socket) => {
   });
 });
 
+📤 MULTER SETUP (Upload File Properti)
+*/
 // === MULTER Setup ===
 const storage = multer.diskStorage({
   destination: (req, file, cb) => cb(null, mediaDir),
@@ -108,11 +138,14 @@ app.post("/upload", (req, res) => {
       console.error("❌ Upload error:", err.message);
       return res.status(400).json({ error: err.message });
     }
+
     if (!req.files || req.files.length === 0) {
       return res.status(400).json({ error: "No files uploaded" });
     }
+
     const files = req.files.map((f) => f.filename);
     console.log("📸 Uploaded:", files);
+
     res.json({ files });
     io.emit("new_upload", { files, time: new Date() });
   });
@@ -161,6 +194,15 @@ app.delete("/properties/:id", async (req, res) => {
   }
 });
 
+🚫 USER BAN MANAGEMENT
+*/
+
+// GET semua user yang dibanned
+app.get("/api/banned-users", async (_, res) => {
+  try {
+    const { data: users } = await axios.get(`${DB_URL}/users`);
+    const banned = users.filter((u) => u.role === "banned" || u.banned === true);
+    res.json(banned);
 // === GET banned users ===
 app.get("/api/banned-users", async (_, res) => {
   try {
@@ -174,16 +216,13 @@ app.get("/api/banned-users", async (_, res) => {
   }
 });
 
-// === Unban user ===
-// <-- PERBAIKAN: Blok ini diaktifkan lagi -->
+// PATCH untuk unban user
 app.patch("/api/users/:id/unban", async (req, res) => {
   const { id } = req.params;
   try {
     const { data: user } = await axios.get(`${DB_URL}/users/${id}`);
     if (!user) return res.status(404).json({ error: "User tidak ditemukan" });
-
-    // Hanya ubah banned jika true
-    if (user.banned !== true) { // Periksa secara eksplisit boolean true
+    if (!user.banned) {
       return res.status(400).json({ error: "User ini tidak sedang diblokir." });
     }
 
@@ -203,15 +242,19 @@ app.patch("/api/users/:id/unban", async (req, res) => {
 });
 // <-- AKHIR PERBAIKAN -->
 
-// === Media cleanup ===
+/* 
+===========================================================
+🧹 MEDIA CLEANUP
+===========================================================
+*/
 app.post("/api/media/cleanup", async (_, res) => {
   try {
     const { data: properties } = await axios.get(`${DB_URL}/properties`);
-    const usedFiles = new Set(properties.flatMap(p => p.media || []));
+    const usedFiles = new Set(properties.flatMap((p) => p.media || []));
     const allFiles = fs.readdirSync(mediaDir);
 
     let deleted = 0;
-    allFiles.forEach(file => {
+    allFiles.forEach((file) => {
       if (!usedFiles.has(file)) {
         fs.unlinkSync(path.join(mediaDir, file));
         deleted++;
