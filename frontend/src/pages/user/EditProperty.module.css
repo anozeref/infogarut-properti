@@ -256,7 +256,7 @@ label {
 .modalContent {
   position: relative;
   background-color: #111;
-  padding: 0rem;
+  padding: 1rem;
   border-radius: 12px;
   max-width: 90%;
   max-height: 90%;

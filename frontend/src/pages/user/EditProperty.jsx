@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { FaArrowLeft, FaTimes } from "react-icons/fa";
+import { FaArrowLeft, FaTimes } from "react-icons/fa"; // Pastikan FaTimes diimpor
 import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
 import Swal from "sweetalert2";
@@ -30,7 +30,7 @@ export default function EditProperty({ darkMode }) {
   const [previewModal, setPreviewModal] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // 🔹 Fetch data properti
+  // 🔹 Ambil data properti dari backend
   useEffect(() => {
     axios
       .get(`http://localhost:3004/properties/${id}`)
@@ -47,55 +47,66 @@ export default function EditProperty({ darkMode }) {
       .finally(() => setLoading(false));
   }, [id, navigate]);
 
-  // 🔹 Input handler
+  // 🔹 Handle input teks
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  // 🔹 Upload media baru
+  // 🔹 Handle upload media baru
   const handleFileChange = (e) => {
     const files = Array.from(e.target.files);
-    const previews = files.map((file) => ({
-      file,
+    const filePreviews = files.map((file) => ({
       url: URL.createObjectURL(file),
+      name: file.name,
       type: file.type.startsWith("image") ? "image" : "video",
     }));
 
     setFormData((prev) => ({
       ...prev,
-      media: [...prev.media, ...previews],
+      media: [...prev.media, ...filePreviews],
     }));
   };
 
-  // 🔹 Hapus media tertentu
-  const removePreview = (index) => {
-    setFormData((prev) => ({
-      ...prev,
-      media: prev.media.filter((_, i) => i !== index),
-    }));
-  };
-
-  // 🔹 Ganti media
+  // 1. 🔹 Tambahkan fungsi Ganti media (replaceFile)
   const replaceFile = (index) => {
-    fileInputRef.current.click();
-    fileInputRef.current.onchange = (e) => {
+    // Definisikan handler temporer
+    const tempInputHandler = (e) => {
       const file = e.target.files[0];
-      if (!file) return;
-      const newMedia = {
-        file,
-        url: URL.createObjectURL(file),
-        type: file.type.startsWith("image") ? "image" : "video",
-      };
-      setFormData((prev) => {
-        const updated = [...prev.media];
-        updated[index] = newMedia;
-        return { ...prev, media: updated };
-      });
+
+      if (file) {
+        const newMedia = {
+          url: URL.createObjectURL(file),
+          name: file.name,
+          type: file.type.startsWith("image") ? "image" : "video",
+        };
+
+        setFormData((prev) => {
+          const updated = [...prev.media];
+          updated[index] = newMedia; // Ganti item di indeks spesifik
+          return { ...prev, media: updated };
+        });
+      }
+
+      // Reset input (value dan mode multiple)
+      // Event listener sudah otomatis terhapus karena { once: true }
+      fileInputRef.current.value = "";
+      fileInputRef.current.multiple = true;
     };
+
+    // Set input ke mode single file (untuk mengganti 1 saja)
+    fileInputRef.current.multiple = false;
+
+    // Tambahkan listener 'change' yang hanya berjalan sekali
+    fileInputRef.current.addEventListener("change", tempInputHandler, {
+      once: true,
+    });
+
+    // Trigger klik
+    fileInputRef.current.click();
   };
 
-  // 🔹 Submit update
+  // 🔹 Submit (PUT ke db.json)
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -120,27 +131,29 @@ export default function EditProperty({ darkMode }) {
     }
   };
 
-  if (loading) return <div className={styles.loading}>Memuat data properti...</div>;
+  // 🔹 Preview media modal
+  const openPreview = (file) => setPreviewModal(file);
+  const closePreview = () => setPreviewModal(null);
 
-  // 🌙 Mode class
+  if (loading)
+    return <div className={styles.loading}>Memuat data properti...</div>;
+
+  // 🌙 Dark Mode Class
   const containerClass = `${styles.container} ${darkMode ? styles.dark : ""}`;
   const cardClass = `${styles.card} ${darkMode ? styles.darkCard : ""}`;
   const inputClass = `${styles.input} ${darkMode ? styles.darkInput : ""}`;
-  const selectClass = `${styles.select} ${darkMode ? styles.darkInput : ""}`;
   const textareaClass = `${styles.textarea} ${darkMode ? styles.darkInput : ""}`;
+  const selectClass = `${styles.select} ${darkMode ? styles.darkInput : ""}`;
 
   return (
     <div className={containerClass}>
-      <button onClick={() => navigate(-1)} className={styles.backButton}>
-        <FaArrowLeft className={styles.backIcon} /> Kembali
-      </button>
-
       <div className={cardClass}>
         <h2 className={styles.title}>Edit Properti</h2>
 
         <form onSubmit={handleSubmit} className={styles.form}>
           <div className={styles.grid}>
-            {/* 🔹 Nama dan Deskripsi */}
+            {/* ... (Semua input form Anda) ... */}
+            
             <div className={styles.colFull}>
               <label>Nama Properti</label>
               <input
@@ -163,7 +176,6 @@ export default function EditProperty({ darkMode }) {
               />
             </div>
 
-            {/* 🔹 Detail lainnya */}
             <div>
               <label>Harga (IDR)</label>
               <input
@@ -205,7 +217,6 @@ export default function EditProperty({ darkMode }) {
               />
             </div>
 
-            {/* 🔹 Dropdown properti */}
             <div>
               <label>Tipe Properti</label>
               <select
@@ -247,7 +258,6 @@ export default function EditProperty({ darkMode }) {
               </div>
             )}
 
-            {/* 🔹 Ukuran dan kamar */}
             <div>
               <label>Luas Tanah (m²)</label>
               <input
@@ -292,58 +302,100 @@ export default function EditProperty({ darkMode }) {
               />
             </div>
 
-            {/* 🔹 Upload Media */}
+
+            {/* ... (Akhir dari input form Anda) ... */}
+
             <div className={styles.colFull}>
-              <label>Upload Media (Foto/Video)</label>
+              <label>Upload Media (Gambar/Video)</label>
               <input
-                ref={fileInputRef}
+                ref={fileInputRef} // 2. Hubungkan ref ke input file
                 type="file"
-                multiple
                 accept="image/*,video/*"
+                multiple
                 onChange={handleFileChange}
                 className={styles.fileInput}
               />
             </div>
           </div>
 
-          {/* 🔹 Preview Media */}
-          {formData.media.length > 0 && (
+          {/* 📸 Preview Media */}
+          {formData.media && formData.media.length > 0 && (
             <div className={styles.previewSection}>
               <h3 className={styles.previewTitle}>Preview Media</h3>
               <div className={styles.previewGrid}>
-                {formData.media.map((m, idx) => (
-                  <div key={idx} className={styles.previewItem}>
-                    {m.type === "image" ? (
-                      <img
-                        src={m.url}
-                        alt={`preview-${idx}`}
-                        className={styles.previewImage}
-                        onClick={() => setPreviewModal(m)}
-                      />
-                    ) : (
-                      <video
-                        src={m.url}
-                        className={styles.previewVideo}
-                        controls
-                        onClick={() => setPreviewModal(m)}
-                      />
-                    )}
-                    <button
-                      type="button"
-                      onClick={() => removePreview(idx)}
-                      className={styles.deleteBtn}
-                    >
-                      <FaTimes />
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => replaceFile(idx)}
-                      className={styles.replaceBtn}
-                    >
-                      Ganti
-                    </button>
-                  </div>
-                ))}
+                {formData.media.map((file, i) => {
+                  const isObject = typeof file === "object";
+                  let fileUrl = isObject ? file.url : file;
+
+                  // 3. 💡 Logika URL diperbaiki (jangan prepend 'blob:' url)
+                  if (
+                    fileUrl &&
+                    !fileUrl.startsWith("http") &&
+                    !fileUrl.startsWith("blob")
+                  ) {
+                    fileUrl = `http://localhost:3005/media/${fileUrl}`;
+                  }
+
+                  const fileType =
+                    isObject && file.type
+                      ? file.type
+                      : fileUrl.match(/\.(mp4|mov|avi|mkv)$/)
+                      ? "video"
+                      : "image";
+
+                  // 🗑️ Fungsi hapus file dari array
+                  const handleDeleteMedia = () => {
+                    setFormData((prev) => ({
+                      ...prev,
+                      media: prev.media.filter((_, index) => index !== i),
+                    }));
+                  };
+
+                  return (
+                    <div key={i} className={styles.previewItem}>
+                      {/* Tombol hapus kecil (menggunakan Ikon) */}
+                      <button
+                        type="button"
+                        onClick={handleDeleteMedia}
+                        className={styles.deleteBtn}
+                        title="Hapus media ini"
+                      >
+                        <FaTimes />
+                      </button>
+
+                      {/* Gambar atau Video */}
+                      {fileType === "video" ? (
+                        <video
+                          src={fileUrl}
+                          className={styles.previewVideo}
+                          controls
+                          onClick={() =>
+                            openPreview({ url: fileUrl, type: "video" })
+                          }
+                        />
+                      ) : (
+                        <img
+                          src={fileUrl}
+                          alt={`media-${i}`}
+                          className={styles.previewImage}
+                          onClick={() =>
+                            openPreview({ url: fileUrl, type: "image" })
+                          }
+                        />
+                      )}
+
+                      {/* 4. 🔹 Tambahkan Tombol Ganti */}
+                      <button
+                        type="button"
+                        onClick={() => replaceFile(i)}
+                        className={styles.replaceBtn} // Pastikan class ini ada di CSS
+                        title="Ganti media ini"
+                      >
+                        Ganti
+                      </button>
+                    </div>
+                  );
+                })}
               </div>
             </div>
           )}
@@ -356,14 +408,26 @@ export default function EditProperty({ darkMode }) {
 
       {/* 🔹 Modal Preview */}
       {previewModal && (
-        <div className={styles.modalOverlay} onClick={() => setPreviewModal(null)}>
-          <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
+        <div className={styles.modalOverlay} onClick={closePreview}>
+          <div
+            className={styles.modalContent}
+            onClick={(e) => e.stopPropagation()}
+          >
             {previewModal.type === "video" ? (
-              <video src={previewModal.url} controls autoPlay className={styles.modalVideo} />
+              <video
+                src={previewModal.url}
+                controls
+                autoPlay
+                className={styles.modalVideo}
+              />
             ) : (
-              <img src={previewModal.url} alt="Preview" className={styles.modalImage} />
+              <img
+                src={previewModal.url}
+                alt="Preview"
+                className={styles.modalImage}
+              />
             )}
-            <button className={styles.closeModal} onClick={() => setPreviewModal(null)}>
+            <button className={styles.closeModal} onClick={closePreview}>
               ×
             </button>
           </div>

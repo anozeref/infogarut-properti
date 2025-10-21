@@ -77,37 +77,6 @@
       "periodeSewa": ""
     },
     {
-      "id": "56c7",
-      "namaProperti": "Rumah Bagus",
-      "jenisProperti": "Jual",
-      "tipeProperti": "Rumah",
-      "lokasi": "Palih dinya",
-      "kecamatan": "KERSAMANAH",
-      "desa": "MEKARRAYA",
-      "harga": 12000000,
-      "luasTanah": 100,
-      "luasBangunan": 90,
-      "kamarTidur": 2,
-      "kamarMandi": 1,
-      "periodeAngka": "",
-      "periodeSatuan": "bulan",
-      "deskripsi": "Rumah nyaman ",
-      "media": [
-        "1760899575950-985871423.jpg",
-        "1760899575952-889413226.jpg",
-        "1760899575953-512327863.jpg"
-      ],
-      "ownerId": "45d2",
-      "statusPostingan": "approved",
-      "postedAt": "20/10/2025 01:46:15",
-      "koordinat": {
-        "lat": 0,
-        "lng": 0
-      },
-      "periodeSewa": "/1 bulan",
-      "userId": "3"
-    },
-    {
       "id": "5058",
       "namaProperti": "jows house",
       "jenisProperti": "Jual",
@@ -292,6 +261,46 @@
       "text": "Properti 'Villa Rancabango 2 Murah Meriah' Anda telah disetujui oleh admin.",
       "isRead": true,
       "createdAt": "2025-10-20T07:13:39.544Z",
+      "link": "/user/propertiaktif"
+    },
+    {
+      "id": "7c29",
+      "userId": "45d2",
+      "text": "Properti 'Rumah Mewah Di Garut Kota' Anda telah disetujui oleh admin.",
+      "isRead": true,
+      "createdAt": "2025-10-21T15:02:25.174Z",
+      "link": "/user/propertiaktif"
+    },
+    {
+      "id": "6368",
+      "userId": "45d2",
+      "text": "Properti 'Rumah Mewah Di Garut Kotaa123123' Anda telah disetujui oleh admin.",
+      "isRead": true,
+      "createdAt": "2025-10-21T15:33:48.214Z",
+      "link": "/user/propertiaktif"
+    },
+    {
+      "id": "0987",
+      "userId": "45d2",
+      "text": "Properti 'Rumah Asri Sukajayaa' Anda telah ditolak oleh admin.",
+      "isRead": false,
+      "createdAt": "2025-10-21T16:17:58.727Z",
+      "link": "/user/propertiditolak"
+    },
+    {
+      "id": "39b1",
+      "userId": "45d2",
+      "text": "Properti 'Rumah Asri Sukajaya' Anda telah ditolak oleh admin.",
+      "isRead": false,
+      "createdAt": "2025-10-21T16:18:01.717Z",
+      "link": "/user/propertiditolak"
+    },
+    {
+      "id": "7233",
+      "userId": "45d2",
+      "text": "Properti 'Tes' Anda telah disetujui oleh admin.",
+      "isRead": false,
+      "createdAt": "2025-10-21T16:19:11.129Z",
       "link": "/user/propertiaktif"
     }
   ]
