@@ -1,4 +1,3 @@
-// src/pages/admin/content/tables/PropertyTable.jsx
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import styles from "../../KelolaPropertiContent.module.css";
@@ -6,6 +5,7 @@ import Pagination from "../../components/Pagination";
 
 const ITEMS_PER_PAGE = 5;
 
+// Tabel Properti Admin
 const PropertyTable = ({
   icon, title, properties, users, renderActions, renderStatus, emptyMessage, approvedViewConfig
 }) => {
@@ -14,11 +14,13 @@ const PropertyTable = ({
 
   useEffect(() => { setCurrentPage(1); }, [properties]);
 
+  // Paginasi data
   const paginate = (list) => {
     const start = (currentPage - 1) * ITEMS_PER_PAGE;
     return list.slice(start, start + ITEMS_PER_PAGE);
   };
 
+  // Get nama owner dari ID
   const getOwnerName = (ownerId) => {
     const user = users.find(u => String(u.id) === String(ownerId));
     return user ? user.username : `User ID: ${ownerId || "?"}`;
@@ -28,6 +30,7 @@ const PropertyTable = ({
 
   return (
     <div className={styles.cardWrapper}>
+      {/* Header tabel */}
       <div className={styles.cardHeader}>
         {icon}
         <h3>{title}</h3>
@@ -42,6 +45,7 @@ const PropertyTable = ({
           </div>
         )}
       </div>
+      {/* Tabel properti */}
       <div className={styles.tableScroll}>
         <table className={styles.table}>
           <thead>
@@ -81,6 +85,7 @@ const PropertyTable = ({
           </tbody>
         </table>
       </div>
+      {/* Paginasi */}
       {totalPages > 1 && (
         <Pagination
           totalItems={properties.length}

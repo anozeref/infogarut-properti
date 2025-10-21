@@ -138,36 +138,6 @@
       "periodeSewa": ""
     },
     {
-      "id": "ca67",
-      "namaProperti": "ff house",
-      "jenisProperti": "Jual",
-      "tipeProperti": "Rumah",
-      "lokasi": "pembangunan",
-      "kecamatan": "GARUT KOTA",
-      "desa": "desi",
-      "harga": 44444,
-      "luasTanah": 4000,
-      "luasBangunan": 3000,
-      "kamarTidur": 6,
-      "kamarMandi": 5,
-      "periodeAngka": "",
-      "periodeSatuan": "bulan",
-      "deskripsi": "bagus",
-      "media": [
-        "1760924254819-682535076.avif",
-        "1760924254820-880987043.avif",
-        "1760924254821-659569968.avif"
-      ],
-      "ownerId": "5",
-      "statusPostingan": "approved",
-      "postedAt": "2025-10-20T01:37:34.829Z",
-      "koordinat": {
-        "lat": 0,
-        "lng": 0
-      },
-      "periodeSewa": ""
-    },
-    {
       "id": "50b7",
       "namaProperti": "Rumah Impian 6",
       "jenisProperti": "Jual",

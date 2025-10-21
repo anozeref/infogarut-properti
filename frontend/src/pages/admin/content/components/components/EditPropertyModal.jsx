@@ -1,12 +1,12 @@
-// src/pages/admin/content/components/EditPropertyModal.jsx
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { FaTimes, FaImage, FaSave } from "react-icons/fa";
 import styles from "./EditPropertyModal.module.css";
 import axios from "axios";
 import Swal from "sweetalert2";
-import { API_URL } from "../../../../../utils/constant";
+import { API_URL, MEDIA_URL } from "../../../../../utils/constant";
 
+// Modal Edit Properti Admin
 export default function EditPropertyModal({ data, onClose, onSave }) {
   const [isSaving, setIsSaving] = useState(false);
   const [form, setForm] = useState({
@@ -32,13 +32,14 @@ export default function EditPropertyModal({ data, onClose, onSave }) {
       const initialMedia = (data.media || []).map((fileName) => ({
       id: `existing-${fileName}-${Math.random()}`,
       file: fileName,
-      url: `http://localhost:3005/media/${fileName}`,
+      url: `${MEDIA_URL}${fileName}`,
       isNew: false,
     }));
     setMediaItems(initialMedia);
   }, [data.media]); // Dependensi tetap data.media
 
-  const handleChange = (e) => setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));  
+  // Handle perubahan form
+  const handleChange = (e) => setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   const handleFileChange = (e) => {
     const files = Array.from(e.target.files);
     const totalFiles = mediaItems.length + files.length;
@@ -47,13 +48,13 @@ export default function EditPropertyModal({ data, onClose, onSave }) {
       return;
     }
     
-    // Validasi ukuran (contoh 2MB untuk foto)
+    // Validasi ukuran foto maksimal 2MB
     const invalidPhotos = files.filter(f => f.type.startsWith("image/") && f.size > 2 * 1024 * 1024);
     if (invalidPhotos.length > 0) {
       Swal.fire("Error", `Foto "${invalidPhotos[0].name}" terlalu besar! Maksimal 2MB.`, "error");
       return;
     }
-    // Anda bisa tambahkan validasi video di sini jika perlu (misal: 20MB)
+    // Validasi video bisa ditambahkan di sini
 
     const newItems = files.map(file => ({
       id: `new-${file.name}-${Math.random()}`,
@@ -65,6 +66,7 @@ export default function EditPropertyModal({ data, onClose, onSave }) {
     setMediaItems(prev => [...prev, ...newItems]);
   };
 
+  // Hapus media item
   const removeMedia = (idToRemove) => {
     const itemToRemove = mediaItems.find(item => item.id === idToRemove);
     if (itemToRemove && itemToRemove.isNew) {
@@ -73,6 +75,7 @@ export default function EditPropertyModal({ data, onClose, onSave }) {
     setMediaItems(prev => prev.filter(item => item.id !== idToRemove));
   };
   
+  // Handle drag and drop untuk urutan media
   const handleDragStart = (index, e) => e.dataTransfer.setData("text/plain", index);
   const allowDrop = (e) => e.preventDefault();
   
@@ -81,7 +84,7 @@ export default function EditPropertyModal({ data, onClose, onSave }) {
     const dragIndex = Number(e.dataTransfer.getData("text/plain"));
     const newMediaItems = [...mediaItems];
     
-    // Tukar item
+    // Tukar posisi item
     const [draggedItem] = newMediaItems.splice(dragIndex, 1);
     newMediaItems.splice(targetIndex, 0, draggedItem);
     
@@ -89,6 +92,7 @@ export default function EditPropertyModal({ data, onClose, onSave }) {
   };
 
 
+  // Submit perubahan properti
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSaving(true);
@@ -99,7 +103,7 @@ export default function EditPropertyModal({ data, onClose, onSave }) {
       if (newFilesToUpload.length > 0) {
         const formDataUpload = new FormData();
         newFilesToUpload.forEach(file => formDataUpload.append("media", file));
-        // Asumsi API_URL adalah 'http://localhost:3005'
+        // Upload ke server
         const uploadRes = await axios.post(`${API_URL}/upload`, formDataUpload);
         uploadedFileNames = uploadRes.data.files;
       }
@@ -108,9 +112,7 @@ export default function EditPropertyModal({ data, onClose, onSave }) {
       const finalMediaOrder = mediaItems.map(item => item.isNew ? uploadedFileNames[newFileNameIndex++] : item.file);
       const periodeSewaFinal = form.jenisProperti === 'sewa' ? `/${form.periodeAngka} ${form.periodeSatuan}` : "";
       
-      // <-- PERBAIKAN DI SINI
-      // Mengonversi field angka menjadi Number() agar konsisten
-      // dengan data dari 'TambahPropertiContent.jsx'
+      // Konversi field angka ke Number untuk konsistensi
       onSave({ 
         ...form, 
         harga: Number(form.harga),
@@ -121,7 +123,6 @@ export default function EditPropertyModal({ data, onClose, onSave }) {
         media: finalMediaOrder, 
         periodeSewa: periodeSewaFinal 
       });
-      // <-- AKHIR PERBAIKAN
 
     } catch (error) {
       console.error("Gagal menyimpan perubahan:", error);
@@ -141,7 +142,7 @@ export default function EditPropertyModal({ data, onClose, onSave }) {
           </div>
           <form onSubmit={handleSubmit} className={styles.formBody}>
             <div className={styles.formSection}>
-              <h4>1. Informasi Utama</h4>
+              <h4>Informasi Utama</h4>
               <div className={styles.formGrid}>
                 <div className={styles.formGroup}><label>Nama Properti</label><input name="namaProperti" value={form.namaProperti} onChange={handleChange} required /></div>
                 <div className={styles.formGroup}><label>Jenis Properti</label><select name="jenisProperti" value={form.jenisProperti} onChange={handleChange}><option value="sewa">Sewa</option><option value="jual">Jual</option><option value="cicilan">Cicilan</option></select></div>
@@ -155,7 +156,7 @@ export default function EditPropertyModal({ data, onClose, onSave }) {
             </div>
             
             <div className={styles.formSection}>
-              <h4>2. Lokasi & Detail</h4>
+              <h4>Lokasi & Detail</h4>
               <div className={styles.formGrid}>
                 <div className={styles.formGroup}><label>Lokasi</label><input name="lokasi" value={form.lokasi} onChange={handleChange} required /></div>
                 <div className={styles.formGroup}><label>Kecamatan</label><input name="kecamatan" value={form.kecamatan} onChange={handleChange} /></div>
@@ -168,7 +169,7 @@ export default function EditPropertyModal({ data, onClose, onSave }) {
             </div>
 
             <div className={styles.formSection}>
-              <h4>3. Media</h4>
+              <h4>Media</h4>
               <input type="file" multiple accept="image/*,video/*" onChange={handleFileChange} style={{marginBottom: '16px'}} />
               <div className={styles.mediaPreview}>
                 {mediaItems.map((item, idx) => (

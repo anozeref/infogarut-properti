@@ -1,28 +1,27 @@
-// src/pages/admin/components/SidebarAdmin.jsx
 import React, { useContext } from "react";
 import { Link, useLocation } from "react-router-dom";
-// Perhatikan: FaCog tetap diimpor karena kita akan menggunakannya di bagian bawah
-import { FaHome, FaBuilding, FaUsers, FaPlus, FaCog, FaArrowLeft, FaSun, FaMoon } from "react-icons/fa"; 
+import { FaHome, FaBuilding, FaUsers, FaPlus, FaCog, FaArrowLeft, FaSun, FaMoon } from "react-icons/fa";
 import { motion } from "framer-motion";
 import styles from "./SidebarAdmin.module.css";
 import { ThemeContext } from "../DashboardAdmin";
 
+// Komponen Sidebar Admin
 const SidebarAdmin = ({ isHovered, setIsHovered }) => {
   const location = useLocation();
   const { theme, toggleTheme } = useContext(ThemeContext);
 
-  // Daftar menu utama (Hanya Aksi Harian)
+  // Menu navigasi utama
   const menuItems = [
     { path: "/admin", label: "Dashboard", icon: <FaHome /> },
     { path: "/admin/properti", label: "Kelola Properti", icon: <FaBuilding /> },
     { path: "/admin/user", label: "Kelola User", icon: <FaUsers /> },
     { path: "/admin/tambah", label: "Tambah Properti", icon: <FaPlus /> },
-    // ❗ MENU PENGATURAN DIHAPUS DARI SINI ❗
   ];
 
-  // Logic untuk menentukan apakah tombol Pengaturan sedang aktif
+  // Cek apakah halaman pengaturan aktif
   const isPengaturanActive = location.pathname.startsWith("/admin/pengaturan");
 
+  // Kembali ke halaman landing
   const handleBackToLanding = () => (window.location.href = "/");
 
   return (
@@ -34,7 +33,7 @@ const SidebarAdmin = ({ isHovered, setIsHovered }) => {
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      {/* SECTION ATAS: Menu Utama */}
+      {/* Menu utama */}
       <div className={styles.menuSection}>
         {menuItems.map((item) => (
           <Link
@@ -58,10 +57,9 @@ const SidebarAdmin = ({ isHovered, setIsHovered }) => {
         ))}
       </div>
 
-      {/* SECTION BAWAH: Pengaturan & Utility */}
+      {/* Menu bawah */}
       <div className={styles.bottomSection}>
-        
-        {/* 1. TOMBOL PENGATURAN (Dipindahkan ke sini) */}
+        {/* Menu pengaturan */}
         <Link
           to="/admin/pengaturan"
           className={`${styles.menuItem} ${isPengaturanActive ? styles.active : ""}`}
@@ -78,7 +76,7 @@ const SidebarAdmin = ({ isHovered, setIsHovered }) => {
           </motion.span>
         </Link>
 
-        {/* 2. TOMBOL DARK/LIGHT MODE */}
+        {/* Toggle tema */}
         <button onClick={toggleTheme} className={styles.menuItem} title={theme === "light" ? "Dark Mode" : "Light Mode"}>
           <span className={styles.icon}>{theme === "light" ? <FaMoon /> : <FaSun />}</span>
           <motion.span
@@ -91,7 +89,7 @@ const SidebarAdmin = ({ isHovered, setIsHovered }) => {
           </motion.span>
         </button>
 
-        {/* 3. TOMBOL KEMBALI */}
+        {/* Kembali ke landing */}
         <button onClick={handleBackToLanding} className={styles.menuItem} title="Kembali ke Landing">
           <span className={styles.icon}><FaArrowLeft /></span>
           <motion.span

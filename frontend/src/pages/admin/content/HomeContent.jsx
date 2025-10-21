@@ -1,4 +1,3 @@
-// src/pages/admin/content/HomeContent.jsx
 import React, { useContext, useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
@@ -9,26 +8,22 @@ import { ThemeContext } from "../DashboardAdmin";
 import { API_URL } from "../../../utils/constant";
 import StatCard from "./components/components/StatCard";
 
-/**
- * Parses a date string that could be in "DD/MM/YYYY HH:mm:ss" format or ISO 8601.
- * @param {string} dateString The date string to parse.
- * @returns {Date} A Date object. Returns current date as a fallback.
- */
+// Parse tanggal dari berbagai format
 const smartParseDate = (dateString) => {
   if (!dateString) return new Date();
 
-  // Handle custom "DD/MM/YYYY HH:mm:ss" format
+  // Handle format DD/MM/YYYY HH:mm:ss
   if (dateString.includes('/')) {
     const parts = dateString.split(/[\s/:]+/);
-    // new Date(year, monthIndex, day, hours, minutes, seconds)
     return new Date(parts[2], parts[1] - 1, parts[0], parts[3] || 0, parts[4] || 0, parts[5] || 0);
   }
   
-  // Handle other standard formats like ISO 8601
+  // Handle format ISO 8601
   const date = new Date(dateString);
-  return isNaN(date.getTime()) ? new Date() : date; // Fallback for invalid formats
+  return isNaN(date.getTime()) ? new Date() : date;
 };
 
+// Halaman utama dashboard admin
 const HomeContent = () => {
   const { theme } = useContext(ThemeContext);
   const navigate = useNavigate();
@@ -39,6 +34,7 @@ const HomeContent = () => {
   const [notifications, setNotifications] = useState([]);
   const today = new Date().toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" });
 
+  // Ambil data statistik dan notifikasi
   const fetchData = useCallback(async () => {
     try {
       const [usersRes, propsRes] = await Promise.all([
@@ -64,7 +60,7 @@ const HomeContent = () => {
         id: `p${p.id}`, text: `User ${users.find(u => u.id === p.ownerId)?.username || "?"} meminta pengajuan properti "${p.namaProperti || "?"}"`, timestamp: smartParseDate(p.postedAt), type: "property",
       }));
       
-      // Sort all notifications, then take the top 5
+      // Urutkan notifikasi terbaru
       setNotifications([...notifUsers, ...notifProps].sort((a, b) => b.timestamp - a.timestamp).slice(0, 5));
     } catch (err) {
       console.error("Error fetch HomeContent:", err);
@@ -73,26 +69,29 @@ const HomeContent = () => {
     }
   }, []);
 
+  // Setup socket listener
   useEffect(() => {
     fetchData();
     const socket = io("http://localhost:3005");
     socket.on("userUpdate", fetchData);
     socket.on("propertyUpdate", fetchData);
-    socket.on("update_property", fetchData); // <-- PERBAIKAN: Menambahkan listener untuk delete
+    socket.on("update_property", fetchData);
     
     return () => {
       socket.off("userUpdate");
       socket.off("propertyUpdate");
-      socket.off("update_property"); // <-- PERBAIKAN: Menambahkan cleanup
+      socket.off("update_property");
       socket.disconnect();
     };
   }, [fetchData]);
 
+  // Navigasi berdasarkan tipe notifikasi
   const handleNotifClick = (notif) => {
     if (notif.type === "user") navigate("/admin/user");
     else if (notif.type === "property") navigate("/admin/properti");
   };
   
+  // Format pemisah tanggal (Hari Ini, Kemarin, dll)
   const formatDateSeparator = (date) => {
     const today = new Date();
     const yesterday = new Date();

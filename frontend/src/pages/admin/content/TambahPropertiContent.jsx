@@ -7,12 +7,15 @@ import styles from "./TambahPropertiContent.module.css";
 import axios from "axios";
 import { io } from "socket.io-client";
 
+// Socket untuk real-time updates
 const socket = io("http://localhost:3005");
 
+// Halaman Tambah Properti Admin
 const TambahPropertiContent = () => {
   const { theme } = useContext(ThemeContext);
   const fileInputRef = useRef(null);
 
+  // State form awal
   const initialFormState = {
     namaProperti: "", jenisProperti: "Jual", tipeProperti: "Rumah",
     lokasi: "", kecamatan: "", desa: "", harga: "", luasTanah: "",
@@ -26,10 +29,13 @@ const TambahPropertiContent = () => {
   const [mediaPreview, setMediaPreview] = useState([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // Handle perubahan form
   const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
 
+  // Get timestamp saat ini
   const getTimestamp = () => new Date().toISOString();
 
+  // Handle perubahan file
   const handleFileChange = (e) => {
     const files = Array.from(e.target.files);
     const totalFiles = mediaFiles.length + files.length;
@@ -48,12 +54,14 @@ const TambahPropertiContent = () => {
     setMediaPreview(prev => [...prev, ...newPreview]);
   };
 
+  // Hapus preview media
   const removePreview = (index) => {
     URL.revokeObjectURL(mediaPreview[index].url);
     setMediaFiles(prev => prev.filter((_, i) => i !== index));
     setMediaPreview(prev => prev.filter((_, i) => i !== index));
   };
 
+  // Handle drag and drop
   const handleDragStart = (index, e) => e.dataTransfer.setData("text/plain", index);
   const allowDrop = (e) => e.preventDefault();
   const handleDrop = (index, e) => {
@@ -67,6 +75,7 @@ const TambahPropertiContent = () => {
     setMediaPreview(newMediaPreview);
   };
 
+  // Submit form
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (mediaFiles.length < 1) {
@@ -77,7 +86,7 @@ const TambahPropertiContent = () => {
     try {
       const formDataUpload = new FormData();
       mediaFiles.forEach(f => formDataUpload.append("media", f));
-      // Upload ke server 3005 (bukan json-server 3004)
+      // Upload ke server 3005
       const uploadRes = await axios.post("http://localhost:3005/upload", formDataUpload);
 
       const propertiData = {
@@ -118,7 +127,7 @@ const TambahPropertiContent = () => {
 
       <div className={styles.formCard}>
         <form className={styles.form} onSubmit={handleSubmit}>
-          {/* Bagian Info Utama */}
+          {/* Informasi Utama */}
           <div className={styles.formSection}>
             <h4>1. Informasi Utama</h4>
             <div className={styles.formGrid}>
@@ -136,7 +145,7 @@ const TambahPropertiContent = () => {
             <div className={styles.formGroup}><label>Deskripsi</label><textarea name="deskripsi" value={form.deskripsi} onChange={handleChange} rows="5"></textarea></div>
           </div>
 
-          {/* Bagian Lokasi & Detail */}
+          {/* Lokasi & Detail */}
           <div className={styles.formSection}>
             <h4>2. Lokasi & Detail</h4>
             <div className={styles.formGrid}>
@@ -150,7 +159,7 @@ const TambahPropertiContent = () => {
             </div>
           </div>
 
-          {/* Bagian Media */}
+          {/* Media */}
           <div className={styles.formSection}>
             <h4>3. Media (Foto/Video)</h4>
             <div className={styles.mediaUploader}>

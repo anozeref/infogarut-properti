@@ -1,6 +1,4 @@
-/* =================================
-   Struktur Utama Dashboard
-   ================================= */
+/* Container utama dashboard */
 .dashboardContainer {
   display: flex;
   flex-direction: column;
@@ -10,21 +8,21 @@
   transition: background-color 0.3s, color 0.3s;
 }
 
+/* Wrapper sidebar dan konten */
 .dashboardWrapper {
   display: flex;
   flex: 1;
   min-height: 0;
 }
 
+/* Area konten utama */
 .mainContent {
   flex: 1;
   padding: 24px;
   overflow-y: auto;
 }
 
-/* =================================
-   Light / Dark Theme Variables
-   ================================= */
+/* Light theme variables */
 :global([data-theme="light"]) {
   --bg-color: #f8fafc;
   --main-bg-color: #ffffff;
@@ -33,6 +31,7 @@
   --border-color: #e5e7eb;
 }
 
+/* Dark theme variables */
 :global([data-theme="dark"]) {
   --bg-color: #111827;
   --main-bg-color: #1f2937;

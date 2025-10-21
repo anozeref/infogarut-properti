@@ -1,32 +1,32 @@
-// src/pages/admin/content/PengaturanContent.jsx
 import React, { useState, useEffect } from 'react';
 import Swal from 'sweetalert2';
 import { motion } from 'framer-motion';
 import { FiKey, FiTrash2, FiUsers } from 'react-icons/fi';
 import styles from './PengaturanContent.module.css';
 import axios from 'axios';
-import { io } from 'socket.io-client'; // <-- 1. Import io
+import { io } from 'socket.io-client';
 
-// ==== Axios instance ke backend ====
+// Axios instance ke backend
 const api = axios.create({
   baseURL: 'http://localhost:3005',
   headers: { 'X-Admin-Request': 'true' }
 });
 
-// <-- 2. Buat instance socket -->
+// Socket instance untuk real-time updates
 const socket = io("http://localhost:3005");
 
-// Varian animasi Framer Motion
+// Animasi card variants
 const cardVariants = {
   hidden: { opacity: 0, y: 20 },
   visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: "easeOut" } }
 };
 
+// Halaman Pengaturan Admin
 export default function PengaturanContent() {
   const [bannedUsers, setBannedUsers] = useState([]);
   const [isLoadingBanned, setIsLoadingBanned] = useState(true);
 
-  // Fungsi fetchBannedUsers (tidak berubah)
+  // Ambil data banned users
   useEffect(() => {
     const fetchBannedUsers = async () => {
       setIsLoadingBanned(true);
@@ -43,7 +43,7 @@ export default function PengaturanContent() {
     fetchBannedUsers();
   }, []);
 
-  // Fungsi handleMediaCleanup (tidak berubah)
+  // Handler cleanup media
   const handleMediaCleanup = () => {
     Swal.fire({
       title: 'Apakah Anda yakin?',
@@ -73,7 +73,7 @@ export default function PengaturanContent() {
     });
   };
 
-  // Buka blokir user
+  // Handler unban user
   const handleUnbanUser = (userId, username) => {
     Swal.fire({
       title: `Buka blokir "${username}"?`,
@@ -87,15 +87,14 @@ export default function PengaturanContent() {
     }).then(async (result) => {
       if (result.isConfirmed) {
         try {
-          // Panggil endpoint yang sudah diaktifkan lagi
+          // Panggil endpoint unban
           await api.patch(`/api/users/${userId}/unban`);
           
-          // Update state lokal (hapus user dari daftar banned)
+          // Update state lokal
           setBannedUsers(current => current.filter(u => u.id !== userId));
           
-          // <-- 3. Tambahkan emit socket -->
-          console.log("🔔 [Pengaturan] Mengirim sinyal 'userUpdate'...");
-          socket.emit('userUpdate'); // Beri tahu komponen lain (KelolaUser)
+          // Kirim sinyal socket update
+          socket.emit('userUpdate');
           
           Swal.fire('Berhasil!', `Pengguna ${username} telah di-unban.`, 'success');
         } catch (err) {
@@ -105,8 +104,6 @@ export default function PengaturanContent() {
       }
     });
   };
-
-  // ... (Sisa kode JSX tidak berubah) ...
   return (
     <div className={styles.container}>
       <motion.h1
@@ -117,7 +114,7 @@ export default function PengaturanContent() {
         Pengaturan
       </motion.h1>
 
-      {/* Card: Pemeliharaan Sistem */}
+      {/* Card Pemeliharaan Sistem */}
       <motion.div variants={cardVariants} initial="hidden" animate="visible" className={styles.card}>
         <h2 className={styles.cardHeader}>
           <FiTrash2 className="text-red-500" /> Pemeliharaan Sistem
@@ -130,7 +127,7 @@ export default function PengaturanContent() {
         </button>
       </motion.div>
 
-      {/* Card: Manajemen Pengguna */}
+      {/* Card Manajemen Pengguna */}
       <motion.div variants={cardVariants} initial="hidden" animate="visible" className={styles.card}>
         <h2 className={styles.cardHeader}>
           <FiUsers className="text-green-500" /> Akun Pengguna Diblokir
@@ -160,7 +157,7 @@ export default function PengaturanContent() {
         </div>
       </motion.div>
 
-      {/* Card: Keamanan Akun */}
+      {/* Card Keamanan Akun */}
       <motion.div variants={cardVariants} initial="hidden" animate="visible" className={styles.card}>
         <h2 className={styles.cardHeader}>
           <FiKey className="text-blue-500" /> Keamanan Akun
@@ -186,7 +183,7 @@ export default function PengaturanContent() {
             }
 
             try {
-              // Asumsi ID admin selalu 5 dan endpoint /users/5 ada di json-server
+              // ID admin selalu 5
               const res = await axios.get("http://localhost:3004/users/5"); 
               const adminData = res.data;
 
@@ -194,7 +191,7 @@ export default function PengaturanContent() {
                 return Swal.fire("Error", "Password lama tidak cocok.", "error");
               }
 
-              // Update password via json-server
+              // Update password
               await axios.patch("http://localhost:3004/users/5", { password: passwordBaru }); 
               Swal.fire("Berhasil!", "Password berhasil diperbarui.", "success");
               e.target.reset();

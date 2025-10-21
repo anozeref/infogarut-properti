@@ -1,4 +1,3 @@
-// src/pages/admin/content/KelolaUserContent.jsx
 import React, { useState, useEffect, useCallback, useContext } from "react";
 import Swal from "sweetalert2";
 import axios from "axios";
@@ -11,10 +10,10 @@ import { API_URL } from "../../../utils/constant";
 import TabelUser from "./components/tables/TabelUser";
 import ModalUser from "./ModalUser";
 
-// Socket global (tetap aman untuk file ini karena lifecycle-nya berbeda)
+// Socket global untuk real-time updates
 const socket = io("http://localhost:3005");
 
-// Fungsi format tanggal ke DD/MM/YYYY HH:mm:ss
+// Format tanggal ke DD/MM/YYYY HH:mm:ss
 const formatToCustomTimestamp = (date) => {
   const pad = (num) => String(num).padStart(2, '0');
   const day = pad(date.getDate());
@@ -26,43 +25,40 @@ const formatToCustomTimestamp = (date) => {
   return `${day}/${month}/${year} ${hours}:${minutes}:${seconds}`;
 };
 
-// Fungsi parse tanggal custom DD/MM/YYYY HH:mm:ss ke format panjang Indonesia
+// Parse tanggal custom ke format Indonesia
 const parseAndFormatDate = (dateStr) => {
   if (!dateStr) return "-";
   const parts = dateStr.split(/[\s/:]+/);
   if (parts.length < 6) return "Format salah";
-  // Urutan: tahun, bulanIndex, hari, jam, menit, detik
   const dateObj = new Date(parts[2], parts[1] - 1, parts[0], parts[3] || 0, parts[4] || 0, parts[5] || 0);
   if (isNaN(dateObj.getTime())) return "Invalid Date";
   return dateObj.toLocaleString("id-ID", { day: '2-digit', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' });
 };
 
-// Fungsi parse tanggal (ISO atau DD/MM/YYYY) menjadi objek Date untuk perbandingan
+// Parse tanggal untuk perbandingan
 const parseDateStringForComparison = (dateStr) => {
     if (!dateStr) return null;
-    // Handles ISO format like YYYY-MM-DD...
+    // Handle ISO format
     if (/^\d{4}-\d{2}-\d{2}/.test(dateStr)) {
         const isoDate = new Date(dateStr);
         return isNaN(isoDate.getTime()) ? null : isoDate;
     }
-    // Handles custom format DD/MM/YYYY...
+    // Handle custom format DD/MM/YYYY
     const parts = dateStr.split(/[\s/:]+/);
     if (parts.length < 3) return null;
-    // Urutan: tahun, bulanIndex, hari
     const dateObj = new Date(parts[2], parts[1] - 1, parts[0]);
-    // Set jam ke awal hari untuk perbandingan adil
     dateObj.setHours(0, 0, 0, 0);
     return isNaN(dateObj.getTime()) ? null : dateObj;
 };
 
-// Fungsi parse tanggal (ISO atau DD/MM/YYYY) ke format pendek Indonesia
+// Parse tanggal ke format pendek Indonesia
 const parseAndFormatShortDate = (dateStr) => {
     const dateObj = parseDateStringForComparison(dateStr);
     if (!dateObj) return dateStr ? "Format salah" : "-";
     return dateObj.toLocaleDateString("id-ID", { year: 'numeric', month: 'short', day: 'numeric' });
 };
 
-
+// Halaman Kelola User Admin
 const KelolaUserContent = () => {
   const { theme } = useContext(ThemeContext);
   const [users, setUsers] = useState([]);
@@ -73,6 +69,7 @@ const KelolaUserContent = () => {
   const [selectedUser, setSelectedUser] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
 
+  // Ambil data user dan properti
   const fetchData = useCallback(async () => {
     try {
       const [userRes, propRes] = await Promise.all([ axios.get(`${API_URL}users`), axios.get(`${API_URL}properties`) ]);
@@ -85,9 +82,9 @@ const KelolaUserContent = () => {
     }
   }, []);
 
+  // Setup socket listener
   useEffect(() => {
     fetchData();
-    // Gunakan socket global
     socket.on("userUpdate", fetchData);
     socket.on("propertyUpdate", fetchData);
     socket.on("update_property", fetchData);
@@ -98,19 +95,21 @@ const KelolaUserContent = () => {
     };
   }, [fetchData]);
 
+  // Update data user
   const updateUser = async (id, updatedFields, successMsg) => {
     const target = users.find((u) => u.id === id);
     if (!target) return;
     try {
       const updatedUser = { ...target, ...updatedFields };
       await axios.put(`${API_URL}users/${id}`, updatedUser);
-      socket.emit("userUpdate"); // Kirim sinyal update
+      socket.emit("userUpdate");
       Swal.fire("Berhasil!", successMsg, "success");
     } catch (err) {
       Swal.fire("Error!", "Gagal memperbarui data user.", "error");
     }
   };
 
+  // Handler verifikasi user
   const handleVerify = (id) => {
     const target = users.find(u => u.id === id);
     if (!target) return;
@@ -120,6 +119,7 @@ const KelolaUserContent = () => {
     }).then(res => res.isConfirmed && updateUser(id, { verified: true }, "User telah diverifikasi."));
   };
 
+  // Handler suspend user
   const handleSuspend = (id) => {
     const target = users.find(u => u.id === id);
     if (!target) return;
@@ -133,8 +133,8 @@ const KelolaUserContent = () => {
           <label class="swal-radio-option"><input type="radio" name="suspend_duration" value="14"><span>14 Hari</span></label>
           <label class="swal-radio-option"><input type="radio" name="suspend_duration" value="30"><span>30 Hari</span></label>
         </div>
-      `, // Pastikan class CSS ini ada
-      customClass: { htmlContainer: 'swal-suspend-override' }, // Pastikan class CSS ini ada
+      `,
+      customClass: { htmlContainer: 'swal-suspend-override' },
       showCancelButton: true,
       confirmButtonText: "Suspend",
       cancelButtonText: "Batal",
@@ -144,14 +144,16 @@ const KelolaUserContent = () => {
       if (result.isConfirmed && result.value) {
         const durationInDays = parseInt(result.value, 10);
         const suspendedUntil = new Date(Date.now() + durationInDays * 24 * 60 * 60 * 1000);
-        const formattedDate = formatToCustomTimestamp(suspendedUntil); // Format DD/MM/YYYY HH:mm:ss
+        const formattedDate = formatToCustomTimestamp(suspendedUntil);
         updateUser(id, { suspendedUntil: formattedDate }, `User disuspend selama ${durationInDays} hari.`);
       }
     });
   };
 
+  // Handler unsuspend user
   const handleUnSuspend = (id) => updateUser(id, { suspendedUntil: null }, "Suspend untuk user telah dicabut.");
 
+  // Handler banned user
   const handleBanned = (id) => {
     const target = users.find(u => u.id === id);
     if (!target) return;
@@ -160,17 +162,19 @@ const KelolaUserContent = () => {
         showCancelButton: true, confirmButtonText: "Ya, banned", cancelButtonText: "Batal", confirmButtonColor: "#dc3545",
     }).then(res => {
         if (res.isConfirmed) {
-            const timestamp = formatToCustomTimestamp(new Date()); // Format DD/MM/YYYY HH:mm:ss
+            const timestamp = formatToCustomTimestamp(new Date());
             updateUser(id, { banned: true, bannedAt: timestamp }, "User telah dibanned.");
         }
     });
   };
 
+  // Handler detail user
   const handleDetail = (user) => {
     setSelectedUser({ ...user });
     setModalOpen(true);
   };
 
+  // Render tombol aksi untuk user aktif
   const renderActionsForActive = (user) => (
     <>
       {!user.verified && (<motion.button whileHover={{ y: -2 }} className={styles.iconBtn} onClick={() => handleVerify(user.id)} title="Verifikasi User"><FaCheck className={styles.approveIcon} /></motion.button>)}
@@ -179,6 +183,8 @@ const KelolaUserContent = () => {
       <motion.button whileHover={{ y: -2 }} className={styles.iconBtn} onClick={() => handleDetail(user)} title="Lihat Detail"><FaInfoCircle className={styles.infoIcon} /></motion.button>
     </>
   );
+  
+  // Render tombol aksi untuk user suspend
   const renderActionsForSuspend = (user) => (
     <>
       <motion.button whileHover={{ y: -2 }} className={styles.iconBtn} onClick={() => handleUnSuspend(user.id)} title="Cabut Suspend"><FaUndo className={styles.unsuspendIcon} /></motion.button>
@@ -186,17 +192,20 @@ const KelolaUserContent = () => {
       <motion.button whileHover={{ y: -2 }} className={styles.iconBtn} onClick={() => handleDetail(user)} title="Lihat Detail"><FaInfoCircle className={styles.infoIcon} /></motion.button>
     </>
   );
+  
+  // Render tombol aksi untuk user banned
   const renderActionsForBanned = (user) => (
     <motion.button whileHover={{ y: -2 }} className={styles.iconBtn} onClick={() => handleDetail(user)} title="Lihat Detail"><FaInfoCircle className={styles.infoIcon} /></motion.button>
   );
 
+  // Render status badge
   const renderStatus = {
     active: (user) => user.verified ? <span className={`${styles.badge} ${styles.approved}`}>Verified</span> : <span className={`${styles.badge} ${styles.pending}`}>Unverified</span>,
     suspend: () => <span className={`${styles.badge} ${styles.suspended}`}>Suspend</span>,
     banned: () => <span className={`${styles.badge} ${styles.banned}`}>Banned</span>,
   };
 
-  // --- FILTER LOGIC ---
+  // Filter logic untuk user
   const todayStartOfDay = new Date();
   todayStartOfDay.setHours(0, 0, 0, 0);
 
@@ -225,16 +234,14 @@ const KelolaUserContent = () => {
     })
     .filter((u) => (viewVerified === "verified" ? u.verified : !u.verified));
 
-  // Filter suspend yang sudah diperbaiki
   const suspendUsers = baseFilteredUsers.filter((u) => {
       const suspendedUntilDate = parseDateStringForComparison(u.suspendedUntil);
       return !u.banned && suspendedUntilDate && suspendedUntilDate >= todayStartOfDay;
   });
 
   const bannedUsers = baseFilteredUsers.filter((u) => u.banned === true);
-  // --- AKHIR FILTER LOGIC ---
 
-
+  // Tampilkan loading spinner
   if (isLoading) {
     return ( <div className={styles.spinnerContainer}><div className={styles.spinner}></div></div> );
   }
@@ -303,7 +310,7 @@ const KelolaUserContent = () => {
           user={selectedUser}
           properties={properties.filter(p => String(p.ownerId) === String(selectedUser.id))}
           theme={theme}
-          joinedDate={parseAndFormatDate(selectedUser.joinedAt)} // Modal mungkin butuh format panjang
+          joinedDate={parseAndFormatDate(selectedUser.joinedAt)}
         />
       )}
     </div>
