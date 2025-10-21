@@ -61,36 +61,40 @@ export default function PropertiPending() {
 
   // ======================= HANDLE DELETE =======================
   const handleDelete = async (id) => {
-    const confirm = await Swal.fire({
-      title: "Hapus Properti?",
-      text: "Data ini akan dihapus secara permanen.",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonText: "Ya, hapus",
-      cancelButtonText: "Batal",
-    });
-
-    if (confirm.isConfirmed) {
+  Swal.fire({
+    title: "Yakin ingin hapus?",
+    text: "Properti akan dihapus dari daftar pending!",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonText: "Ya, hapus",
+    cancelButtonText: "Batal",
+  }).then(async (result) => {
+    if (result.isConfirmed) {
       try {
-        await axios.delete(`http://localhost:3004/properties/${id}`);
-        setProperties((prev) => prev.filter((item) => item.id !== id));
+        const res = await axios.delete(`http://localhost:3004/properties/${id}`);
 
-        Swal.fire({
-          icon: "success",
-          title: "Dihapus!",
-          text: "Properti berhasil dihapus.",
-        });
-      } catch (err) {
-        console.error("Gagal menghapus properti:", err);
-        Swal.fire({
-          icon: "error",
-          title: "Gagal",
-          text: "Terjadi kesalahan saat menghapus properti.",
-        });
+        // json-server kadang return 200 atau 204 → dua-duanya dianggap sukses
+        if (res.status === 200 || res.status === 204) {
+          Swal.fire("Terhapus!", "Properti berhasil dihapus.", "success");
+          // langsung refresh data tanpa reload halaman
+          fetchProperties();
+        } else {
+          Swal.fire("Hmm?", "Respons tidak dikenali, tapi mungkin berhasil.", "info");
+          fetchProperties();
+        }
+      } catch (error) {
+        // cek apakah properti sudah tidak ada tapi axios error
+        if (error.response && error.response.status === 404) {
+          Swal.fire("Selesai!", "Properti sudah tidak ada, halaman akan diperbarui.", "success");
+          fetchProperties();
+        } else {
+          console.error("Gagal menghapus properti:", error);
+          Swal.fire("Gagal!", "Terjadi kesalahan saat menghapus properti.", "error");
+        }
       }
     }
-  };
-
+  });
+};
   // ======================= RENDER =======================
   if (loading) {
     return (

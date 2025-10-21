@@ -1,16 +1,21 @@
 // frontend/src/pages/user/TambahPropertiUser.jsx
 import React, { useState, useContext, useRef, useEffect } from "react";
 import { motion } from "framer-motion";
+import { io } from "socket.io-client";
 import Swal from "sweetalert2";
 import { FaPlus, FaTimes } from "react-icons/fa";
 import { AuthContext } from "../../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-export default function TambahPropertiUser({ darkMode, socket }) {
+
+export default function TambahPropertiUser({ darkMode, socket: externalSocket }) {
   const { user } = useContext(AuthContext);
   const navigate = useNavigate();
   const fileInputRef = useRef(null);
+  const socket = io("http://localhost:3005");
+  
 
+  // ===================== STATE =====================
   const [form, setForm] = useState({
     namaProperti: "",
     jenisProperti: "Jual",
@@ -66,9 +71,7 @@ export default function TambahPropertiUser({ darkMode, socket }) {
   // ===================== FETCH DESA =====================
   useEffect(() => {
     if (selectedKecamatan) {
-      fetch(
-        `https://www.emsifa.com/api-wilayah-indonesia/api/villages/${selectedKecamatan}.json`
-      )
+      fetch(`https://www.emsifa.com/api-wilayah-indonesia/api/villages/${selectedKecamatan}.json`)
         .then((res) => res.json())
         .then((data) => {
           const sorted = data.sort((a, b) =>
@@ -85,9 +88,7 @@ export default function TambahPropertiUser({ darkMode, socket }) {
   // ===================== AUTO SELECT DESA =====================
   useEffect(() => {
     if (desaList.length > 0 && form.desa) {
-      const matchDesa = desaList.find(
-        (d) => d.name.toLowerCase() === form.desa.toLowerCase()
-      );
+      const matchDesa = desaList.find((d) => d.name.toLowerCase() === form.desa.toLowerCase());
       if (matchDesa) setSelectedDesa(matchDesa.id);
     }
   }, [desaList, form.desa]);
@@ -102,9 +103,7 @@ export default function TambahPropertiUser({ darkMode, socket }) {
     ).padStart(2, "0")}/${now.getFullYear()} ${String(now.getHours()).padStart(
       2,
       "0"
-    )}:${String(now.getMinutes()).padStart(2, "0")}:${String(
-      now.getSeconds()
-    ).padStart(2, "0")}`;
+    )}:${String(now.getMinutes()).padStart(2, "0")}:${String(now.getSeconds()).padStart(2, "0")}`;
   };
 
   // ===================== FILE HANDLING =====================
@@ -152,7 +151,6 @@ export default function TambahPropertiUser({ darkMode, socket }) {
   };
   const allowDrop = (e) => e.preventDefault();
 
-
   // ===================== SUBMIT =====================
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -181,17 +179,15 @@ export default function TambahPropertiUser({ darkMode, socket }) {
     }
 
     try {
-      // 1. Upload media ke server backend (server.js)
-      // Endpoint /upload ini akan memicu 'new_upload' global di server
+      // Upload media ke server.js
       const formDataUpload = new FormData();
       mediaFiles.forEach((f) => formDataUpload.append("media", f));
       const uploadRes = await axios.post("http://localhost:3005/upload", formDataUpload, {
         headers: { "Content-Type": "multipart/form-data" },
       });
-      
       const mediaNames = uploadRes.data.files;
 
-      // 2. Siapkan data properti untuk dikirim ke db.json
+      // Simpan properti ke db.json
       const propertyData = {
         ...form,
         harga: Number(form.harga),
@@ -207,50 +203,19 @@ export default function TambahPropertiUser({ darkMode, socket }) {
         statusPostingan: "pending",
       };
 
-      // 3. Simpan data properti ke json-server (db.json)
-      const res = await axios.post("http://localhost:3004/properties", propertyData);
+            await axios.post("http://localhost:3004/properties", propertyData);
 
-      // 4. KIRIM NOTIFIKASI SPESIFIK "Menunggu Persetujuan"
-      // Gunakan socket dari props, dan kirim event 'new_upload'
-      // Server akan menangkap 'new_upload' dan menyiarkannya sebagai 'notif_upload'
+      // 🔔 Emit notifikasi realtime ke admin
       if (socket && socket.connected) {
-         socket.emit("new_upload", {
-           message: `Properti "${form.namaProperti}" Anda sedang ditinjau admin.`
-         });
+        socket.emit("propertyUpdate"); // trigger ke admin
       }
 
-      Swal.fire("Sukses", `Properti "${form.namaProperti}" berhasil ditambahkan!`, "success");
-
-      // 5. Reset form
-      mediaPreview.forEach((m) => URL.revokeObjectURL(m.url));
-      setForm({
-        namaProperti: "",
-        jenisProperti: "Jual",
-        tipeProperti: "Rumah",
-        lokasi: "",
-        kecamatan: "",
-        desa: "",
-        harga: "",
-        luasTanah: "",
-        luasBangunan: "",
-        kamarTidur: "",
-        kamarMandi: "",
-        periodeAngka: "",
-        periodeSatuan: "bulan",
-        deskripsi: "",
-        media: [],
-        ownerId: user.id,
-        statusPostingan: "pending",
-        postedAt: "",
-        koordinat: { lat: 0, lng: 0 },
-      });
-      setMediaFiles([]);
-      setMediaPreview([]);
-      if (fileInputRef.current) fileInputRef.current.value = "";
+      Swal.fire("Sukses!", `Properti "${form.namaProperti}" berhasil ditambahkan!`, "success");
       navigate("/user/propertipending");
-      
+
+
     } catch (err) {
-      console.error(err);
+      console.error("Gagal menambahkan properti:", err);
       Swal.fire("Error", "Gagal menambahkan properti!", "error");
     }
   };
@@ -272,6 +237,7 @@ export default function TambahPropertiUser({ darkMode, socket }) {
     transition: "all 0.3s ease",
   };
 
+  // ===================== RENDER =====================
   return (
     <motion.div
       className="container mt-4"
