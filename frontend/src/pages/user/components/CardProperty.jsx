@@ -29,7 +29,7 @@ export default function CardProperty({
   media,
   status,
   darkMode,
-  onDelete,
+  onDelete, // ✅ callback dari PropertiPending.jsx
 }) {
   const [isHovered, setIsHovered] = useState(false);
   const navigate = useNavigate();
@@ -61,7 +61,7 @@ export default function CardProperty({
       return { backgroundColor: isHovered ? "#facc15" : "#fbbf24", text: "⏳ Menunggu Persetujuan" };
     if (status === "aktif")
       return { backgroundColor: isHovered ? "#16a34a" : "#22c55e", text: "✅ Aktif" };
-    if (status === "ditolak")
+    if (status === "ditolak" || status === "rejected")
       return { backgroundColor: isHovered ? "#dc2626" : "#ef4444", text: "❌ Ditolak" };
     return null;
   };
@@ -86,7 +86,9 @@ export default function CardProperty({
 
     if (result.isConfirmed) {
       try {
-        await axios.delete(`http://localhost:3004/properties/${id}`);
+        // 🔥 gunakan server.js port 3005 agar hapus + media bisa jalan
+        await axios.delete(`http://localhost:3005/properties/${id}`);
+
         Swal.fire({
           title: "Terhapus!",
           text: "Properti berhasil dihapus.",
@@ -96,8 +98,11 @@ export default function CardProperty({
           background: darkMode ? "#1f2937" : "#fff",
           color: darkMode ? "#fff" : "#000",
         });
+
+        // Panggil callback agar UI langsung update tanpa reload
         if (onDelete) onDelete(id);
       } catch (error) {
+        console.error("Gagal menghapus properti:", error);
         Swal.fire({
           title: "Gagal!",
           text: "Terjadi kesalahan saat menghapus properti.",
@@ -219,24 +224,6 @@ export default function CardProperty({
         />
       </div>
 
-      {/* 🏷️ Status */}
-      {badgeStyle && (
-        <div
-          style={{
-            position: "absolute",
-            top: "10px",
-            right: "10px",
-            backgroundColor: badgeStyle.backgroundColor,
-            color: "#fff",
-            fontWeight: "bold",
-            padding: "6px 10px",
-            borderRadius: "8px",
-            fontSize: "0.8rem",
-          }}
-        >
-          {badgeStyle.text}
-        </div>
-      )}
 
       {/* 🧱 Body */}
       <div className={styles.cardBody}>
@@ -297,7 +284,11 @@ export default function CardProperty({
           </p>
         )}
 
-        {(status === "pending" || status === "ditolak") && (
+        {/* Tombol Edit & Hapus hanya muncul saat pending/rejected */}
+        {(status?.toLowerCase() === "pending" ||
+          ["ditolak", "rejected", "not-approved", "declined", "failed"].includes(
+            status?.toLowerCase()
+          )) && (
           <div className={styles.actionButtons}>
             <button
               className={`${styles.editBtn} ${darkMode ? styles.editBtnDark : ""}`}

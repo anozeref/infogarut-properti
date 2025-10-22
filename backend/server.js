@@ -275,3 +275,29 @@ app.post("/api/media/cleanup", async (_, res) => {
 httpServer.listen(PORT, () => {
   console.log(`🚀 Backend aplikasi aktif di http://localhost:${PORT}`);
 });
+
+/* 
+===========================================================
+🗑️ DELETE property (tanpa hapus media)
+===========================================================
+*/
+app.delete("/properties/:id", async (req, res) => {
+  const { id } = req.params;
+  try {
+    const { data: properties } = await axios.get(`${DB_URL}/properties`);
+    const property = properties.find((p) => String(p.id) === String(id));
+    if (!property) return res.status(404).json({ error: "Property not found" });
+
+    // 🚫 Tidak hapus file media
+    // Media akan dibersihkan otomatis oleh admin lewat endpoint /api/media/cleanup
+
+    // ✅ Hapus data properti dari DB.json
+    await axios.delete(`${DB_URL}/properties/${id}`);
+    io.emit("update_property", { id, deleted: true });
+    res.json({ success: true, deletedId: id, message: "Properti dihapus tanpa menghapus media." });
+  } catch (err) {
+    console.error("❌ Delete error:", err.message);
+    res.status(500).json({ error: "Failed to delete property" });
+  }
+});
+
