@@ -26,7 +26,9 @@
       "role": "user",
       "joinedAt": "14/10/2025 11:21:00",
       "verified": true,
-      "suspendedUntil": null
+      "suspendedUntil": null,
+      "banned": false,
+      "bannedAt": "22/10/2025 12:25:31"
     },
     {
       "id": "45d2",
@@ -41,7 +43,10 @@
       "role": "user",
       "joinedAt": "20/10/2025 00:40:28",
       "biodata": "",
-      "verified": true
+      "verified": true,
+      "suspendedUntil": "25/10/2025 12:46:18",
+      "banned": false,
+      "bannedAt": "22/10/2025 12:42:14"
     }
   ],
   "properties": [
@@ -106,36 +111,6 @@
       },
       "periodeSewa": "/1 bulan",
       "userId": "3"
-    },
-    {
-      "id": "5058",
-      "namaProperti": "jows house",
-      "jenisProperti": "Jual",
-      "tipeProperti": "Rumah",
-      "lokasi": "ad",
-      "kecamatan": "ss",
-      "desa": "12",
-      "harga": 123,
-      "luasTanah": 22,
-      "luasBangunan": 22,
-      "kamarTidur": 22,
-      "kamarMandi": 22,
-      "periodeAngka": "",
-      "periodeSatuan": "bulan",
-      "deskripsi": "ad",
-      "media": [
-        "1760923038451-509281537.avif",
-        "1760923038451-720054142.avif",
-        "1760923038452-847704159.avif"
-      ],
-      "ownerId": "5",
-      "statusPostingan": "approved",
-      "postedAt": "2025-10-20T01:17:18.457Z",
-      "koordinat": {
-        "lat": 0,
-        "lng": 0
-      },
-      "periodeSewa": ""
     },
     {
       "id": "50b7",
@@ -262,6 +237,14 @@
       "text": "Properti 'Villa Rancabango 2 Murah Meriah' Anda telah disetujui oleh admin.",
       "isRead": true,
       "createdAt": "2025-10-20T07:13:39.544Z",
+      "link": "/user/propertiaktif"
+    },
+    {
+      "id": "ca18",
+      "userId": "5",
+      "text": "Properti 'jows house' Anda telah disetujui oleh admin.",
+      "isRead": false,
+      "createdAt": "2025-10-22T04:52:33.704Z",
       "link": "/user/propertiaktif"
     }
   ]

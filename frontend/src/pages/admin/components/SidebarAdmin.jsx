@@ -32,6 +32,8 @@ const SidebarAdmin = ({ isHovered, setIsHovered }) => {
       transition={{ type: "spring", stiffness: 200, damping: 25 }}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
+      role="navigation"
+      aria-label="Navigasi sidebar admin"
     >
       {/* Menu utama */}
       <div className={styles.menuSection}>
@@ -43,6 +45,7 @@ const SidebarAdmin = ({ isHovered, setIsHovered }) => {
               location.pathname === item.path ? styles.active : ""
             }`}
             title={item.label}
+            aria-current={location.pathname === item.path ? "page" : undefined}
           >
             <span className={styles.icon}>{item.icon}</span>
             <motion.span
@@ -77,8 +80,13 @@ const SidebarAdmin = ({ isHovered, setIsHovered }) => {
         </Link>
 
         {/* Toggle tema */}
-        <button onClick={toggleTheme} className={styles.menuItem} title={theme === "light" ? "Dark Mode" : "Light Mode"}>
-          <span className={styles.icon}>{theme === "light" ? <FaMoon /> : <FaSun />}</span>
+        <button
+          onClick={toggleTheme}
+          className={styles.menuItem}
+          title={theme === "light" ? "Dark Mode" : "Light Mode"}
+          aria-label={`Beralih ke mode ${theme === "light" ? "gelap" : "terang"}`}
+        >
+          <span className={styles.icon} aria-hidden="true">{theme === "light" ? <FaMoon /> : <FaSun />}</span>
           <motion.span
             className={styles.label}
             initial={{ opacity: 0, x: -10 }}

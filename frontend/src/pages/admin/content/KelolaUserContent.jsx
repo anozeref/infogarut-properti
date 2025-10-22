@@ -1,62 +1,16 @@
-import React, { useState, useEffect, useCallback, useContext } from "react";
+import React, { useState, useEffect, useCallback, useContext, useMemo } from "react";
 import Swal from "sweetalert2";
 import axios from "axios";
-import { io } from "socket.io-client";
 import { FaCheck, FaClock, FaUndo, FaBan, FaInfoCircle, FaUsers, FaUserClock, FaUserSlash, FaSearch } from "react-icons/fa";
 import { motion } from "framer-motion";
 import { ThemeContext } from "../DashboardAdmin";
 import styles from "./KelolaUserContent.module.css";
 import { API_URL } from "../../../utils/constant";
+import { formatToCustomTimestamp, parseAndFormatDate, parseDateStringForComparison, parseAndFormatShortDate } from "../../../utils/dateUtils";
+import { createSocketConnection, setupSocketListeners, emitAdminAction } from "../../../utils/socketUtils";
+import { fetchAdminData, LoadingSpinner } from "../../../utils/adminUtils.jsx";
 import TabelUser from "./components/tables/TabelUser";
 import ModalUser from "./ModalUser";
-
-// Socket global untuk real-time updates
-const socket = io("http://localhost:3005");
-
-// Format tanggal ke DD/MM/YYYY HH:mm:ss
-const formatToCustomTimestamp = (date) => {
-  const pad = (num) => String(num).padStart(2, '0');
-  const day = pad(date.getDate());
-  const month = pad(date.getMonth() + 1);
-  const year = date.getFullYear();
-  const hours = pad(date.getHours());
-  const minutes = pad(date.getMinutes());
-  const seconds = pad(date.getSeconds());
-  return `${day}/${month}/${year} ${hours}:${minutes}:${seconds}`;
-};
-
-// Parse tanggal custom ke format Indonesia
-const parseAndFormatDate = (dateStr) => {
-  if (!dateStr) return "-";
-  const parts = dateStr.split(/[\s/:]+/);
-  if (parts.length < 6) return "Format salah";
-  const dateObj = new Date(parts[2], parts[1] - 1, parts[0], parts[3] || 0, parts[4] || 0, parts[5] || 0);
-  if (isNaN(dateObj.getTime())) return "Invalid Date";
-  return dateObj.toLocaleString("id-ID", { day: '2-digit', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' });
-};
-
-// Parse tanggal untuk perbandingan
-const parseDateStringForComparison = (dateStr) => {
-    if (!dateStr) return null;
-    // Handle ISO format
-    if (/^\d{4}-\d{2}-\d{2}/.test(dateStr)) {
-        const isoDate = new Date(dateStr);
-        return isNaN(isoDate.getTime()) ? null : isoDate;
-    }
-    // Handle custom format DD/MM/YYYY
-    const parts = dateStr.split(/[\s/:]+/);
-    if (parts.length < 3) return null;
-    const dateObj = new Date(parts[2], parts[1] - 1, parts[0]);
-    dateObj.setHours(0, 0, 0, 0);
-    return isNaN(dateObj.getTime()) ? null : dateObj;
-};
-
-// Parse tanggal ke format pendek Indonesia
-const parseAndFormatShortDate = (dateStr) => {
-    const dateObj = parseDateStringForComparison(dateStr);
-    if (!dateObj) return dateStr ? "Format salah" : "-";
-    return dateObj.toLocaleDateString("id-ID", { year: 'numeric', month: 'short', day: 'numeric' });
-};
 
 // Halaman Kelola User Admin
 const KelolaUserContent = () => {
@@ -69,12 +23,21 @@ const KelolaUserContent = () => {
   const [selectedUser, setSelectedUser] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
 
+  // Initialize socket connection
+  const socket = createSocketConnection();
+
   // Ambil data user dan properti
   const fetchData = useCallback(async () => {
+    console.log("KelolaUserContent: Fetching data");
     try {
-      const [userRes, propRes] = await Promise.all([ axios.get(`${API_URL}users`), axios.get(`${API_URL}properties`) ]);
-      setUsers(userRes.data.map((u) => ({ ...u, verified: u.verified === true })));
-      setProperties(propRes.data);
+      const [usersData, propertiesData] = await Promise.all([
+        fetchAdminData("users", "Gagal mengambil data user"),
+        fetchAdminData("properties", "Gagal mengambil data properti")
+      ]);
+      console.log("KelolaUserContent: Fetched users count:", usersData.length);
+      console.log("KelolaUserContent: Fetched properties count:", propertiesData.length);
+      setUsers(usersData.map((u) => ({ ...u, verified: u.verified === true })));
+      setProperties(propertiesData);
     } catch (err) {
       console.error(err);
     } finally {
@@ -85,48 +48,63 @@ const KelolaUserContent = () => {
   // Setup socket listener
   useEffect(() => {
     fetchData();
-    socket.on("userUpdate", fetchData);
-    socket.on("propertyUpdate", fetchData);
-    socket.on("update_property", fetchData);
-    return () => {
-      socket.off("userUpdate");
-      socket.off("propertyUpdate");
-      socket.off("update_property");
-    };
+    const cleanup = setupSocketListeners(socket, {
+      userUpdate: fetchData,
+      propertyUpdate: fetchData,
+      update_property: fetchData,
+    });
+    return cleanup;
   }, [fetchData]);
 
-  // Update data user
-  const updateUser = async (id, updatedFields, successMsg) => {
+  // [REVISED] Update data user: only handles logic (API & socket), returns promise
+  const updateUser = async (id, updatedFields) => {
     const target = users.find((u) => u.id === id);
-    if (!target) return;
+    if (!target) {
+      throw new Error("User tidak ditemukan.");
+    }
     try {
-      const updatedUser = { ...target, ...updatedFields };
-      await axios.put(`${API_URL}users/${id}`, updatedUser);
-      socket.emit("userUpdate");
-      Swal.fire("Berhasil!", successMsg, "success");
-    } catch (err) {
-      Swal.fire("Error!", "Gagal memperbarui data user.", "error");
+      await axios.put(`${API_URL}users/${id}`, { ...target, ...updatedFields });
+      emitAdminAction(socket, "userUpdate");
+    } catch (error) {
+      console.error("Gagal memperbarui data user:", error);
+      throw new Error("Gagal memperbarui data user.");
     }
   };
 
-  // Handler verifikasi user
+  // [REVISED] Handler verifikasi user
   const handleVerify = (id) => {
     const target = users.find(u => u.id === id);
     if (!target) return;
+
     Swal.fire({
-        title: `Verifikasi "${target.username}"?`, icon: "question", showCancelButton: true,
-        confirmButtonText: "Ya, verifikasi", cancelButtonText: "Batal", confirmButtonColor: "#28a745",
-    }).then(res => res.isConfirmed && updateUser(id, { verified: true }, "User telah diverifikasi."));
+      title: `Verifikasi User "${target.username}"?`,
+      text: `User "${target.username}" akan diverifikasi dan mendapatkan status "Verified".`,
+      icon: "question",
+      showCancelButton: true,
+      confirmButtonText: "Ya, Verifikasi User",
+      cancelButtonText: "Batal",
+      confirmButtonColor: "#28a745",
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          await updateUser(id, { verified: true });
+          Swal.fire("Berhasil!", `User "${target.username}" telah diverifikasi.`, "success");
+        } catch (error) {
+          Swal.fire("Error!", error.message, "error");
+        }
+      }
+    });
   };
 
-  // Handler suspend user
+  // [REVISED] Handler suspend user
   const handleSuspend = (id) => {
     const target = users.find(u => u.id === id);
     if (!target) return;
+
     Swal.fire({
-      title: `Suspend "${target.username}"?`,
+      title: `Suspend User "${target.username}"?`,
       html: `
-        <p>Pilih durasi suspend:</p>
+        <p>Pilih durasi suspend untuk user "${target.username}":</p>
         <div class="swal-radio-container">
           <label class="swal-radio-option"><input type="radio" name="suspend_duration" value="3" checked><span>3 Hari</span></label>
           <label class="swal-radio-option"><input type="radio" name="suspend_duration" value="7"><span>7 Hari</span></label>
@@ -136,35 +114,73 @@ const KelolaUserContent = () => {
       `,
       customClass: { htmlContainer: 'swal-suspend-override' },
       showCancelButton: true,
-      confirmButtonText: "Suspend",
+      confirmButtonText: "Ya, Suspend User",
       cancelButtonText: "Batal",
       confirmButtonColor: "#f59e0b",
       preConfirm: () => document.querySelector('input[name="suspend_duration"]:checked').value,
-    }).then(result => {
-      if (result.isConfirmed && result.value) {
-        const durationInDays = parseInt(result.value, 10);
-        const suspendedUntil = new Date(Date.now() + durationInDays * 24 * 60 * 60 * 1000);
-        const formattedDate = formatToCustomTimestamp(suspendedUntil);
-        updateUser(id, { suspendedUntil: formattedDate }, `User disuspend selama ${durationInDays} hari.`);
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          const durationInDays = parseInt(result.value, 10);
+          const suspendedUntil = new Date(Date.now() + durationInDays * 24 * 60 * 60 * 1000);
+          const formattedDate = formatToCustomTimestamp(suspendedUntil);
+          await updateUser(id, { suspendedUntil: formattedDate });
+          Swal.fire("Berhasil!", `User "${target.username}" disuspend selama ${durationInDays} hari.`, "success");
+        } catch (error) {
+          Swal.fire("Error!", error.message, "error");
+        }
       }
     });
   };
 
-  // Handler unsuspend user
-  const handleUnSuspend = (id) => updateUser(id, { suspendedUntil: null }, "Suspend untuk user telah dicabut.");
+  // [REVISED] Handler unsuspend user
+  const handleUnSuspend = (id) => {
+    const target = users.find(u => u.id === id);
+    if (!target) return;
 
-  // Handler banned user
+    Swal.fire({
+      title: `Cabut Suspend User "${target.username}"?`,
+      text: `Suspend untuk user "${target.username}" akan dicabut.`,
+      icon: "question",
+      showCancelButton: true,
+      confirmButtonText: "Ya, Cabut Suspend",
+      cancelButtonText: "Batal",
+      confirmButtonColor: "#28a745",
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          await updateUser(id, { suspendedUntil: null });
+          Swal.fire("Berhasil!", `Suspend untuk user "${target.username}" telah dicabut.`, "success");
+        } catch (error) {
+          Swal.fire("Error!", error.message, "error");
+        }
+      }
+    });
+  };
+
+  // [REVISED] Handler banned user
   const handleBanned = (id) => {
     const target = users.find(u => u.id === id);
     if (!target) return;
+
     Swal.fire({
-        title: `Yakin ingin banned "${target.username}"?`, text: "Tindakan ini tidak bisa dibatalkan!", icon: "warning",
-        showCancelButton: true, confirmButtonText: "Ya, banned", cancelButtonText: "Batal", confirmButtonColor: "#dc3545",
-    }).then(res => {
-        if (res.isConfirmed) {
-            const timestamp = formatToCustomTimestamp(new Date());
-            updateUser(id, { banned: true, bannedAt: timestamp }, "User telah dibanned.");
+      title: `Banned User "${target.username}"?`,
+      text: `Tindakan ini tidak bisa dibatalkan!`,
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Ya, Banned User",
+      cancelButtonText: "Batal",
+      confirmButtonColor: "#dc3545",
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          const timestamp = formatToCustomTimestamp(new Date());
+          await updateUser(id, { banned: true, bannedAt: timestamp });
+          Swal.fire("Berhasil!", `User "${target.username}" telah dibanned.`, "success");
+        } catch (error) {
+          Swal.fire("Error!", error.message, "error");
         }
+      }
     });
   };
 
@@ -183,7 +199,7 @@ const KelolaUserContent = () => {
       <motion.button whileHover={{ y: -2 }} className={styles.iconBtn} onClick={() => handleDetail(user)} title="Lihat Detail"><FaInfoCircle className={styles.infoIcon} /></motion.button>
     </>
   );
-  
+
   // Render tombol aksi untuk user suspend
   const renderActionsForSuspend = (user) => (
     <>
@@ -192,7 +208,7 @@ const KelolaUserContent = () => {
       <motion.button whileHover={{ y: -2 }} className={styles.iconBtn} onClick={() => handleDetail(user)} title="Lihat Detail"><FaInfoCircle className={styles.infoIcon} /></motion.button>
     </>
   );
-  
+
   // Render tombol aksi untuk user banned
   const renderActionsForBanned = (user) => (
     <motion.button whileHover={{ y: -2 }} className={styles.iconBtn} onClick={() => handleDetail(user)} title="Lihat Detail"><FaInfoCircle className={styles.infoIcon} /></motion.button>
@@ -209,41 +225,41 @@ const KelolaUserContent = () => {
   const todayStartOfDay = new Date();
   todayStartOfDay.setHours(0, 0, 0, 0);
 
-  const sortedUsers = [...users].sort((a, b) => {
-      const dateA = parseDateStringForComparison(a.joinedAt);
-      const dateB = parseDateStringForComparison(b.joinedAt);
-      if (dateA && dateB) return dateB - dateA;
-      if (dateA) return -1;
-      if (dateB) return 1;
-      return b.id - a.id;
-  });
+  const sortedUsers = useMemo(() => [...users].sort((a, b) => {
+    const dateA = parseDateStringForComparison(a.joinedAt);
+    const dateB = parseDateStringForComparison(b.joinedAt);
+    if (dateA && dateB) return dateB - dateA;
+    if (dateA) return -1;
+    if (dateB) return 1;
+    return b.id - a.id;
+  }), [users]);
 
   const searchLower = searchTerm.toLowerCase();
 
-  const baseFilteredUsers = sortedUsers
+  const baseFilteredUsers = useMemo(() => sortedUsers
     .filter((u) => u.role !== "admin")
     .filter((u) =>
-        (u.username?.toLowerCase() || '').includes(searchLower) ||
-        (u.nama?.toLowerCase() || '').includes(searchLower)
-    );
+      (u.username?.toLowerCase() || '').includes(searchLower) ||
+      (u.nama?.toLowerCase() || '').includes(searchLower)
+    ), [sortedUsers, searchLower]);
 
-  const activeUsers = baseFilteredUsers
+  const activeUsers = useMemo(() => baseFilteredUsers
     .filter((u) => {
-        const suspendedUntilDate = parseDateStringForComparison(u.suspendedUntil);
-        return !u.banned && (!suspendedUntilDate || suspendedUntilDate < todayStartOfDay);
-    })
-    .filter((u) => (viewVerified === "verified" ? u.verified : !u.verified));
-
-  const suspendUsers = baseFilteredUsers.filter((u) => {
       const suspendedUntilDate = parseDateStringForComparison(u.suspendedUntil);
-      return !u.banned && suspendedUntilDate && suspendedUntilDate >= todayStartOfDay;
-  });
+      return !u.banned && (!suspendedUntilDate || suspendedUntilDate < todayStartOfDay);
+    })
+    .filter((u) => (viewVerified === "verified" ? u.verified : !u.verified)), [baseFilteredUsers, viewVerified, todayStartOfDay]);
 
-  const bannedUsers = baseFilteredUsers.filter((u) => u.banned === true);
+  const suspendUsers = useMemo(() => baseFilteredUsers.filter((u) => {
+    const suspendedUntilDate = parseDateStringForComparison(u.suspendedUntil);
+    return !u.banned && suspendedUntilDate && suspendedUntilDate >= todayStartOfDay;
+  }), [baseFilteredUsers, todayStartOfDay]);
+
+  const bannedUsers = useMemo(() => baseFilteredUsers.filter((u) => u.banned === true), [baseFilteredUsers]);
 
   // Tampilkan loading spinner
   if (isLoading) {
-    return ( <div className={styles.spinnerContainer}><div className={styles.spinner}></div></div> );
+    return <LoadingSpinner className={styles.spinnerContainer} />;
   }
 
   return (
@@ -254,18 +270,18 @@ const KelolaUserContent = () => {
           <p>Tinjau dan kelola semua pengguna terdaftar.</p>
         </div>
         <div className={styles.controls}>
-            <div className={styles.searchContainer}>
-                <FaSearch className={styles.searchIcon} />
-                <input type="text" placeholder="Cari username atau nama..." className={styles.searchInput} value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
-            </div>
-            <div className={styles.toggleContainer}>
-                <span>Unverified</span>
-                <label>
-                    <input type="checkbox" checked={viewVerified === "verified"} onChange={() => setViewVerified(viewVerified === "verified" ? "user" : "verified")} />
-                    <div className={styles.slider}><div className={styles.sliderBall}></div></div>
-                </label>
-                <span>Verified</span>
-            </div>
+          <div className={styles.searchContainer}>
+            <FaSearch className={styles.searchIcon} />
+            <input type="text" placeholder="Cari username atau nama..." className={styles.searchInput} value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
+          </div>
+          <div className={styles.toggleContainer}>
+            <span>Unverified</span>
+            <label>
+              <input type="checkbox" checked={viewVerified === "verified"} onChange={() => setViewVerified(viewVerified === "verified" ? "user" : "verified")} />
+              <div className={styles.slider}><div className={styles.sliderBall}></div></div>
+            </label>
+            <span>Verified</span>
+          </div>
         </div>
       </div>
 

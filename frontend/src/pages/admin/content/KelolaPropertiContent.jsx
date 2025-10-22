@@ -1,51 +1,20 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
 import Swal from "sweetalert2";
 import axios from "axios";
-import { io } from "socket.io-client";
 import { FaCheck, FaTimes, FaTrash, FaEdit, FaInfoCircle, FaClock, FaCheckCircle, FaSearch, FaTimesCircle } from "react-icons/fa";
 import { motion } from "framer-motion";
 import styles from "./KelolaPropertiContent.module.css";
 import { API_URL, SOCKET_URL } from "../../../utils/constant";
 import { useContext } from "react";
 import { AuthContext } from "../../../context/AuthContext";
+import { smartParseDate, formatDisplayDate } from "../../../utils/dateUtils";
+import { createSocketConnection, setupSocketListeners, emitAdminAction } from "../../../utils/socketUtils";
+import { getAdminId, handleAdminAction, fetchAdminData, LoadingSpinner } from "../../../utils/adminUtils.jsx";
 import PropertyTable from "./components/tables/PropertyTable";
 import EditPropertyModal from "./components/components/EditPropertyModal";
 import DetailPropertyModal from "./components/components/DetailPropertyModal";
 
-// Socket global untuk real-time updates
-const socket = io(SOCKET_URL);
-
-// Get admin ID dengan fallback ke "5"
-const getAdminId = () => {
-  const storedUser = localStorage.getItem("user");
-  if (storedUser) {
-    const user = JSON.parse(storedUser);
-    return user?.role === 'admin' ? user.id : "5";
-  }
-  return "5";
-};
 const adminId = getAdminId();
-
-// Parse tanggal dari berbagai format
-const smartParseDate = (dateString) => {
-  if (!dateString) return new Date(0);
-  let date = new Date(dateString);
-  if (!isNaN(date.getTime())) return date;
-  if (String(dateString).includes('/')) {
-    const parts = dateString.split(/[\s/:]+/);
-    if (parts.length >= 3) {
-      date = new Date(parts[2], parts[1] - 1, parts[0], parts[3] || 0, parts[4] || 0, parts[5] || 0);
-      if (!isNaN(date.getTime())) return date;
-    }
-  }
-  return new Date(0);
-};
-
-// Format tanggal untuk tampilan
-const formatDisplayDate = (dateObj) => {
-  if (!dateObj || isNaN(dateObj.getTime()) || dateObj.getFullYear() <= 1970) return "-";
-  return dateObj.toLocaleString("id-ID", { day: '2-digit', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' });
-};
 
 // Halaman Kelola Properti Admin
 export default function KelolaPropertiContent() {
@@ -57,7 +26,10 @@ export default function KelolaPropertiContent() {
   const [detailData, setDetailData] = useState(null);
   const [globalSearch, setGlobalSearch] = useState("");
 
-  // Get nama owner dari ID
+  // Initialize socket connection
+  const socket = createSocketConnection(SOCKET_URL);
+
+  // Get nama owner dari ID - memoized untuk performa
   const getOwnerName = useCallback((ownerId) => {
     const user = users.find(u => String(u.id) === String(ownerId));
     return user ? user.username : "N/A";
@@ -65,14 +37,17 @@ export default function KelolaPropertiContent() {
 
   // Ambil data properti dan user
   const fetchData = useCallback(async (showLoading = false) => {
+    console.log("KelolaPropertiContent: Fetching data, showLoading:", showLoading);
     if (showLoading) setIsLoading(true);
     try {
-      const [propRes, userRes] = await Promise.all([
-        axios.get(`${API_URL}properties`),
-        axios.get(`${API_URL}users`)
+      const [properties, users] = await Promise.all([
+        fetchAdminData("properties", "Gagal mengambil data properti"),
+        fetchAdminData("users", "Gagal mengambil data user")
       ]);
-      setProperties(propRes.data.sort((a, b) => smartParseDate(b.postedAt) - smartParseDate(a.postedAt)));
-      setUsers(userRes.data);
+      console.log("KelolaPropertiContent: Fetched properties count:", properties.length);
+      console.log("KelolaPropertiContent: Fetched users count:", users.length);
+      setProperties(properties.sort((a, b) => smartParseDate(b.postedAt) - smartParseDate(a.postedAt)));
+      setUsers(users);
     } catch (err) {
       console.error("Gagal fetch data:", err);
     } finally {
@@ -84,80 +59,60 @@ export default function KelolaPropertiContent() {
   useEffect(() => {
     fetchData(true);
 
-    const handleSocketUpdate = () => {
-        fetchData(false);
-    };
+    const cleanup = setupSocketListeners(socket, {
+      propertyUpdate: () => fetchData(false),
+      update_property: () => fetchData(false),
+    });
 
-    socket.on("propertyUpdate", handleSocketUpdate);
-    socket.on("update_property", handleSocketUpdate);
-
-    return () => {
-      socket.off("propertyUpdate", handleSocketUpdate);
-      socket.off("update_property", handleSocketUpdate);
-    };
+    return cleanup;
   }, [fetchData]);
 
   // Handler umum untuk aksi properti
-  const handleAction = async (config) => {
-    try {
-      const result = await Swal.fire(config.swal);
-      if (result.isConfirmed) {
-        await config.action();
-
-        // Kirim notifikasi via socket
-        if (config.skipSocketEmit !== true && config.successData) {
-            socket.emit("adminPropertyUpdate", config.successData);
-        } else if (config.skipSocketEmit !== true) {
-            socket.emit("propertyUpdate");
-        }
-
-        // Refresh data lokal
-        fetchData(false);
-
-        if (config.successMsg) {
-          Swal.fire(config.successMsg.title, config.successMsg.text, "success");
-        }
-        if(config.onSuccess) config.onSuccess();
-      }
-    } catch (error) {
-      const errorMsg = error.response?.data?.error || config.errorMsg?.text || "Terjadi kesalahan.";
-      Swal.fire(config.errorMsg?.title || "Gagal!", errorMsg, "error");
+  const handleAction = (config) => handleAdminAction({
+    ...config,
+    emitSocket: config.skipSocketEmit !== true ? emitAdminAction : null,
+    socket,
+    socketAction: config.successData ? "adminPropertyUpdate" : "propertyUpdate",
+    socketData: config.successData,
+    onSuccess: () => {
+      fetchData(false);
+      if (config.onSuccess) config.onSuccess();
     }
-  };
+  });
 
   // Handler setujui properti
   const handleApprove = (prop) => handleAction({
-    swal: { title: "Setujui Properti?", text: "Properti ini akan tampil di publik.", icon: "question", showCancelButton: true, confirmButtonText: "Ya, setujui", cancelButtonText: "Batal", confirmButtonColor: "#3085d6", cancelButtonColor: "#d33" },
+    swal: { title: "Setujui Properti?", text: `Properti "${prop.namaProperti}" akan diubah statusnya menjadi "Disetujui" dan akan tampil di halaman publik.`, icon: "question", showCancelButton: true, confirmButtonText: "Ya, Setujui Properti", cancelButtonText: "Batal", confirmButtonColor: "#3085d6", cancelButtonColor: "#d33" },
     action: () => axios.patch(`${API_URL}properties/${prop.id}`, { statusPostingan: "approved" }),
-    successMsg: { title: "Berhasil!", text: "Properti telah disetujui." },
-    errorMsg: { title: "Gagal!", text: "Terjadi kesalahan saat menyetujui." },
+    successMsg: { title: "Properti Disetujui!", text: `Properti "${prop.namaProperti}" telah berhasil disetujui dan sekarang terlihat di halaman publik.` },
+    errorMsg: { title: "Gagal Menyetujui!", text: "Terjadi kesalahan saat menyetujui properti. Silakan coba lagi." },
     successData: { ownerId: prop.ownerId, namaProperti: prop.namaProperti, statusPostingan: "approved" }
   });
 
   // Handler tolak properti
   const handleReject = (prop) => handleAction({
-    swal: { title: "Tolak Properti?", text: "Properti ini akan dipindahkan ke daftar ditolak.", icon: "warning", showCancelButton: true, confirmButtonText: "Ya, tolak", cancelButtonText: "Batal", confirmButtonColor: "#e74c3c", cancelButtonColor: "#6c757d" },
+    swal: { title: "Tolak Properti?", text: `Properti "${prop.namaProperti}" akan diubah statusnya menjadi "Ditolak" dan dipindahkan ke daftar properti yang ditolak.`, icon: "warning", showCancelButton: true, confirmButtonText: "Ya, Tolak Properti", cancelButtonText: "Batal", confirmButtonColor: "#e74c3c", cancelButtonColor: "#6c757d" },
     action: () => axios.patch(`${API_URL}properties/${prop.id}`, { statusPostingan: "rejected" }),
-    successMsg: { title: "Ditolak!", text: "Properti telah ditandai sebagai ditolak." },
-    errorMsg: { title: "Gagal!", text: "Tidak dapat menolak properti." },
+    successMsg: { title: "Properti Ditolak!", text: `Properti "${prop.namaProperti}" telah ditandai sebagai ditolak dan dipindahkan ke daftar properti ditolak.` },
+    errorMsg: { title: "Gagal Menolak!", text: "Tidak dapat menolak properti. Silakan coba lagi." },
     successData: { ownerId: prop.ownerId, namaProperti: prop.namaProperti, statusPostingan: "rejected" }
   });
 
   // Handler hapus properti
   const handleDelete = (id) => handleAction({
-    swal: { title: "Hapus Properti?", text: "Data ini akan dihapus permanen.", icon: "warning", showCancelButton: true, confirmButtonText: "Ya, hapus", cancelButtonText: "Batal", confirmButtonColor: "#d33", cancelButtonColor: "#3085d6" },
+    swal: { title: "Hapus Properti?", text: "Data properti ini akan dihapus secara permanen dan tidak dapat dikembalikan.", icon: "warning", showCancelButton: true, confirmButtonText: "Ya, Hapus Permanen", cancelButtonText: "Batal", confirmButtonColor: "#d33", cancelButtonColor: "#3085d6" },
     action: () => axios.delete(`${API_URL}properties/${id}`),
-    successMsg: { title: "Terhapus!", text: "Properti telah dihapus." },
-    errorMsg: { title: "Gagal!", text: "Tidak dapat menghapus properti." }
+    successMsg: { title: "Properti Terhapus!", text: "Properti telah dihapus secara permanen dari sistem." },
+    errorMsg: { title: "Gagal Menghapus!", text: "Tidak dapat menghapus properti. Silakan coba lagi." }
   });
 
   // Handler simpan edit
   const handleSaveEdit = (updated) => handleAction({
-    swal: { title: "Simpan Perubahan?", text: "Perubahan data akan disimpan.", icon: "question", showCancelButton: true, confirmButtonText: "Simpan", cancelButtonText: "Batal", confirmButtonColor: "#3085d6", cancelButtonColor: "#aaa" },
+    swal: { title: "Simpan Perubahan?", text: `Perubahan pada properti "${updated.namaProperti}" akan disimpan ke database.`, icon: "question", showCancelButton: true, confirmButtonText: "Ya, Simpan Perubahan", cancelButtonText: "Batal", confirmButtonColor: "#3085d6", cancelButtonColor: "#aaa" },
     action: () => axios.patch(`${API_URL}properties/${updated.id}`, updated),
     onSuccess: () => setEditData(null),
-    successMsg: { title: "Tersimpan!", text: "Data properti berhasil diperbarui." },
-    errorMsg: { title: "Gagal!", text: "Tidak dapat menyimpan perubahan." },
+    successMsg: { title: "Perubahan Tersimpan!", text: `Data properti "${updated.namaProperti}" berhasil diperbarui.` },
+    errorMsg: { title: "Gagal Menyimpan!", text: "Tidak dapat menyimpan perubahan. Silakan coba lagi." },
     successData: { ownerId: updated.ownerId, namaProperti: updated.namaProperti, statusPostingan: updated.statusPostingan }
   });
 
@@ -201,20 +156,20 @@ export default function KelolaPropertiContent() {
       : String(p.ownerId) !== String(adminId)
   ));
 
-  // Filter berdasarkan pencarian
+  // Filter berdasarkan pencarian - memoized untuk performa
   const searchLower = globalSearch.toLowerCase();
-  const filterLogic = p =>
+  const filterLogic = useCallback(p =>
     p.namaProperti?.toLowerCase().includes(searchLower) ||
     p.lokasi?.toLowerCase().includes(searchLower) ||
-    getOwnerName(p.ownerId).toLowerCase().includes(searchLower);
+    getOwnerName(p.ownerId).toLowerCase().includes(searchLower), [searchLower, getOwnerName]);
 
-  const finalPendingProperties = pendingProperties.filter(filterLogic);
-  const finalApprovedProperties = filteredApproved.filter(filterLogic);
-  const finalRejectedProperties = rejectedProperties.filter(filterLogic);
+  const finalPendingProperties = useMemo(() => pendingProperties.filter(filterLogic), [pendingProperties, filterLogic]);
+  const finalApprovedProperties = useMemo(() => filteredApproved.filter(filterLogic), [filteredApproved, filterLogic]);
+  const finalRejectedProperties = useMemo(() => rejectedProperties.filter(filterLogic), [rejectedProperties, filterLogic]);
 
   // Tampilkan loading spinner
   if (isLoading) {
-    return ( <div className={styles.spinnerContainer}><div className={styles.spinner}></div></div> );
+    return <LoadingSpinner className={styles.spinnerContainer} />;
   }
 
   // Render JSX utama

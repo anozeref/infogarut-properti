@@ -2,26 +2,13 @@ import React, { useContext, useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { FaUsers, FaBuilding, FaClock, FaCheckCircle, FaBell } from "react-icons/fa";
-import { io } from "socket.io-client";
 import styles from "./HomeContent.module.css";
 import { ThemeContext } from "../DashboardAdmin";
 import { API_URL } from "../../../utils/constant";
+import { smartParseDate, formatDateSeparator } from "../../../utils/dateUtils";
+import { createSocketConnection, setupSocketListeners } from "../../../utils/socketUtils";
+import { LoadingSpinner } from "../../../utils/adminUtils.jsx";
 import StatCard from "./components/components/StatCard";
-
-// Parse tanggal dari berbagai format
-const smartParseDate = (dateString) => {
-  if (!dateString) return new Date();
-
-  // Handle format DD/MM/YYYY HH:mm:ss
-  if (dateString.includes('/')) {
-    const parts = dateString.split(/[\s/:]+/);
-    return new Date(parts[2], parts[1] - 1, parts[0], parts[3] || 0, parts[4] || 0, parts[5] || 0);
-  }
-  
-  // Handle format ISO 8601
-  const date = new Date(dateString);
-  return isNaN(date.getTime()) ? new Date() : date;
-};
 
 // Halaman utama dashboard admin
 const HomeContent = () => {
@@ -36,15 +23,20 @@ const HomeContent = () => {
 
   // Ambil data statistik dan notifikasi
   const fetchData = useCallback(async () => {
+    console.log("HomeContent: Fetching data from API_URL:", API_URL);
     try {
       const [usersRes, propsRes] = await Promise.all([
         fetch(`${API_URL}users`),
         fetch(`${API_URL}properties`)
       ]);
+      console.log("HomeContent: Users response status:", usersRes.status);
+      console.log("HomeContent: Properties response status:", propsRes.status);
       if (!usersRes.ok || !propsRes.ok) throw new Error("Gagal mengambil data");
-      
+
       const users = await usersRes.json();
       const props = await propsRes.json();
+      console.log("HomeContent: Fetched users count:", users.length);
+      console.log("HomeContent: Fetched properties count:", props.length);
 
       setStats({
         totalUser: users.filter(u => u.role === "user").length,
@@ -72,15 +64,15 @@ const HomeContent = () => {
   // Setup socket listener
   useEffect(() => {
     fetchData();
-    const socket = io("http://localhost:3005");
-    socket.on("userUpdate", fetchData);
-    socket.on("propertyUpdate", fetchData);
-    socket.on("update_property", fetchData);
-    
+    const socket = createSocketConnection();
+    const cleanup = setupSocketListeners(socket, {
+      userUpdate: fetchData,
+      propertyUpdate: fetchData,
+      update_property: fetchData,
+    });
+
     return () => {
-      socket.off("userUpdate");
-      socket.off("propertyUpdate");
-      socket.off("update_property");
+      cleanup();
       socket.disconnect();
     };
   }, [fetchData]);
@@ -104,11 +96,7 @@ const HomeContent = () => {
   };
 
   if (isLoading) {
-    return (
-      <div className={styles.spinnerContainer}>
-        <div className={styles.spinner}></div>
-      </div>
-    );
+    return <LoadingSpinner className={styles.spinnerContainer} />;
   }
 
   let lastDate = null;
