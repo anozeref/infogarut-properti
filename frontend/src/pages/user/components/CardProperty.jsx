@@ -224,6 +224,25 @@ export default function CardProperty({
         />
       </div>
 
+      {badgeStyle && (
+  <div
+    style={{
+      position: "absolute",
+      top: "10px",
+      left: "10px",
+      backgroundColor: badgeStyle.backgroundColor,
+      color: "#fff",
+      padding: "6px 10px",
+      borderRadius: "8px",
+      fontSize: "12px",
+      fontWeight: "bold",
+      boxShadow: "0 2px 6px rgba(0,0,0,0.2)",
+    }}
+  >
+    {badgeStyle.text}
+  </div>
+)}
+
 
       {/* 🧱 Body */}
       <div className={styles.cardBody}>
