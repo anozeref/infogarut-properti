@@ -48,32 +48,38 @@ const HomeContent = () => {
       const notifUsers = users.filter(u => u.role === "user").map(u => ({
         id: `u${u.id}`, text: `User ${u.username} telah bergabung`, timestamp: smartParseDate(u.joinedAt), type: "user",
       }));
-      const notifProps = props.map(p => {
-        let text;
-        const username = users.find(u => u.id === p.ownerId)?.username || "?";
-        const propertyName = p.namaProperti || "?";
+      const notifProps = props
+        .filter(p => {
+          // Exclude properti yang owner-nya adalah admin (role admin)
+          const owner = users.find(u => u.id === p.ownerId);
+          return owner && owner.role === "user";
+        })
+        .map(p => {
+          let text;
+          const username = users.find(u => u.id === p.ownerId)?.username || "?";
+          const propertyName = p.namaProperti || "?";
 
-        switch (p.statusPostingan) {
-          case "pending":
-            text = `User ${username} meminta pengajuan properti "${propertyName}"`;
-            break;
-          case "approved":
-            text = `Pengajuan properti "${propertyName}" oleh ${username} telah disetujui`;
-            break;
-          case "rejected":
-            text = `Pengajuan properti "${propertyName}" oleh ${username} telah ditolak`;
-            break;
-          default:
-            text = `Properti "${propertyName}" oleh ${username} - Status: ${p.statusPostingan}`;
-        }
+          switch (p.statusPostingan) {
+            case "pending":
+              text = `User ${username} meminta pengajuan properti "${propertyName}"`;
+              break;
+            case "approved":
+              text = `Pengajuan properti "${propertyName}" oleh ${username} telah disetujui`;
+              break;
+            case "rejected":
+              text = `Pengajuan properti "${propertyName}" oleh ${username} telah ditolak`;
+              break;
+            default:
+              text = `Properti "${propertyName}" oleh ${username} - Status: ${p.statusPostingan}`;
+          }
 
-        return {
-          id: `p${p.id}`,
-          text,
-          timestamp: smartParseDate(p.postedAt),
-          type: "property",
-        };
-      });
+          return {
+            id: `p${p.id}`,
+            text,
+            timestamp: smartParseDate(p.postedAt),
+            type: "property",
+          };
+        });
       
       // Urutkan notifikasi terbaru
       setNotifications([...notifUsers, ...notifProps].sort((a, b) => b.timestamp - a.timestamp).slice(0, 5));
