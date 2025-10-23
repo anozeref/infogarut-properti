@@ -30,12 +30,12 @@ export default function PropertiAktif() {
       try {
         const res = await axios.get("http://localhost:3004/properties");
 
-        // 🔍 Filter: hanya milik user yg login & status aktif
+        // 🔍 Filter: hanya milik user yg login & status approved
         const filtered = res.data
           .filter(
     (prop) =>
       (prop.userId === user.id || prop.ownerId === user.id) &&
-      (prop.statusPostingan === "aktif" || prop.statusPostingan === "approved")
+      prop.statusPostingan === "approved"
   )
           // 🔽 Urutkan dari terbaru (jika ada field tanggal/postedAt)
           .sort(

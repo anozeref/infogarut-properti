@@ -34,19 +34,13 @@ export default function PropertiDitolak() {
       // Untuk saat ini, kita tetap pakai filter di frontend:
       const res = await axios.get(`${API_BASE_URL}/properties`);
 
-      // 🔍 Filter: hanya milik user & status ditolak
+      // 🔍 Filter: hanya milik user & status rejected
       const filtered = res.data
         .filter((prop) => {
           const status = prop.statusPostingan?.toLowerCase();
           return (
             (prop.userId === user.id || prop.ownerId === user.id) &&
-            [
-              "ditolak",
-              "rejected",
-              "not-approved",
-              "declined",
-              "failed",
-            ].includes(status)
+            status === "rejected"
           );
         })
         // 🔽 Urutkan dari terbaru
