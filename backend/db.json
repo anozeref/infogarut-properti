@@ -42,7 +42,6 @@
       "alamat": "RT 05 / RW 03",
       "role": "user",
       "joinedAt": "20/10/2025 00:40:28",
-      "biodata": "",
       "verified": true,
       "suspendedUntil": "25/10/2025 12:46:18",
       "banned": false,
@@ -263,6 +262,37 @@
         "lng": 0
       },
       "periodeSewa": "",
+      "userId": "9c47"
+    },
+    {
+      "id": "1abb",
+      "namaProperti": "Villa Rancabango 2 Murah Meriah",
+      "jenisProperti": "Sewa",
+      "tipeProperti": "Rumah",
+      "lokasi": "Jl. Cimanuk No.45, Tarogong Kidul, Garut",
+      "kecamatan": "",
+      "desa": "",
+      "harga": 500000000,
+      "luasTanah": 240,
+      "luasBangunan": 239,
+      "kamarTidur": 1,
+      "kamarMandi": 21,
+      "periodeAngka": "2",
+      "periodeSatuan": "tahun",
+      "deskripsi": "Coba coba berhadiah",
+      "media": [
+        "1761143261895-445816966.png",
+        "1761143261976-387382894.png",
+        "1761143262001-843402598.png"
+      ],
+      "ownerId": "9c47",
+      "statusPostingan": "pending",
+      "postedAt": "22/10/2025 21:27:42",
+      "koordinat": {
+        "lat": 0,
+        "lng": 0
+      },
+      "periodeSewa": "/2 tahun",
       "userId": "9c47"
     }
   ],

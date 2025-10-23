@@ -33,7 +33,15 @@ const TambahPropertiContent = () => {
   const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
 
   // Get timestamp saat ini
-  const getTimestamp = () => new Date().toISOString();
+  const getTimestamp = () => {
+    const now = new Date();
+    return `${String(now.getDate()).padStart(2, "0")}/${String(
+      now.getMonth() + 1
+    ).padStart(2, "0")}/${now.getFullYear()} ${String(now.getHours()).padStart(
+      2,
+      "0"
+    )}:${String(now.getMinutes()).padStart(2, "0")}:${String(now.getSeconds()).padStart(2, "0")}`;
+  };
 
   // Handle perubahan file
   const handleFileChange = (e) => {
