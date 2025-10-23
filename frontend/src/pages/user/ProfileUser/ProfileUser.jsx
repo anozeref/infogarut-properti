@@ -20,7 +20,6 @@ export default function ProfileUser({ darkMode }) {
     email: "",
     noHp: "",
     alamat: "",
-    biodata: "",
     kecamatan: "",
     desa: "",
   });
@@ -41,7 +40,6 @@ export default function ProfileUser({ darkMode }) {
         email: user.email || "",
         noHp: user.no_hp || user.noHp || "",
         alamat: user.alamat || "",
-        biodata: user.biodata || "",
         kecamatan: user.kecamatan || "",
         desa: user.desa || "",
       });
@@ -343,16 +341,6 @@ const handleSubmit = async (e) => {
                       rows="3"
                       placeholder="Alamat lengkap"
                       value={formData.alamat}
-                      onChange={handleChange}
-                    ></textarea>
-                  </div>
-                  <div className={styles.col6}>
-                    <label>Biodata</label>
-                    <textarea
-                      name="biodata"
-                      rows="3"
-                      placeholder="Biodata singkat"
-                      value={formData.biodata}
                       onChange={handleChange}
                     ></textarea>
                   </div>

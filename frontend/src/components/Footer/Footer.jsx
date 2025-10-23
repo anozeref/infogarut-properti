@@ -9,8 +9,8 @@ const Footer = () => {
   }
   return (
     <footer className={styles.footer}>
-      <p>© 2025 Propertease. Hak cipta dilindungi undang-undang.</p>
-      <p className={styles.subtext}>Rumah Impian Anda Menanti</p>
+      <p>© 2025 infogarut Properti. All Rights Reserved.</p>
+      <p className={styles.subtext}>Temukan Hunian dan Investasi Terbaik di Garut</p>
     </footer>
   );
 };

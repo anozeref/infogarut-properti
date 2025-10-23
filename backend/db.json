@@ -45,7 +45,7 @@
       "verified": true,
       "suspendedUntil": null,
       "banned": false,
-      "bannedAt": "22/10/2025 12:42:14"
+      "bannedAt": "23/10/2025 10:28:08"
     }
   ],
   "properties": [
@@ -357,7 +357,7 @@
       "id": "0987",
       "userId": "45d2",
       "text": "Properti 'Rumah Asri Sukajayaa' Anda telah ditolak oleh admin.",
-      "isRead": false,
+      "isRead": true,
       "createdAt": "2025-10-21T16:17:58.727Z",
       "link": "/user/propertiditolak"
     },
@@ -365,7 +365,7 @@
       "id": "39b1",
       "userId": "45d2",
       "text": "Properti 'Rumah Asri Sukajaya' Anda telah ditolak oleh admin.",
-      "isRead": false,
+      "isRead": true,
       "createdAt": "2025-10-21T16:18:01.717Z",
       "link": "/user/propertiditolak"
     },
@@ -373,7 +373,7 @@
       "id": "7233",
       "userId": "45d2",
       "text": "Properti 'Tes' Anda telah disetujui oleh admin.",
-      "isRead": false,
+      "isRead": true,
       "createdAt": "2025-10-21T16:19:11.129Z",
       "link": "/user/propertiaktif"
     },
@@ -381,7 +381,7 @@
       "id": "234e",
       "userId": "45d2",
       "text": "Properti 'Rumah Mewah Di Garut Kota' Anda telah disetujui oleh admin.",
-      "isRead": false,
+      "isRead": true,
       "createdAt": "2025-10-22T14:31:32.947Z",
       "link": "/user/propertiaktif"
     },
@@ -389,7 +389,7 @@
       "id": "dcfd",
       "userId": "45d2",
       "text": "Properti 'Rumah Mewah Di Garut Kota ' Anda telah ditolak oleh admin.",
-      "isRead": false,
+      "isRead": true,
       "createdAt": "2025-10-22T16:57:35.450Z",
       "link": "/user/propertiditolak"
     },
@@ -397,7 +397,7 @@
       "id": "1a2c",
       "userId": "45d2",
       "text": "Properti 'Rumah Mewah Di Garut Kota ' Anda telah ditolak oleh admin.",
-      "isRead": false,
+      "isRead": true,
       "createdAt": "2025-10-22T16:57:38.447Z",
       "link": "/user/propertiditolak"
     },
@@ -405,7 +405,7 @@
       "id": "e737",
       "userId": "45d2",
       "text": "Properti 'Rumah Asri Sukajayaq' Anda telah ditolak oleh admin.",
-      "isRead": false,
+      "isRead": true,
       "createdAt": "2025-10-22T17:12:25.988Z",
       "link": "/user/propertiditolak"
     },
@@ -413,9 +413,25 @@
       "id": "9b92",
       "userId": "45d2",
       "text": "Properti 'tes123' Anda telah ditolak oleh admin.",
-      "isRead": false,
+      "isRead": true,
       "createdAt": "2025-10-22T17:31:35.788Z",
       "link": "/user/propertiditolak"
+    },
+    {
+      "id": "856c",
+      "userId": "9c47",
+      "text": "Properti 'Villa Rancabango 2 Murah Meriah' Anda telah ditolak oleh admin.",
+      "isRead": false,
+      "createdAt": "2025-10-23T03:26:48.446Z",
+      "link": "/user/propertiditolak"
+    },
+    {
+      "id": "c870",
+      "userId": "9c47",
+      "text": "Properti 'Villa Rancabango 2 Murah Meriah' Anda telah disetujui oleh admin.",
+      "isRead": false,
+      "createdAt": "2025-10-23T03:26:54.833Z",
+      "link": "/user/propertiaktif"
     }
   ]
 }
