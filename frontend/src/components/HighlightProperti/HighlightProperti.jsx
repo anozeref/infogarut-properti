@@ -29,7 +29,7 @@ const HighlightCard = ({ property }) => {
                     <img src={image} alt={property.namaProperti} className={styles.cardImage} />
                     <div className={styles.cardContent}>
                         <h4 className={styles.cardTitle}>{property.namaProperti}</h4>
-                        <p className={styles.cardLocation}><IoLocationOutline size={14}/> {property.kecamatan}, Garut</p>
+                        <p className={styles.cardLocation}><IoLocationOutline size={14}/> {property.lokasi}, Garut</p>
                         <p className={styles.cardPrice}>{formatPrice(property.harga)}</p>
                     </div>
                 </div>
