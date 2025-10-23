@@ -1,34 +1,16 @@
-// src/pages/admin/content/HomeContent.jsx
 import React, { useContext, useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { FaUsers, FaBuilding, FaClock, FaCheckCircle, FaBell } from "react-icons/fa";
-import { io } from "socket.io-client";
 import styles from "./HomeContent.module.css";
 import { ThemeContext } from "../DashboardAdmin";
 import { API_URL } from "../../../utils/constant";
+import { smartParseDate, formatDateSeparator } from "../../../utils/dateUtils";
+import { createSocketConnection, setupSocketListeners } from "../../../utils/socketUtils";
+import { LoadingSpinner } from "../../../utils/adminUtils.jsx";
 import StatCard from "./components/components/StatCard";
 
-/**
- * Parses a date string that could be in "DD/MM/YYYY HH:mm:ss" format or ISO 8601.
- * @param {string} dateString The date string to parse.
- * @returns {Date} A Date object. Returns current date as a fallback.
- */
-const smartParseDate = (dateString) => {
-  if (!dateString) return new Date();
-
-  // Handle custom "DD/MM/YYYY HH:mm:ss" format
-  if (dateString.includes('/')) {
-    const parts = dateString.split(/[\s/:]+/);
-    // new Date(year, monthIndex, day, hours, minutes, seconds)
-    return new Date(parts[2], parts[1] - 1, parts[0], parts[3] || 0, parts[4] || 0, parts[5] || 0);
-  }
-  
-  // Handle other standard formats like ISO 8601
-  const date = new Date(dateString);
-  return isNaN(date.getTime()) ? new Date() : date; // Fallback for invalid formats
-};
-
+// Halaman utama dashboard admin
 const HomeContent = () => {
   const { theme } = useContext(ThemeContext);
   const navigate = useNavigate();
@@ -39,16 +21,22 @@ const HomeContent = () => {
   const [notifications, setNotifications] = useState([]);
   const today = new Date().toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" });
 
+  // Ambil data statistik dan notifikasi
   const fetchData = useCallback(async () => {
+    console.log("HomeContent: Fetching data from API_URL:", API_URL);
     try {
       const [usersRes, propsRes] = await Promise.all([
         fetch(`${API_URL}users`),
         fetch(`${API_URL}properties`)
       ]);
+      console.log("HomeContent: Users response status:", usersRes.status);
+      console.log("HomeContent: Properties response status:", propsRes.status);
       if (!usersRes.ok || !propsRes.ok) throw new Error("Gagal mengambil data");
-      
+
       const users = await usersRes.json();
       const props = await propsRes.json();
+      console.log("HomeContent: Fetched users count:", users.length);
+      console.log("HomeContent: Fetched properties count:", props.length);
 
       setStats({
         totalUser: users.filter(u => u.role === "user").length,
@@ -60,11 +48,40 @@ const HomeContent = () => {
       const notifUsers = users.filter(u => u.role === "user").map(u => ({
         id: `u${u.id}`, text: `User ${u.username} telah bergabung`, timestamp: smartParseDate(u.joinedAt), type: "user",
       }));
-      const notifProps = props.filter(p => p.statusPostingan === "pending").map(p => ({
-        id: `p${p.id}`, text: `User ${users.find(u => u.id === p.ownerId)?.username || "?"} meminta pengajuan properti "${p.namaProperti || "?"}"`, timestamp: smartParseDate(p.postedAt), type: "property",
-      }));
+      const notifProps = props
+        .filter(p => {
+          // Exclude properti yang owner-nya adalah admin (role admin)
+          const owner = users.find(u => u.id === p.ownerId);
+          return owner && owner.role === "user";
+        })
+        .map(p => {
+          let text;
+          const username = users.find(u => u.id === p.ownerId)?.username || "?";
+          const propertyName = p.namaProperti || "?";
+
+          switch (p.statusPostingan) {
+            case "pending":
+              text = `User ${username} meminta pengajuan properti "${propertyName}"`;
+              break;
+            case "approved":
+              text = `Pengajuan properti "${propertyName}" oleh ${username} telah disetujui`;
+              break;
+            case "rejected":
+              text = `Pengajuan properti "${propertyName}" oleh ${username} telah ditolak`;
+              break;
+            default:
+              text = `Properti "${propertyName}" oleh ${username} - Status: ${p.statusPostingan}`;
+          }
+
+          return {
+            id: `p${p.id}`,
+            text,
+            timestamp: smartParseDate(p.postedAt),
+            type: "property",
+          };
+        });
       
-      // Sort all notifications, then take the top 5
+      // Urutkan notifikasi terbaru
       setNotifications([...notifUsers, ...notifProps].sort((a, b) => b.timestamp - a.timestamp).slice(0, 5));
     } catch (err) {
       console.error("Error fetch HomeContent:", err);
@@ -73,26 +90,29 @@ const HomeContent = () => {
     }
   }, []);
 
+  // Setup socket listener
   useEffect(() => {
     fetchData();
-    const socket = io("http://localhost:3005");
-    socket.on("userUpdate", fetchData);
-    socket.on("propertyUpdate", fetchData);
-    socket.on("update_property", fetchData); // <-- PERBAIKAN: Menambahkan listener untuk delete
-    
+    const socket = createSocketConnection();
+    const cleanup = setupSocketListeners(socket, {
+      userUpdate: fetchData,
+      propertyUpdate: fetchData,
+      update_property: fetchData,
+    });
+
     return () => {
-      socket.off("userUpdate");
-      socket.off("propertyUpdate");
-      socket.off("update_property"); // <-- PERBAIKAN: Menambahkan cleanup
+      cleanup();
       socket.disconnect();
     };
   }, [fetchData]);
 
+  // Navigasi berdasarkan tipe notifikasi
   const handleNotifClick = (notif) => {
     if (notif.type === "user") navigate("/admin/user");
     else if (notif.type === "property") navigate("/admin/properti");
   };
   
+  // Format pemisah tanggal (Hari Ini, Kemarin, dll)
   const formatDateSeparator = (date) => {
     const today = new Date();
     const yesterday = new Date();
@@ -105,11 +125,7 @@ const HomeContent = () => {
   };
 
   if (isLoading) {
-    return (
-      <div className={styles.spinnerContainer}>
-        <div className={styles.spinner}></div>
-      </div>
-    );
+    return <LoadingSpinner className={styles.spinnerContainer} />;
   }
 
   let lastDate = null;

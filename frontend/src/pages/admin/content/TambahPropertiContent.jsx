@@ -5,14 +5,17 @@ import { FaPlus, FaTimes, FaImage } from "react-icons/fa";
 import { ThemeContext } from "../DashboardAdmin";
 import styles from "./TambahPropertiContent.module.css";
 import axios from "axios";
-import { io } from "socket.io-client";
+import { createSocketConnection, emitAdminAction } from "../../../utils/socketUtils";
 
-const socket = io("http://localhost:3005");
+// Socket untuk real-time updates
+const socket = createSocketConnection("http://localhost:3005");
 
+// Halaman Tambah Properti Admin
 const TambahPropertiContent = () => {
   const { theme } = useContext(ThemeContext);
   const fileInputRef = useRef(null);
 
+  // State form awal
   const initialFormState = {
     namaProperti: "", jenisProperti: "Jual", tipeProperti: "Rumah",
     lokasi: "", kecamatan: "", desa: "", harga: "", luasTanah: "",
@@ -26,20 +29,31 @@ const TambahPropertiContent = () => {
   const [mediaPreview, setMediaPreview] = useState([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // Handle perubahan form
   const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
 
-  const getTimestamp = () => new Date().toISOString();
+  // Get timestamp saat ini
+  const getTimestamp = () => {
+    const now = new Date();
+    return `${String(now.getDate()).padStart(2, "0")}/${String(
+      now.getMonth() + 1
+    ).padStart(2, "0")}/${now.getFullYear()} ${String(now.getHours()).padStart(
+      2,
+      "0"
+    )}:${String(now.getMinutes()).padStart(2, "0")}:${String(now.getSeconds()).padStart(2, "0")}`;
+  };
 
+  // Handle perubahan file
   const handleFileChange = (e) => {
     const files = Array.from(e.target.files);
     const totalFiles = mediaFiles.length + files.length;
     if (totalFiles > 4) {
-      Swal.fire("Error", "Total file maksimal 4!", "error");
+      Swal.fire("Error", "Total file maksimal 4 untuk properti ini!", "error");
       return;
     }
     const invalidPhotos = files.filter(f => f.type.startsWith("image/") && f.size > 2 * 1024 * 1024);
     if (invalidPhotos.length > 0) {
-      Swal.fire("Error", `Foto "${invalidPhotos[0].name}" terlalu besar! Maksimal 2MB.`, "error");
+      Swal.fire("Error", `Foto "${invalidPhotos[0].name}" terlalu besar! Maksimal 2MB per file.`, "error");
       return;
     }
 
@@ -48,12 +62,14 @@ const TambahPropertiContent = () => {
     setMediaPreview(prev => [...prev, ...newPreview]);
   };
 
+  // Hapus preview media
   const removePreview = (index) => {
     URL.revokeObjectURL(mediaPreview[index].url);
     setMediaFiles(prev => prev.filter((_, i) => i !== index));
     setMediaPreview(prev => prev.filter((_, i) => i !== index));
   };
 
+  // Handle drag and drop
   const handleDragStart = (index, e) => e.dataTransfer.setData("text/plain", index);
   const allowDrop = (e) => e.preventDefault();
   const handleDrop = (index, e) => {
@@ -67,18 +83,22 @@ const TambahPropertiContent = () => {
     setMediaPreview(newMediaPreview);
   };
 
+  // Submit form
   const handleSubmit = async (e) => {
     e.preventDefault();
+    console.log("TambahPropertiContent: Submitting form");
     if (mediaFiles.length < 1) {
-      Swal.fire("Error", "Minimal unggah 1 media (foto/video)!", "error");
+      Swal.fire("Error", "Minimal unggah 1 media (foto/video) untuk properti baru!", "error");
       return;
     }
     setIsSubmitting(true);
     try {
       const formDataUpload = new FormData();
       mediaFiles.forEach(f => formDataUpload.append("media", f));
-      // Upload ke server 3005 (bukan json-server 3004)
+      console.log("TambahPropertiContent: Uploading media to localhost:3005/upload");
+      // Upload ke server 3005
       const uploadRes = await axios.post("http://localhost:3005/upload", formDataUpload);
+      console.log("TambahPropertiContent: Upload response:", uploadRes.data);
 
       const propertiData = {
         ...form,
@@ -91,10 +111,10 @@ const TambahPropertiContent = () => {
         media: uploadRes.data.files,
         periodeSewa: form.jenisProperti === "Sewa" ? `/${form.periodeAngka} ${form.periodeSatuan}` : ""
       };
-
+      console.log("TambahPropertiContent: Posting property data to localhost:3004/properties");
       await axios.post("http://localhost:3004/properties", propertiData);
-      socket.emit("propertyUpdate");
-      Swal.fire("Sukses", `Properti "${form.namaProperti}" berhasil ditambahkan!`, "success");
+      emitAdminAction(socket, "propertyUpdate");
+      Swal.fire("Properti Berhasil Ditambahkan!", `Properti "${form.namaProperti}" telah berhasil ditambahkan ke sistem dan akan muncul di halaman publik setelah disetujui.`, "success");
 
       setForm(initialFormState);
       mediaPreview.forEach(p => URL.revokeObjectURL(p.url));
@@ -103,7 +123,7 @@ const TambahPropertiContent = () => {
       if (fileInputRef.current) fileInputRef.current.value = "";
     } catch (err) {
       console.error(err);
-      Swal.fire("Error", "Gagal menambahkan properti! Periksa kembali data Anda.", "error");
+      Swal.fire("Gagal Menambahkan Properti!", "Terjadi kesalahan saat menambahkan properti. Periksa kembali data Anda dan coba lagi.", "error");
     } finally {
       setIsSubmitting(false);
     }
@@ -118,7 +138,7 @@ const TambahPropertiContent = () => {
 
       <div className={styles.formCard}>
         <form className={styles.form} onSubmit={handleSubmit}>
-          {/* Bagian Info Utama */}
+          {/* Informasi Utama */}
           <div className={styles.formSection}>
             <h4>1. Informasi Utama</h4>
             <div className={styles.formGrid}>
@@ -136,7 +156,7 @@ const TambahPropertiContent = () => {
             <div className={styles.formGroup}><label>Deskripsi</label><textarea name="deskripsi" value={form.deskripsi} onChange={handleChange} rows="5"></textarea></div>
           </div>
 
-          {/* Bagian Lokasi & Detail */}
+          {/* Lokasi & Detail */}
           <div className={styles.formSection}>
             <h4>2. Lokasi & Detail</h4>
             <div className={styles.formGrid}>
@@ -150,7 +170,7 @@ const TambahPropertiContent = () => {
             </div>
           </div>
 
-          {/* Bagian Media */}
+          {/* Media */}
           <div className={styles.formSection}>
             <h4>3. Media (Foto/Video)</h4>
             <div className={styles.mediaUploader}>

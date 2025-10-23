@@ -1,4 +1,3 @@
-// src/pages/admin/content/components/DetailPropertyModal.jsx
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -6,21 +5,25 @@ import {
   FaInfoCircle, FaBed, FaBath, FaRulerCombined, FaHandshake, FaImage, FaExpand,
 } from "react-icons/fa";
 import styles from "./DetailPropertyModal.module.css";
+import { MEDIA_URL } from "../../../../../utils/constant";
 
+// Format harga ke Rupiah
 const formatPrice = (price) => {
   if (price === null || price === undefined) return "-";
   return new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", minimumFractionDigits: 0 }).format(price);
 };
 
+// Capitalize first letter
 const capitalize = (s) => (s ? s.charAt(0).toUpperCase() + s.slice(1) : '');
 
+// Modal Detail Properti Admin
 export default function DetailPropertyModal({ data, onClose, ownerName, postedAt }) {
   const [mainImage, setMainImage] = useState("");
   const [isLightboxOpen, setLightboxOpen] = useState(false);
 
   useEffect(() => {
     if (data?.media && data.media.length > 0) {
-      setMainImage(`http://localhost:3005/media/${data.media[0]}`);
+      setMainImage(`${MEDIA_URL}${data.media[0]}`);
     } else {
       setMainImage("");
     }
@@ -28,10 +31,12 @@ export default function DetailPropertyModal({ data, onClose, ownerName, postedAt
 
   if (!data) return null;
 
+  // Buka lightbox gambar
   const handleOpenLightbox = () => {
     if (mainImage) setLightboxOpen(true);
   };
 
+  // Gabungkan lokasi lengkap
   const fullLocation = [data.lokasi, data.desa, data.kecamatan, "Garut"].filter(Boolean).join(", ");
 
   return (
@@ -40,11 +45,13 @@ export default function DetailPropertyModal({ data, onClose, ownerName, postedAt
         <motion.div className={styles.backdrop} onClick={onClose} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
           <motion.div className={styles.modal} onClick={(e) => e.stopPropagation()} initial={{ y: -50, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 50, opacity: 0 }}>
             
+            {/* Header modal */}
             <div className={styles.header}>
               <h3>Detail Properti</h3>
               <button onClick={onClose} className={styles.closeButton}><FaTimes /></button>
             </div>
 
+            {/* Body modal */}
             <div className={styles.body}>
               <div className={styles.gallery}>
                 <div className={styles.mainImageWrapper}>
@@ -66,7 +73,7 @@ export default function DetailPropertyModal({ data, onClose, ownerName, postedAt
                 {data.media && data.media.length > 1 && (
                   <div className={styles.thumbnailGallery}>
                     {data.media.map((fileName) => {
-                      const imageUrl = `http://localhost:3005/media/${fileName}`;
+                      const imageUrl = `${MEDIA_URL}${fileName}`;
                       return (
                         <img
                           key={fileName}
@@ -81,6 +88,7 @@ export default function DetailPropertyModal({ data, onClose, ownerName, postedAt
                 )}
               </div>
 
+              {/* Konten detail */}
               <div className={styles.content}>
                 <div className={styles.titleSection}>
                   <h4>{data.namaProperti || "Nama Properti"}</h4>
@@ -114,6 +122,7 @@ export default function DetailPropertyModal({ data, onClose, ownerName, postedAt
               </div>
             </div>
 
+            {/* Footer modal */}
             <div className={styles.footer}>
               <button type="button" className={styles.closeBtnFooter} onClick={onClose}>Tutup</button>
             </div>
@@ -122,6 +131,7 @@ export default function DetailPropertyModal({ data, onClose, ownerName, postedAt
         </motion.div>
       </AnimatePresence>
 
+      {/* Lightbox gambar */}
       <AnimatePresence>
         {isLightboxOpen && (
           <motion.div className={styles.lightboxBackdrop} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setLightboxOpen(false)}>

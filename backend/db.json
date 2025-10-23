@@ -26,7 +26,9 @@
       "role": "user",
       "joinedAt": "14/10/2025 11:21:00",
       "verified": true,
-      "suspendedUntil": null
+      "suspendedUntil": null,
+      "banned": false,
+      "bannedAt": "22/10/2025 12:25:31"
     },
     {
       "id": "45d2",
@@ -40,8 +42,10 @@
       "alamat": "RT 05 / RW 03",
       "role": "user",
       "joinedAt": "20/10/2025 00:40:28",
-      "biodata": "",
-      "verified": true
+      "verified": true,
+      "suspendedUntil": null,
+      "banned": false,
+      "bannedAt": "22/10/2025 12:42:14"
     }
   ],
   "properties": [
@@ -75,6 +79,37 @@
         "lng": 0
       },
       "periodeSewa": ""
+    },
+    {
+      "id": "56c7",
+      "namaProperti": "Rumah Bagus",
+      "jenisProperti": "Jual",
+      "tipeProperti": "Rumah",
+      "lokasi": "Palih dinya",
+      "kecamatan": "KERSAMANAH",
+      "desa": "MEKARRAYA",
+      "harga": 12000000,
+      "luasTanah": 100,
+      "luasBangunan": 90,
+      "kamarTidur": 2,
+      "kamarMandi": 1,
+      "periodeAngka": "",
+      "periodeSatuan": "bulan",
+      "deskripsi": "Rumah nyaman ",
+      "media": [
+        "1760899575950-985871423.jpg",
+        "1760899575952-889413226.jpg",
+        "1760899575953-512327863.jpg"
+      ],
+      "ownerId": "45d2",
+      "statusPostingan": "approved",
+      "postedAt": "20/10/2025 01:46:15",
+      "koordinat": {
+        "lat": 0,
+        "lng": 0
+      },
+      "periodeSewa": "/1 bulan",
+      "userId": "3"
     },
     {
       "id": "5058",
@@ -228,6 +263,37 @@
       },
       "periodeSewa": "",
       "userId": "9c47"
+    },
+    {
+      "id": "1abb",
+      "namaProperti": "Villa Rancabango 2 Murah Meriah",
+      "jenisProperti": "Sewa",
+      "tipeProperti": "Rumah",
+      "lokasi": "Jl. Cimanuk No.45, Tarogong Kidul, Garut",
+      "kecamatan": "",
+      "desa": "",
+      "harga": 500000000,
+      "luasTanah": 240,
+      "luasBangunan": 239,
+      "kamarTidur": 1,
+      "kamarMandi": 21,
+      "periodeAngka": "2",
+      "periodeSatuan": "tahun",
+      "deskripsi": "Coba coba berhadiah",
+      "media": [
+        "1761143261895-445816966.png",
+        "1761143261976-387382894.png",
+        "1761143262001-843402598.png"
+      ],
+      "ownerId": "9c47",
+      "statusPostingan": "pending",
+      "postedAt": "22/10/2025 21:27:42",
+      "koordinat": {
+        "lat": 0,
+        "lng": 0
+      },
+      "periodeSewa": "/2 tahun",
+      "userId": "9c47"
     }
   ],
   "notifications": [
@@ -261,6 +327,14 @@
       "text": "Properti 'Villa Rancabango 2 Murah Meriah' Anda telah disetujui oleh admin.",
       "isRead": true,
       "createdAt": "2025-10-20T07:13:39.544Z",
+      "link": "/user/propertiaktif"
+    },
+    {
+      "id": "ca18",
+      "userId": "5",
+      "text": "Properti 'jows house' Anda telah disetujui oleh admin.",
+      "isRead": false,
+      "createdAt": "2025-10-22T04:52:33.704Z",
       "link": "/user/propertiaktif"
     },
     {
