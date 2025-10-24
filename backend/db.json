@@ -286,7 +286,7 @@
         "1761143262001-843402598.png"
       ],
       "ownerId": "9c47",
-      "statusPostingan": "pending",
+      "statusPostingan": "approved",
       "postedAt": "22/10/2025 21:27:42",
       "koordinat": {
         "lat": 0,
@@ -297,38 +297,6 @@
     }
   ],
   "notifications": [
-    {
-      "id": "ce8a",
-      "userId": "9c47",
-      "text": "Properti 'Rumah Impian 6' Anda telah disetujui oleh admin.",
-      "isRead": true,
-      "createdAt": "2025-10-20T03:20:45.984Z",
-      "link": "/user/propertiaktif"
-    },
-    {
-      "id": "288c",
-      "userId": "9c47",
-      "text": "Properti 'jows house' Anda telah ditolak oleh admin.",
-      "isRead": true,
-      "createdAt": "2025-10-20T03:53:43.487Z",
-      "link": "/user/propertiditolak"
-    },
-    {
-      "id": "81dd",
-      "userId": "9c47",
-      "text": "Properti 'jows house' Anda telah disetujui oleh admin.",
-      "isRead": true,
-      "createdAt": "2025-10-20T03:56:21.945Z",
-      "link": "/user/propertiaktif"
-    },
-    {
-      "id": "8c2f",
-      "userId": "9c47",
-      "text": "Properti 'Villa Rancabango 2 Murah Meriah' Anda telah disetujui oleh admin.",
-      "isRead": true,
-      "createdAt": "2025-10-20T07:13:39.544Z",
-      "link": "/user/propertiaktif"
-    },
     {
       "id": "ca18",
       "userId": "5",
@@ -416,22 +384,6 @@
       "isRead": true,
       "createdAt": "2025-10-22T17:31:35.788Z",
       "link": "/user/propertiditolak"
-    },
-    {
-      "id": "856c",
-      "userId": "9c47",
-      "text": "Properti 'Villa Rancabango 2 Murah Meriah' Anda telah ditolak oleh admin.",
-      "isRead": false,
-      "createdAt": "2025-10-23T03:26:48.446Z",
-      "link": "/user/propertiditolak"
-    },
-    {
-      "id": "c870",
-      "userId": "9c47",
-      "text": "Properti 'Villa Rancabango 2 Murah Meriah' Anda telah disetujui oleh admin.",
-      "isRead": false,
-      "createdAt": "2025-10-23T03:26:54.833Z",
-      "link": "/user/propertiaktif"
     }
   ]
 }

@@ -6,51 +6,34 @@ import Categories from '../components/Categories/Categories';
 import WhyChooseUs from '../components/WhyChooseUs/WhyChooseUs';
 import Faq from '../components/Faq/Faq';
 
-// Fungsi bantuan untuk mengubah string tanggal (DD/MM/YYYY HH:mm:ss atau ISO)
+// Fungsi bantu untuk ubah string tanggal ke objek Date
 const parseCustomDate = (dateString) => {
-    if (!dateString || typeof dateString !== 'string') return null;
-    
-    // Coba parse format ISO dulu (lebih standar)
-    if (dateString.includes('T') && dateString.includes('Z')) {
-        const date = new Date(dateString);
-        return isNaN(date.getTime()) ? null : date;
-    }
-    
-    // Coba parse format DD/MM/YYYY HH:mm:ss
-    const dateTimeParts = dateString.split(' ');
-    if (dateTimeParts.length !== 2) return null; 
+  if (!dateString || typeof dateString !== 'string') return null;
 
-    const datePart = dateTimeParts[0];
-    const timePart = dateTimeParts[1];
+  // Format ISO (2025-10-24T10:00:00Z)
+  if (dateString.includes('T') && dateString.includes('Z')) {
+    const date = new Date(dateString);
+    return isNaN(date.getTime()) ? null : date;
+  }
 
-    const dateParts = datePart.split('/');
-    if (dateParts.length !== 3) return null;
-    const day = parseInt(dateParts[0], 10);
-    const month = parseInt(dateParts[1], 10); 
-    const year = parseInt(dateParts[2], 10);
+  // Format DD/MM/YYYY HH:mm:ss
+  const [datePart, timePart] = dateString.split(' ');
+  if (!datePart || !timePart) return null;
 
-    const timeParts = timePart.split(':');
-    if (timeParts.length !== 3) return null;
-    const hours = parseInt(timeParts[0], 10);
-    const minutes = parseInt(timeParts[1], 10);
-    const seconds = parseInt(timeParts[2], 10);
+  const [day, month, year] = datePart.split('/').map(Number);
+  const [hours, minutes, seconds] = timePart.split(':').map(Number);
 
-    if (isNaN(day) || isNaN(month) || isNaN(year) || isNaN(hours) || isNaN(minutes) || isNaN(seconds)) {
-        return null;
-    }
-    if (month < 1 || month > 12 || day < 1 || day > 31 || hours < 0 || hours > 23 || minutes < 0 || minutes > 59 || seconds < 0 || seconds > 59) {
-        return null; 
-    }
+  if (
+    [day, month, year, hours, minutes, seconds].some(isNaN) ||
+    month < 1 ||
+    month > 12 ||
+    day < 1 ||
+    day > 31
+  )
+    return null;
 
-    try {
-        // Urutan: YYYY, MM-1, DD, HH, mm, ss
-        return new Date(year, month - 1, day, hours, minutes, seconds);
-    } catch (e) {
-        console.error("Gagal membuat Date di HomePage:", e, "dari string:", dateString);
-        return null; 
-    }
+  return new Date(year, month - 1, day, hours, minutes, seconds);
 };
-
 
 const HomePage = () => {
   const [latestProperties, setLatestProperties] = useState([]);
@@ -58,40 +41,40 @@ const HomePage = () => {
 
   useEffect(() => {
     setLoading(true);
-    // Ambil SEMUA properti (hapus _limit)
-    fetch('http://localhost:3004/properties') 
-      .then(res => res.json())
-      .then(data => {
-        // Urutkan SEMUA data
-        const sortedData = [...data].sort((a, b) => {
-            const dateA = parseCustomDate(a.postedAt);
-            const dateB = parseCustomDate(b.postedAt);
-            
-            // Handle tanggal null/tidak valid
-            if (!dateA && !dateB) return 0; 
-            if (!dateA) return 1;  
-            if (!dateB) return -1; 
+    fetch('http://localhost:3004/properties')
+      .then((res) => res.json())
+      .then((data) => {
+        // 1️⃣ Filter hanya yang statusPostingan = "approved"
+        const approvedData = data.filter(
+          (item) => item.statusPostingan?.toLowerCase() === 'approved'
+        );
 
-            // Urutkan descending (terbaru dulu)
-            return dateB.getTime() - dateA.getTime(); 
+        // 2️⃣ Urutkan berdasarkan postedAt terbaru
+        const sortedData = approvedData.sort((a, b) => {
+          const dateA = parseCustomDate(a.postedAt);
+          const dateB = parseCustomDate(b.postedAt);
+
+          if (!dateA && !dateB) return 0;
+          if (!dateA) return 1;
+          if (!dateB) return -1;
+
+          return dateB.getTime() - dateA.getTime(); // terbaru dulu
         });
-        
-        // Ambil 6 teratas SETELAH diurutkan
-        const topSix = sortedData.slice(0, 6); 
-        
-        console.log("Top 6 Highlight setelah diurutkan:", topSix); // Untuk Debugging
-        setLatestProperties(topSix); // Simpan hanya 6 teratas
+
+        // 3️⃣ Ambil 6 teratas
+        const topSix = sortedData.slice(0, 6);
+
+        console.log("Top 6 Properti Approved:", topSix);
+        setLatestProperties(topSix);
       })
-      .catch(error => console.error("Gagal mengambil properti terbaru:", error))
+      .catch((error) => console.error("Gagal mengambil properti:", error))
       .finally(() => setLoading(false));
-  }, []); // Hanya berjalan sekali
+  }, []);
 
   return (
     <>
       <Hero />
-      {!loading && ( 
-        <HighlightProperti properties={latestProperties} />
-      )}
+      {!loading && <HighlightProperti properties={latestProperties} />}
       <Categories />
       <WhyChooseUs />
       <Faq />
