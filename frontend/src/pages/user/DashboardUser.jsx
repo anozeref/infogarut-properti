@@ -206,29 +206,47 @@ export default function DashboardUser() {
 
   // === Clear notifikasi ===
   const handleClearNotifications = async () => {
-    const unreadNotifs = notifications.filter((n) => !n.isRead);
-    if (unreadNotifs.length === 0) return;
+  if (!user?.id) return;
 
-    const patchPromises = unreadNotifs.map((notif) =>
-      axios.patch(`${API_BASE_URL}/notifications/${notif.id}`, {
-        isRead: true,
-      })
+  try {
+    // Ambil semua notifikasi milik user
+    const res = await axios.get(`${API_BASE_URL}/notifications?userId=${user.id}`);
+    const userNotifs = res.data;
+
+    if (userNotifs.length === 0) return;
+
+    // Hapus satu per satu (karena JSON Server belum dukung bulk delete)
+    await Promise.all(
+      userNotifs.map((notif) =>
+        axios.delete(`${API_BASE_URL}/notifications/${notif.id}`)
+      )
     );
 
-    try {
-      await Promise.all(patchPromises);
-      fetchNotifications();
-    } catch (err) {
-      console.error("Gagal menandai notifikasi sebagai dibaca:", err);
-      Swal.fire({
-        icon: "error",
-        title: "Gagal",
-        text: "Tidak dapat membersihkan notifikasi saat ini.",
-        background: darkMode ? "#1e1e1e" : "#fff",
-        color: darkMode ? "#eee" : "#333",
-      });
-    }
-  };
+    // Kosongkan state agar UI langsung bersih
+    setNotifications([]);
+
+    Swal.fire({
+      toast: true,
+      position: "top-end",
+      icon: "success",
+      title: "Semua notifikasi berhasil dibersihkan!",
+      showConfirmButton: false,
+      timer: 2500,
+      background: darkMode ? "#1e1e1e" : "#fff",
+      color: darkMode ? "#eee" : "#333",
+    });
+  } catch (err) {
+    console.error("Gagal menghapus notifikasi:", err);
+    Swal.fire({
+      icon: "error",
+      title: "Gagal",
+      text: "Tidak dapat membersihkan notifikasi.",
+      background: darkMode ? "#1e1e1e" : "#fff",
+      color: darkMode ? "#eee" : "#333",
+    });
+  }
+};
+
 
   const toggleTheme = () => setDarkMode((prev) => !prev);
   const handleAddProperty = () => navigate("/user/tambahproperty");
