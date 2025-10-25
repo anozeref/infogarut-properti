@@ -46,6 +46,19 @@
       "suspendedUntil": null,
       "banned": false,
       "bannedAt": "23/10/2025 10:28:08"
+    },
+    {
+      "id": "c6e1",
+      "nama": "ajie raka",
+      "username": "ajie123",
+      "email": "adjieraka006@gmail.com",
+      "password": "ajie123",
+      "no_hp": "08175053511",
+      "kecamatan": "Garut Kota",
+      "desa": "Margawat",
+      "alamat": "Buana Resindence No.3",
+      "role": "user",
+      "joinedAt": "25/10/2025 09:59:14"
     }
   ],
   "properties": [
@@ -266,7 +279,7 @@
     },
     {
       "id": "1abb",
-      "namaProperti": "Villa Rancabango 2 Murah Meriah",
+      "namaProperti": "Villa Rancabango 2 Murah Mahal",
       "jenisProperti": "Sewa",
       "tipeProperti": "Rumah",
       "lokasi": "Jl. Cimanuk No.45, Tarogong Kidul, Garut",
@@ -286,7 +299,7 @@
         "1761143262001-843402598.png"
       ],
       "ownerId": "9c47",
-      "statusPostingan": "approved",
+      "statusPostingan": "pending",
       "postedAt": "22/10/2025 21:27:42",
       "koordinat": {
         "lat": 0,
@@ -294,6 +307,100 @@
       },
       "periodeSewa": "/2 tahun",
       "userId": "9c47"
+    },
+    {
+      "id": "9ecc",
+      "namaProperti": "Kost Bagendit Indah",
+      "jenisProperti": "Sewa",
+      "tipeProperti": "Rumah",
+      "lokasi": "Jl. Ibrahim Adjie No. 960",
+      "kecamatan": "GARUT KOTA",
+      "desa": "MARGAWATI",
+      "harga": 10000000,
+      "luasTanah": 100,
+      "luasBangunan": 85,
+      "kamarTidur": 5,
+      "kamarMandi": 2,
+      "periodeAngka": "10",
+      "periodeSatuan": "bulan",
+      "deskripsi": "Kontrakan nyaman",
+      "media": [
+        "1761361239803-49305167.avif",
+        "1761361239803-489819650.avif",
+        "1761361239804-756564103.avif",
+        "1761361239804-642593276.avif"
+      ],
+      "ownerId": "c6e1",
+      "statusPostingan": "approved",
+      "postedAt": "25/10/2025 10:00:39",
+      "koordinat": {
+        "lat": 0,
+        "lng": 0
+      },
+      "periodeSewa": "/10 bulan",
+      "userId": "c6e1"
+    },
+    {
+      "id": "7d91",
+      "namaProperti": "Kost Bagendit Indah",
+      "jenisProperti": "Jual",
+      "tipeProperti": "Rumah",
+      "lokasi": "Jl. Ibrahim Adjie No. 960",
+      "kecamatan": "BANJARWANGI",
+      "desa": "TALAGAJAYA",
+      "harga": 10000000,
+      "luasTanah": 100,
+      "luasBangunan": 85,
+      "kamarTidur": 5,
+      "kamarMandi": 2,
+      "periodeAngka": "",
+      "periodeSatuan": "bulan",
+      "deskripsi": "Rumah bagus",
+      "media": [
+        "1761369024058-219635140.avif",
+        "1761369024060-582783299.avif",
+        "1761369024062-184453429.avif"
+      ],
+      "ownerId": "45d2",
+      "statusPostingan": "approved",
+      "postedAt": "25/10/2025 12:10:24",
+      "koordinat": {
+        "lat": 0,
+        "lng": 0
+      },
+      "periodeSewa": "",
+      "userId": "45d2"
+    },
+    {
+      "id": "0393",
+      "namaProperti": "Rumah Idaman",
+      "jenisProperti": "Jual",
+      "tipeProperti": "Rumah",
+      "lokasi": "Jl. Ibrahim Adjie No. 960",
+      "kecamatan": "",
+      "desa": "",
+      "harga": 10000000,
+      "luasTanah": 100,
+      "luasBangunan": 85,
+      "kamarTidur": 5,
+      "kamarMandi": 2,
+      "periodeAngka": "",
+      "periodeSatuan": "bulan",
+      "deskripsi": "",
+      "media": [
+        "1761369111643-194273179.avif",
+        "1761369111643-72726851.avif",
+        "1761369111644-392254386.avif"
+      ],
+      "ownerId": "45d2",
+      "statusPostingan": "rejected",
+      "postedAt": "25/10/2025 12:11:51",
+      "koordinat": {
+        "lat": 0,
+        "lng": 0
+      },
+      "periodeSewa": "",
+      "userId": "45d2"
     }
   ],
   "notifications": [
@@ -383,6 +490,38 @@
       "text": "Properti 'tes123' Anda telah ditolak oleh admin.",
       "isRead": true,
       "createdAt": "2025-10-22T17:31:35.788Z",
+      "link": "/user/propertiditolak"
+    },
+    {
+      "id": "fae0",
+      "userId": "5",
+      "text": "Properti 'Villa Rancabango 2 Murah Meriah' Anda telah disetujui oleh admin.",
+      "isRead": false,
+      "createdAt": "2025-10-25T02:56:50.245Z",
+      "link": "/user/propertiaktif"
+    },
+    {
+      "id": "9858",
+      "userId": "c6e1",
+      "text": "Properti 'Kost Bagendit Indah' Anda telah disetujui oleh admin.",
+      "isRead": false,
+      "createdAt": "2025-10-25T03:01:22.726Z",
+      "link": "/user/propertiaktif"
+    },
+    {
+      "id": "0fa0",
+      "userId": "45d2",
+      "text": "Properti 'Kost Bagendit Indah' Anda telah disetujui oleh admin.",
+      "isRead": false,
+      "createdAt": "2025-10-25T05:11:20.049Z",
+      "link": "/user/propertiaktif"
+    },
+    {
+      "id": "b37c",
+      "userId": "45d2",
+      "text": "Properti 'Rumah Idaman' Anda telah ditolak oleh admin.",
+      "isRead": false,
+      "createdAt": "2025-10-25T05:11:58.829Z",
       "link": "/user/propertiditolak"
     }
   ]
